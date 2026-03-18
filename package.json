@@ -4,18 +4,19 @@
   "description": "CLI Markdown viewer with Mermaid support and live reload",
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json",
+    "build": "tsc -p tsconfig.json && node esbuild.config.mjs",
     "start": "npm run build && electron dist/main.js",
-    "dev": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json && electron dist/main.js",
+    "dev": "npm run build && electron dist/main.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
     "pack": "electron-builder --mac"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "electron": "^35.0.0",
     "electron-builder": "^25.0.0",
+    "esbuild": "^0.27.4",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
   },
