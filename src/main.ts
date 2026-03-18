@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, dialog, shell } from "electron";
 import { watch, type FSWatcher } from "chokidar";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, realpathSync } from "node:fs";
 import { resolve, join, basename } from "node:path";
@@ -226,6 +226,27 @@ function createWindow(): BrowserWindow {
   windows.set(win, { html: "", watcher: null, filePath: null });
 
   win.loadFile(join(__dirname, "renderer", "index.html"));
+
+  win.webContents.on("will-navigate", (event, url) => {
+    event.preventDefault();
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+        shell.openExternal(url);
+      }
+    } catch {}
+  });
+
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+        shell.openExternal(url);
+      }
+    } catch {}
+    return { action: "deny" };
+  });
+
   win.on("resize", () => saveWindowState(win));
   win.on("move", () => saveWindowState(win));
   win.on("closed", () => {

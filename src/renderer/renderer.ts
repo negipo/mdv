@@ -1,4 +1,5 @@
 import mermaid from "mermaid";
+import DOMPurify from "dompurify";
 
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
@@ -31,7 +32,7 @@ function attachMermaidClickHandlers() {
 }
 
 async function renderContent(html: string) {
-  contentEl.innerHTML = html;
+  contentEl.innerHTML = DOMPurify.sanitize(html);
 
   const mermaidEls = contentEl.querySelectorAll<HTMLElement>("pre.mermaid");
   if (mermaidEls.length > 0) {
