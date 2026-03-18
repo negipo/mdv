@@ -1,3 +1,4 @@
 #!/bin/bash
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
-exec npx electron "$DIR/dist/main.js" "$@"
+npx electron "$DIR/dist/main.js" "$@" &>/dev/null &
+disown
