@@ -1,24 +1,28 @@
 import { app, BrowserWindow, ipcMain, Menu, dialog } from "electron";
 import { watch, type FSWatcher } from "chokidar";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, realpathSync } from "node:fs";
 import { resolve, join, basename } from "node:path";
 import { renderMarkdown } from "./markdown";
 
-let mainWindow: BrowserWindow | null = null;
-let currentHtml = "";
-let currentWatcher: FSWatcher | null = null;
-
-const configDir = join(app.getPath("userData"), "mdv");
-const configPath = join(configDir, "window-state.json");
-
-interface WindowState {
+interface PersistedWindowState {
   width: number;
   height: number;
   x?: number;
   y?: number;
 }
 
-function loadWindowState(): WindowState {
+interface WindowContext {
+  html: string;
+  watcher: FSWatcher | null;
+  filePath: string | null;
+}
+
+const windows = new Map<BrowserWindow, WindowContext>();
+
+const configDir = join(app.getPath("userData"), "mdv");
+const configPath = join(configDir, "window-state.json");
+
+function loadWindowState(): PersistedWindowState {
   try {
     if (existsSync(configPath)) {
       return JSON.parse(readFileSync(configPath, "utf-8"));
@@ -27,10 +31,10 @@ function loadWindowState(): WindowState {
   return { width: 900, height: 700 };
 }
 
-function saveWindowState() {
-  if (!mainWindow) return;
-  const bounds = mainWindow.getBounds();
-  const state: WindowState = {
+function saveWindowState(win: BrowserWindow) {
+  if (win.isDestroyed()) return;
+  const bounds = win.getBounds();
+  const state: PersistedWindowState = {
     width: bounds.width,
     height: bounds.height,
     x: bounds.x,
@@ -44,10 +48,10 @@ function saveWindowState() {
   } catch {}
 }
 
-function getFilePathFromArgs(): string | null {
-  const args = process.argv.slice(app.isPackaged ? 1 : 2);
+function getFilePathFromArgv(argv: string[], workingDirectory: string): string | null {
+  const args = argv.slice(app.isPackaged ? 1 : 2);
   const filePath = args.find((arg) => !arg.startsWith("-") && !arg.startsWith("--"));
-  return filePath ? resolve(filePath) : null;
+  return filePath ? resolve(workingDirectory, filePath) : null;
 }
 
 function loadAndRender(filePath: string): string {
@@ -55,34 +59,71 @@ function loadAndRender(filePath: string): string {
   return renderMarkdown(markdown);
 }
 
-function openFile(filePath: string) {
-  if (currentWatcher) {
-    currentWatcher.close();
-    currentWatcher = null;
+function openFile(win: BrowserWindow, filePath: string) {
+  const ctx = windows.get(win);
+  if (!ctx) return;
+
+  if (ctx.watcher) {
+    ctx.watcher.close();
+    ctx.watcher = null;
   }
 
-  currentHtml = loadAndRender(filePath);
-  mainWindow?.webContents.send("markdown:update", currentHtml);
-  mainWindow?.setTitle(`mdv - ${basename(filePath)}`);
+  ctx.filePath = filePath;
+  ctx.html = loadAndRender(filePath);
+  win.webContents.send("markdown:update", ctx.html);
+  win.setTitle(`mdv - ${basename(filePath)}`);
 
-  currentWatcher = watch(filePath, {
+  ctx.watcher = watch(filePath, {
     persistent: true,
     awaitWriteFinish: { stabilityThreshold: 100, pollInterval: 50 },
   });
 
-  currentWatcher.on("change", () => {
-    currentHtml = loadAndRender(filePath);
-    mainWindow?.webContents.send("markdown:update", currentHtml);
+  ctx.watcher.on("change", () => {
+    if (win.isDestroyed()) return;
+    ctx.html = loadAndRender(filePath);
+    win.webContents.send("markdown:update", ctx.html);
   });
 }
 
+function findWindowByPath(filePath: string): BrowserWindow | null {
+  for (const [win, ctx] of windows) {
+    if (ctx.filePath === filePath) return win;
+  }
+  return null;
+}
+
+function focusWindow(win: BrowserWindow) {
+  if (win.isMinimized()) win.restore();
+  app.focus({ steal: true });
+  win.focus();
+}
+
+function openOrFocusFile(filePath: string) {
+  let normalized: string;
+  try {
+    normalized = realpathSync(filePath);
+  } catch {
+    dialog.showErrorBox("ファイルを開けません", `${filePath} が見つかりません`);
+    return;
+  }
+  const existing = findWindowByPath(normalized);
+  if (existing) {
+    focusWindow(existing);
+    return;
+  }
+  const win = createWindow();
+  openFile(win, normalized);
+}
+
 async function showOpenDialog() {
+  app.focus({ steal: true });
   const result = await dialog.showOpenDialog({
     properties: ["openFile"],
+    defaultPath: "/",
     filters: [{ name: "Markdown", extensions: ["md", "markdown", "txt"] }],
   });
   if (!result.canceled && result.filePaths.length > 0) {
-    openFile(result.filePaths[0]);
+    openOrFocusFile(result.filePaths[0]);
   }
 }
 
@@ -143,9 +184,9 @@ function buildMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-function createWindow() {
+function createWindow(): BrowserWindow {
   const state = loadWindowState();
-  mainWindow = new BrowserWindow({
+  const win = new BrowserWindow({
     width: state.width,
     height: state.height,
     x: state.x,
@@ -158,50 +199,83 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile(join(__dirname, "renderer", "index.html"));
-  mainWindow.on("resize", saveWindowState);
-  mainWindow.on("move", saveWindowState);
-  mainWindow.on("closed", () => {
-    mainWindow = null;
+  windows.set(win, { html: "", watcher: null, filePath: null });
+
+  win.loadFile(join(__dirname, "renderer", "index.html"));
+  win.on("resize", () => saveWindowState(win));
+  win.on("move", () => saveWindowState(win));
+  win.on("closed", () => {
+    const ctx = windows.get(win);
+    if (ctx?.watcher) {
+      ctx.watcher.close();
+    }
+    windows.delete(win);
   });
+
+  return win;
 }
+
+const pendingFilePaths: string[] = [];
 
 app.on("open-file", (event, path) => {
   event.preventDefault();
-  if (mainWindow) {
-    openFile(path);
+  if (app.isReady()) {
+    openOrFocusFile(path);
   } else {
-    app.whenReady().then(() => {
-      if (!mainWindow) {
-        createWindow();
-      }
-      openFile(path);
-    });
+    pendingFilePaths.push(path);
   }
 });
 
-app.whenReady().then(() => {
-  buildMenu();
-  createWindow();
+const gotTheLock = app.requestSingleInstanceLock();
 
-  ipcMain.on("markdown:request-initial", (event) => {
-    event.sender.send("markdown:update", currentHtml);
-  });
-
-  const filePath = getFilePathFromArgs();
-  if (filePath) {
-    openFile(filePath);
-  }
-
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on("second-instance", (_event, argv, workingDirectory) => {
+    const filePath = getFilePathFromArgv(argv, workingDirectory);
+    if (filePath) {
+      openOrFocusFile(filePath);
+    } else {
+      showOpenDialog();
     }
   });
-});
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
-});
+  app.whenReady().then(() => {
+    buildMenu();
+
+    ipcMain.on("markdown:request-initial", (event) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      if (!win) return;
+      const ctx = windows.get(win);
+      if (ctx) {
+        event.sender.send("markdown:update", ctx.html);
+      }
+    });
+
+    if (pendingFilePaths.length > 0) {
+      for (const p of pendingFilePaths) {
+        openOrFocusFile(p);
+      }
+      pendingFilePaths.length = 0;
+    } else {
+      const filePath = getFilePathFromArgv(process.argv, process.cwd());
+      if (filePath) {
+        openOrFocusFile(filePath);
+      } else {
+        showOpenDialog();
+      }
+    }
+
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        showOpenDialog();
+      }
+    });
+  });
+
+  app.on("window-all-closed", () => {
+    if (process.platform !== "darwin") {
+      app.quit();
+    }
+  });
+}
