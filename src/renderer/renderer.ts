@@ -15,6 +15,12 @@ overlay.addEventListener("click", () => {
   overlay.classList.remove("active");
 });
 
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && overlay.classList.contains("active")) {
+    overlay.classList.remove("active");
+  }
+});
+
 function attachMermaidClickHandlers() {
   contentEl.querySelectorAll<HTMLElement>("pre.mermaid").forEach((el) => {
     el.addEventListener("click", () => {

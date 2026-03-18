@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc -p tsconfig.json --noEmit",
-    "pack": "electron-builder --mac"
+    "pack": "electron-builder --mac",
+    "install:local": "npm run build && npm run pack && sudo rm -rf /Applications/mdv.app && sudo cp -R dist/mac-arm64/mdv.app /Applications/ && sudo ln -sf /Applications/mdv.app/Contents/Resources/bin/mdv /usr/local/bin/mdv"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

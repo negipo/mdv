@@ -21,6 +21,7 @@ const windows = new Map<BrowserWindow, WindowContext>();
 
 const configDir = join(app.getPath("userData"), "mdv");
 const configPath = join(configDir, "window-state.json");
+const sessionPath = join(configDir, "session.json");
 
 function loadWindowState(): PersistedWindowState {
   try {
@@ -48,6 +49,28 @@ function saveWindowState(win: BrowserWindow) {
   } catch {}
 }
 
+function saveSession() {
+  const filePaths: string[] = [];
+  for (const [, ctx] of windows) {
+    if (ctx.filePath) filePaths.push(ctx.filePath);
+  }
+  try {
+    if (!existsSync(configDir)) {
+      mkdirSync(configDir, { recursive: true });
+    }
+    writeFileSync(sessionPath, JSON.stringify(filePaths));
+  } catch {}
+}
+
+function loadSession(): string[] {
+  try {
+    if (existsSync(sessionPath)) {
+      return JSON.parse(readFileSync(sessionPath, "utf-8"));
+    }
+  } catch {}
+  return [];
+}
+
 function getFilePathFromArgv(argv: string[], workingDirectory: string): string | null {
   const args = argv.slice(app.isPackaged ? 1 : 2);
   const filePath = args.find((arg) => !arg.startsWith("-") && !arg.startsWith("--"));
@@ -72,6 +95,7 @@ function openFile(win: BrowserWindow, filePath: string) {
   ctx.html = loadAndRender(filePath);
   win.webContents.send("markdown:update", ctx.html);
   win.setTitle(`mdv - ${basename(filePath)}`);
+  saveSession();
 
   ctx.watcher = watch(filePath, {
     persistent: true,
@@ -262,7 +286,17 @@ if (!gotTheLock) {
       if (filePath) {
         openOrFocusFile(filePath);
       } else {
-        showOpenDialog();
+        const sessionFiles = loadSession();
+        if (sessionFiles.length > 0) {
+          for (const p of sessionFiles) {
+            if (existsSync(p)) {
+              openOrFocusFile(p);
+            }
+          }
+        }
+        if (BrowserWindow.getAllWindows().length === 0) {
+          showOpenDialog();
+        }
       }
     }
 
@@ -271,6 +305,10 @@ if (!gotTheLock) {
         showOpenDialog();
       }
     });
+  });
+
+  app.on("before-quit", () => {
+    saveSession();
   });
 
   app.on("window-all-closed", () => {
