@@ -1,4 +1,0 @@
-#!/bin/bash
-DIR="$(cd "$(dirname "$0")/.." && pwd)"
-npx electron "$DIR/dist/main.js" "$@" &>/dev/null &
-disown
