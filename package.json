@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "CLI Markdown viewer with Mermaid support and live reload",
   "main": "dist/main.js",
+  "bin": {
+    "mdv": "./bin/mdv"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json && node esbuild.config.mjs",
     "start": "npm run build && electron dist/main.js",
