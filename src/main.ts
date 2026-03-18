@@ -1,11 +1,47 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { watch } from "chokidar";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { renderMarkdown } from "./markdown";
 
 let mainWindow: BrowserWindow | null = null;
 let currentHtml = "";
+
+const configDir = join(app.getPath("userData"), "mdv");
+const configPath = join(configDir, "window-state.json");
+
+interface WindowState {
+  width: number;
+  height: number;
+  x?: number;
+  y?: number;
+}
+
+function loadWindowState(): WindowState {
+  try {
+    if (existsSync(configPath)) {
+      return JSON.parse(readFileSync(configPath, "utf-8"));
+    }
+  } catch {}
+  return { width: 900, height: 700 };
+}
+
+function saveWindowState() {
+  if (!mainWindow) return;
+  const bounds = mainWindow.getBounds();
+  const state: WindowState = {
+    width: bounds.width,
+    height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
+  };
+  try {
+    if (!existsSync(configDir)) {
+      mkdirSync(configDir, { recursive: true });
+    }
+    writeFileSync(configPath, JSON.stringify(state));
+  } catch {}
+}
 
 function getFilePath(): string {
   const args = process.argv.slice(app.isPackaged ? 1 : 2);
@@ -23,9 +59,12 @@ function loadAndRender(filePath: string): string {
 }
 
 function createWindow() {
+  const state = loadWindowState();
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 700,
+    width: state.width,
+    height: state.height,
+    x: state.x,
+    y: state.y,
     title: "mdv",
     webPreferences: {
       preload: join(__dirname, "preload.js"),
@@ -35,6 +74,8 @@ function createWindow() {
   });
 
   mainWindow.loadFile(join(__dirname, "renderer", "index.html"));
+  mainWindow.on("resize", saveWindowState);
+  mainWindow.on("move", saveWindowState);
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
