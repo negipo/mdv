@@ -4,6 +4,23 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, realpathSync } from
 import { resolve, join, basename } from "node:path";
 import { renderMarkdown } from "./markdown";
 
+function openExternalIfSafe(url: string) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+      shell.openExternal(url);
+    }
+  } catch {}
+}
+
+function debounce<T extends (...args: any[]) => void>(fn: T, ms: number): T {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  return ((...args: any[]) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  }) as T;
+}
+
 interface PersistedWindowState {
   width: number;
   height: number;
@@ -42,9 +59,7 @@ function saveWindowState(win: BrowserWindow) {
     y: bounds.y,
   };
   try {
-    if (!existsSync(configDir)) {
-      mkdirSync(configDir, { recursive: true });
-    }
+    mkdirSync(configDir, { recursive: true });
     writeFileSync(configPath, JSON.stringify(state));
   } catch {}
 }
@@ -55,9 +70,7 @@ function saveSession() {
     if (ctx.filePath) filePaths.push(ctx.filePath);
   }
   try {
-    if (!existsSync(configDir)) {
-      mkdirSync(configDir, { recursive: true });
-    }
+    mkdirSync(configDir, { recursive: true });
     writeFileSync(sessionPath, JSON.stringify(filePaths));
   } catch {}
 }
@@ -229,26 +242,17 @@ function createWindow(): BrowserWindow {
 
   win.webContents.on("will-navigate", (event, url) => {
     event.preventDefault();
-    try {
-      const parsed = new URL(url);
-      if (parsed.protocol === "https:" || parsed.protocol === "http:") {
-        shell.openExternal(url);
-      }
-    } catch {}
+    openExternalIfSafe(url);
   });
 
   win.webContents.setWindowOpenHandler(({ url }) => {
-    try {
-      const parsed = new URL(url);
-      if (parsed.protocol === "https:" || parsed.protocol === "http:") {
-        shell.openExternal(url);
-      }
-    } catch {}
+    openExternalIfSafe(url);
     return { action: "deny" };
   });
 
-  win.on("resize", () => saveWindowState(win));
-  win.on("move", () => saveWindowState(win));
+  const debouncedSave = debounce(() => saveWindowState(win), 500);
+  win.on("resize", debouncedSave);
+  win.on("move", debouncedSave);
   win.on("closed", () => {
     const ctx = windows.get(win);
     if (ctx?.watcher) {

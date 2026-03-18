@@ -25,7 +25,7 @@ document.addEventListener("keydown", (e) => {
 function attachMermaidClickHandlers() {
   contentEl.querySelectorAll<HTMLElement>("pre.mermaid").forEach((el) => {
     el.addEventListener("click", () => {
-      overlayContent.innerHTML = el.innerHTML;
+      overlayContent.innerHTML = DOMPurify.sanitize(el.innerHTML);
       overlay.classList.add("active");
     });
   });
