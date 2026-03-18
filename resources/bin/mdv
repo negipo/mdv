@@ -1,5 +1,6 @@
 #!/bin/bash
-CONTENTS="$(cd "$(dirname "$0")/../.." && pwd)"
+REAL_PATH="$(readlink -f "$0")"
+CONTENTS="$(cd "$(dirname "$REAL_PATH")/../.." && pwd)"
 ELECTRON="$CONTENTS/MacOS/mdv"
 "$ELECTRON" "$@" &>/dev/null &
 disown
