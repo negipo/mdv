@@ -1,5 +1,7 @@
 # mdv
 
+![mdv icon](resources/icon.png)
+
 CLIから起動できるMarkdownビューア。Mermaidダイアグラムのレンダリングとファイル変更時の自動更新に対応。
 
 ## インストール

@@ -30,7 +30,8 @@
     "appId": "com.negipo.mdv",
     "productName": "mdv",
     "mac": {
-      "target": "dir"
+      "target": "dir",
+      "icon": "resources/icon.icns"
     },
     "files": [
       "dist/**/*",
