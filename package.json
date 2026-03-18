@@ -1,0 +1,38 @@
+{
+  "name": "mdv",
+  "version": "0.1.0",
+  "description": "CLI Markdown viewer with Mermaid support and live reload",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json",
+    "start": "npm run build && electron dist/main.js",
+    "dev": "tsc -p tsconfig.json && tsc -p tsconfig.renderer.json && electron dist/main.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "pack": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "electron": "^35.0.0",
+    "electron-builder": "^25.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.0",
+    "marked": "^15.0.0",
+    "mermaid": "^11.0.0"
+  },
+  "build": {
+    "appId": "com.negipo.mdv",
+    "productName": "mdv",
+    "mac": {
+      "target": "dir"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*"
+    ]
+  }
+}
