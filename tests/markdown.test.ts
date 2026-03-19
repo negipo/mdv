@@ -1,5 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { renderMarkdown } from "../src/markdown";
+import { describe, it, expect, beforeAll } from "vitest";
+import { renderMarkdown, initHighlighter } from "../src/markdown";
+
+beforeAll(async () => {
+  await initHighlighter();
+});
 
 describe("renderMarkdown", () => {
   it("見出しをHTMLに変換する", () => {
@@ -7,10 +11,11 @@ describe("renderMarkdown", () => {
     expect(result).toContain("<h1>Hello</h1>");
   });
 
-  it("コードブロックをHTMLに変換する", () => {
+  it("コードブロックをシンタックスハイライト付きHTMLに変換する", () => {
     const result = renderMarkdown("```js\nconst x = 1;\n```");
-    expect(result).toContain("<code");
-    expect(result).toContain("const x = 1;");
+    expect(result).toContain("shiki");
+    expect(result).toContain("const");
+    expect(result).toContain("1");
   });
 
   it("mermaidコードブロックをmermaidクラス付きpre要素に変換する", () => {

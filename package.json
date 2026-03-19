@@ -26,7 +26,8 @@
     "chokidar": "^4.0.0",
     "dompurify": "^3.3.3",
     "marked": "^15.0.0",
-    "mermaid": "^11.0.0"
+    "mermaid": "^11.0.0",
+    "shiki": "^4.0.2"
   },
   "build": {
     "appId": "com.negipo.mdv",

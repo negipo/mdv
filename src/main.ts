@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, Menu, dialog, shell } from "electron";
 import { watch, type FSWatcher } from "chokidar";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, realpathSync } from "node:fs";
 import { resolve, join, basename } from "node:path";
-import { renderMarkdown } from "./markdown";
+import { renderMarkdown, initHighlighter } from "./markdown";
 
 function openExternalIfSafe(url: string) {
   try {
@@ -289,7 +289,8 @@ if (!gotTheLock) {
     }
   });
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
+    await initHighlighter();
     buildMenu();
 
     ipcMain.on("markdown:request-initial", (event) => {
