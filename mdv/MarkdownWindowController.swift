@@ -30,6 +30,8 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         let window = NSWindow(contentRect: rect, styleMask: styleMask, backing: .buffered, defer: false)
         window.title = "mdv"
         window.isReleasedWhenClosed = false
+        window.tabbingMode = .preferred
+        window.tabbingIdentifier = "mdv-markdown"
 
         super.init(window: window)
 
