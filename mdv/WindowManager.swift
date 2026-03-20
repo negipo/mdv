@@ -49,7 +49,16 @@ class WindowManager {
         }
         controllers[resolved] = controller
         controller.openFile(path: resolved)
-        controller.showWindow(nil)
+
+        if let existingController = controllers.values.first(where: { $0.window?.tabbingIdentifier == "mdv-markdown" && $0 !== controller }),
+           let existingWindow = existingController.window,
+           let newWindow = controller.window {
+            existingWindow.addTabbedWindow(newWindow, ordered: .above)
+            newWindow.makeKeyAndOrderFront(nil)
+        } else {
+            controller.showWindow(nil)
+        }
+
         NSApplication.shared.activate(ignoringOtherApps: true)
     }
 
@@ -59,12 +68,14 @@ class WindowManager {
             UTType(filenameExtension: "md") ?? .plainText,
             UTType(filenameExtension: "markdown") ?? .plainText,
         ]
-        panel.allowsMultipleSelection = false
+        panel.allowsMultipleSelection = true
         panel.canChooseDirectories = false
 
         NSApplication.shared.activate(ignoringOtherApps: true)
-        if panel.runModal() == .OK, let url = panel.url {
-            openOrFocus(filePath: url.path)
+        if panel.runModal() == .OK {
+            for url in panel.urls {
+                openOrFocus(filePath: url.path)
+            }
         }
     }
 
