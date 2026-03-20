@@ -11,9 +11,10 @@ targets:
       - path: mdv
         excludes:
           - Resources
-    resources:
       - path: mdv/Resources
+        buildPhase: resources
       - path: resources/bin
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.negipo.mdv

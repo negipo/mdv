@@ -10,7 +10,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
     private var currentZoom: CGFloat = 1.0
 
     var onWindowClose: ((String) -> Void)?
-    var onWindowStateChange: (() -> Void)?
+    var onWindowStateChange: ((NSWindow) -> Void)?
 
     init(windowState: WindowManager.WindowState) {
         let rect = NSRect(
@@ -165,11 +165,13 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
 extension MarkdownWindowController: NSWindowDelegate {
     func windowDidResize(_ notification: Notification) {
-        onWindowStateChange?()
+        guard let window = notification.object as? NSWindow else { return }
+        onWindowStateChange?(window)
     }
 
     func windowDidMove(_ notification: Notification) {
-        onWindowStateChange?()
+        guard let window = notification.object as? NSWindow else { return }
+        onWindowStateChange?(window)
     }
 
     func windowWillClose(_ notification: Notification) {

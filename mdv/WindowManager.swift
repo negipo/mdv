@@ -44,8 +44,8 @@ class WindowManager {
         controller.onWindowClose = { [weak self] path in
             self?.controllers.removeValue(forKey: path)
         }
-        controller.onWindowStateChange = { [weak self] in
-            self?.debouncedSaveWindowState()
+        controller.onWindowStateChange = { [weak self] window in
+            self?.debouncedSaveWindowState(for: window)
         }
         controllers[resolved] = controller
         controller.openFile(path: resolved)
@@ -85,25 +85,20 @@ class WindowManager {
 
     private var saveTimer: DispatchSourceTimer?
 
-    private func debouncedSaveWindowState() {
+    private func debouncedSaveWindowState(for window: NSWindow) {
         saveTimer?.cancel()
+        let frame = window.frame
         let timer = DispatchSource.makeTimerSource(queue: .main)
         timer.schedule(deadline: .now() + 0.5)
         timer.setEventHandler { [weak self] in
-            self?.saveCurrentWindowState()
+            guard let self = self else { return }
+            let state = WindowState(width: frame.width, height: frame.height, x: frame.origin.x, y: frame.origin.y)
+            if let data = try? JSONEncoder().encode(state) {
+                FileManager.default.createFile(atPath: self.windowStatePath, contents: data)
+            }
         }
         timer.resume()
         saveTimer = timer
-    }
-
-    private func saveCurrentWindowState() {
-        guard let keyWindow = NSApplication.shared.keyWindow,
-              let _ = keyWindow.windowController as? MarkdownWindowController else { return }
-        let frame = keyWindow.frame
-        let state = WindowState(width: frame.width, height: frame.height, x: frame.origin.x, y: frame.origin.y)
-        if let data = try? JSONEncoder().encode(state) {
-            FileManager.default.createFile(atPath: windowStatePath, contents: data)
-        }
     }
 
     func saveSession() {
