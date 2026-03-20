@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { renderMarkdown, initHighlighter } from "../src/markdown";
+import { renderMarkdown, initHighlighter } from "../js/markdown";
 
 beforeAll(async () => {
   await initHighlighter();

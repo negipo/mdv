@@ -1,15 +1,18 @@
 import { build } from "esbuild";
-import { cpSync } from "node:fs";
-
-cpSync("src/renderer/index.html", "dist/renderer/index.html");
-cpSync("src/renderer/style.css", "dist/renderer/style.css");
+import { cpSync, globSync } from "node:fs";
 
 await build({
-  entryPoints: ["src/renderer/renderer.ts"],
+  entryPoints: ["js/renderer.ts"],
   bundle: true,
-  outfile: "dist/renderer/renderer.js",
+  outfile: "mdv/Resources/renderer.js",
   platform: "browser",
   format: "iife",
   sourcemap: true,
   target: "es2022",
 });
+
+const wasmFiles = globSync("node_modules/shiki/dist/*.wasm");
+for (const wasm of wasmFiles) {
+  const filename = wasm.split("/").pop();
+  cpSync(wasm, `mdv/Resources/${filename}`);
+}

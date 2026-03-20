@@ -1,13 +1,27 @@
 import { Marked, Renderer, type Tokens } from "marked";
 import { bundledLanguages, createHighlighter, type Highlighter } from "shiki";
 
-let highlighter: Highlighter;
+let highlighter: Highlighter | null = null;
 
-export async function initHighlighter() {
+const initialLangs = [
+  "javascript", "typescript", "python", "ruby", "bash", "shell",
+  "json", "yaml", "html", "css", "swift", "sql", "markdown",
+  "go", "rust", "java", "c", "cpp", "diff", "toml",
+];
+
+export async function initHighlighter(): Promise<void> {
   highlighter = await createHighlighter({
     themes: ["github-light-default"],
-    langs: Object.keys(bundledLanguages),
+    langs: initialLangs,
   });
+}
+
+export async function loadLanguageOnDemand(lang: string): Promise<boolean> {
+  if (!highlighter) return false;
+  if (highlighter.getLoadedLanguages().includes(lang)) return true;
+  if (!(lang in bundledLanguages)) return false;
+  await highlighter.loadLanguage(lang as keyof typeof bundledLanguages);
+  return true;
 }
 
 const renderer = new Renderer();

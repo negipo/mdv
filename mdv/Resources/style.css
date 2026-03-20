@@ -1,3 +1,17 @@
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 body {
   max-width: 800px;
   margin: 0 auto;
@@ -13,6 +27,21 @@ pre {
   padding: 1rem;
   border-radius: 6px;
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
+
+pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 code {
@@ -29,6 +58,15 @@ pre code {
 
 pre.shiki {
   background-color: #f6f8fa !important;
+}
+
+a {
+  color: #0969da;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 img {

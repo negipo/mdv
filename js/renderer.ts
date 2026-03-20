@@ -1,5 +1,6 @@
 import mermaid from "mermaid";
 import DOMPurify from "dompurify";
+import { initHighlighter, renderMarkdown, loadLanguageOnDemand } from "./markdown";
 
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
@@ -31,7 +32,8 @@ function attachMermaidClickHandlers() {
   });
 }
 
-async function renderContent(html: string) {
+async function renderContent(markdown: string) {
+  const html = renderMarkdown(markdown);
   contentEl.innerHTML = DOMPurify.sanitize(html);
 
   const mermaidEls = contentEl.querySelectorAll<HTMLElement>("pre.mermaid");
@@ -41,8 +43,25 @@ async function renderContent(html: string) {
   attachMermaidClickHandlers();
 }
 
-(window as any).electronAPI.onMarkdownUpdate((_event: any, html: string) => {
-  renderContent(html);
-});
+let lastMarkdown: string | null = null;
+let highlighterReady = false;
 
-(window as any).electronAPI.requestInitialContent();
+(window as any).updateMarkdown = (markdown: string) => {
+  lastMarkdown = markdown;
+  renderContent(markdown).catch(console.error);
+};
+
+(async () => {
+  if ((window as any).webkit?.messageHandlers?.ready) {
+    (window as any).webkit.messageHandlers.ready.postMessage("initialized");
+  }
+  try {
+    await initHighlighter();
+    highlighterReady = true;
+    if (lastMarkdown) {
+      renderContent(lastMarkdown).catch(console.error);
+    }
+  } catch (e) {
+    console.error("shiki initialization failed, continuing without syntax highlighting:", e);
+  }
+})();

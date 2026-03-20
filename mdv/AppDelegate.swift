@@ -1,0 +1,152 @@
+import AppKit
+
+class AppDelegate: NSObject, NSApplicationDelegate {
+    private var pendingFilePaths: [String] = []
+    private var isFinishedLaunching = false
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        isFinishedLaunching = true
+        buildMenu()
+
+        if !pendingFilePaths.isEmpty {
+            for path in pendingFilePaths {
+                WindowManager.shared.openOrFocus(filePath: path)
+            }
+            pendingFilePaths.removeAll()
+        } else {
+            let args = ProcessInfo.processInfo.arguments
+            if let filePath = parseFilePathFromArgs(args) {
+                WindowManager.shared.openOrFocus(filePath: filePath)
+            } else {
+                let sessionFiles = WindowManager.shared.loadSession()
+                if !sessionFiles.isEmpty {
+                    for path in sessionFiles {
+                        if FileManager.default.fileExists(atPath: path) {
+                            WindowManager.shared.openOrFocus(filePath: path)
+                        }
+                    }
+                }
+                if WindowManager.shared.windowCount == 0 {
+                    WindowManager.shared.showOpenDialog()
+                }
+            }
+        }
+    }
+
+    func application(_ sender: NSApplication, open urls: [URL]) {
+        for url in urls {
+            let path = url.path
+            if isFinishedLaunching {
+                WindowManager.shared.openOrFocus(filePath: path)
+            } else {
+                pendingFilePaths.append(path)
+            }
+        }
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            WindowManager.shared.showOpenDialog()
+        }
+        return true
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        WindowManager.shared.saveSession()
+        return .terminateNow
+    }
+
+    private func parseFilePathFromArgs(_ args: [String]) -> String? {
+        let filtered = args.dropFirst().filter { !$0.hasPrefix("-") }
+        guard let raw = filtered.first else { return nil }
+        let url = URL(fileURLWithPath: raw, relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
+        return url.standardizedFileURL.path
+    }
+
+    private func buildMenu() {
+        let mainMenu = NSMenu()
+
+        let appMenuItem = NSMenuItem()
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: "About mdv", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: "Hide mdv", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
+        let hideOthers = appMenu.addItem(withTitle: "Hide Others", action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h")
+        hideOthers.keyEquivalentModifierMask = [.command, .option]
+        appMenu.addItem(withTitle: "Show All", action: #selector(NSApplication.unhideAllApplications(_:)), keyEquivalent: "")
+        appMenu.addItem(.separator())
+        appMenu.addItem(withTitle: "Quit mdv", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appMenuItem.submenu = appMenu
+        mainMenu.addItem(appMenuItem)
+
+        let fileMenuItem = NSMenuItem()
+        let fileMenu = NSMenu(title: "File")
+        fileMenu.addItem(withTitle: "Open…", action: #selector(openDocument(_:)), keyEquivalent: "o")
+        fileMenu.addItem(.separator())
+        fileMenu.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        fileMenuItem.submenu = fileMenu
+        mainMenu.addItem(fileMenuItem)
+
+        let editMenuItem = NSMenuItem()
+        let editMenu = NSMenu(title: "Edit")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenuItem.submenu = editMenu
+        mainMenu.addItem(editMenuItem)
+
+        let viewMenuItem = NSMenuItem()
+        let viewMenu = NSMenu(title: "View")
+        viewMenu.addItem(withTitle: "Reload", action: #selector(reloadContent(_:)), keyEquivalent: "r")
+        viewMenu.addItem(.separator())
+        viewMenu.addItem(withTitle: "Zoom In", action: #selector(zoomIn(_:)), keyEquivalent: "+")
+        viewMenu.addItem(withTitle: "Zoom Out", action: #selector(zoomOut(_:)), keyEquivalent: "-")
+        viewMenu.addItem(withTitle: "Actual Size", action: #selector(resetZoom(_:)), keyEquivalent: "0")
+        viewMenu.addItem(.separator())
+        let fullScreen = viewMenu.addItem(withTitle: "Toggle Full Screen", action: #selector(NSWindow.toggleFullScreen(_:)), keyEquivalent: "f")
+        fullScreen.keyEquivalentModifierMask = [.command, .control]
+        viewMenuItem.submenu = viewMenu
+        mainMenu.addItem(viewMenuItem)
+
+        let windowMenuItem = NSMenuItem()
+        let windowMenu = NSMenu(title: "Window")
+        windowMenu.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
+        windowMenu.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenuItem.submenu = windowMenu
+        mainMenu.addItem(windowMenuItem)
+
+        NSApplication.shared.mainMenu = mainMenu
+        NSApplication.shared.windowsMenu = windowMenu
+    }
+
+    @objc private func openDocument(_ sender: Any?) {
+        WindowManager.shared.showOpenDialog()
+    }
+
+    @objc private func reloadContent(_ sender: Any?) {
+        if let window = NSApplication.shared.keyWindow,
+           let controller = window.windowController as? MarkdownWindowController {
+            controller.reloadFile()
+        }
+    }
+
+    @objc private func zoomIn(_ sender: Any?) {
+        if let window = NSApplication.shared.keyWindow,
+           let controller = window.windowController as? MarkdownWindowController {
+            controller.zoomIn()
+        }
+    }
+
+    @objc private func zoomOut(_ sender: Any?) {
+        if let window = NSApplication.shared.keyWindow,
+           let controller = window.windowController as? MarkdownWindowController {
+            controller.zoomOut()
+        }
+    }
+
+    @objc private func resetZoom(_ sender: Any?) {
+        if let window = NSApplication.shared.keyWindow,
+           let controller = window.windowController as? MarkdownWindowController {
+            controller.resetZoom()
+        }
+    }
+}

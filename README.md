@@ -22,16 +22,20 @@ mdv path/to/file.md
 ## 機能
 
 - Markdownのレンダリング (GitHub風スタイル)
+- シンタックスハイライト (shiki)
 - Mermaidダイアグラムのレンダリング
 - ファイル変更時の自動更新
+- セッション復元
 
 ## 開発
 
+Xcode (Command Line Tools含む) と Node.js が必要。
+
 ```bash
-npm run build    # ビルド
-npm test         # テスト実行
-npm run lint     # 型チェック
-npm run dev -- path/to/file.md  # ビルド+起動
+npm run build:js  # JSバンドルのビルド
+npm test          # テスト実行
+npm run lint      # 型チェック
+npm run build     # JSバンドル + Xcodeビルド
 ```
 
 ## License
