@@ -8,6 +8,7 @@ class WindowManager {
     private let configDir: String
     private let windowStatePath: String
     private let sessionPath: String
+    private var closedPaths: [String] = []
 
     var windowCount: Int { controllers.count }
 
@@ -42,6 +43,7 @@ class WindowManager {
         let state = loadWindowState()
         let controller = MarkdownWindowController(windowState: state)
         controller.onWindowClose = { [weak self] path in
+            self?.closedPaths.append(path)
             self?.controllers.removeValue(forKey: path)
         }
         controller.onWindowStateChange = { [weak self] window in
@@ -60,6 +62,15 @@ class WindowManager {
         }
 
         NSApplication.shared.activate(ignoringOtherApps: true)
+    }
+
+    func reopenLastClosed() {
+        guard let path = closedPaths.popLast() else { return }
+        openOrFocus(filePath: path)
+    }
+
+    var canReopenLastClosed: Bool {
+        !closedPaths.isEmpty
     }
 
     func showOpenDialog() {

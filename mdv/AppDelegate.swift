@@ -1,6 +1,6 @@
 import AppKit
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private var pendingFilePaths: [String] = []
     private var isFinishedLaunching = false
 
@@ -87,6 +87,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let fileMenu = NSMenu(title: "File")
         fileMenu.addItem(withTitle: "Open…", action: #selector(openDocument(_:)), keyEquivalent: "o")
         fileMenu.addItem(.separator())
+        let reopenItem = fileMenu.addItem(withTitle: "Reopen Closed Tab", action: #selector(reopenClosedTab(_:)), keyEquivalent: "t")
+        reopenItem.keyEquivalentModifierMask = [.command, .shift]
         fileMenu.addItem(withTitle: "Close", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
         fileMenuItem.submenu = fileMenu
         mainMenu.addItem(fileMenuItem)
@@ -146,6 +148,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openDocument(_ sender: Any?) {
         WindowManager.shared.showOpenDialog()
+    }
+
+    @objc private func reopenClosedTab(_ sender: Any?) {
+        WindowManager.shared.reopenLastClosed()
+    }
+
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        if menuItem.action == #selector(reopenClosedTab(_:)) {
+            return WindowManager.shared.canReopenLastClosed
+        }
+        return true
     }
 
     @objc private func reloadContent(_ sender: Any?) {
