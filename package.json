@@ -2,9 +2,10 @@
   "name": "mdv",
   "version": "0.1.0",
   "description": "CLI Markdown viewer with Mermaid support and live reload",
-  "main": "dist/main.js",
   "scripts": {
     "build:js": "node esbuild.config.mjs",
+    "build": "npm run build:js && xcodegen generate && xcodebuild -project mdv.xcodeproj -scheme mdv -configuration Release build",
+    "install:local": "npm run build && sudo rm -rf /Applications/mdv.app && sudo cp -R \"$(xcodebuild -project mdv.xcodeproj -scheme mdv -configuration Release -showBuildSettings 2>/dev/null | grep 'BUILT_PRODUCTS_DIR' | head -1 | awk '{print $3}')/mdv.app\" /Applications/ && sudo ln -sf /Applications/mdv.app/Contents/Resources/bin/mdv /usr/local/bin/mdv",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit"
