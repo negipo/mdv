@@ -166,7 +166,13 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         if let url = navigationAction.request.url {
             if url.isFileURL {
-                decisionHandler(.allow)
+                let ext = url.pathExtension.lowercased()
+                if (ext == "md" || ext == "markdown") && navigationAction.navigationType == .linkActivated {
+                    WindowManager.shared.openOrFocus(filePath: url.path)
+                    decisionHandler(.cancel)
+                } else {
+                    decisionHandler(.allow)
+                }
             } else if url.scheme == "http" || url.scheme == "https" {
                 NSWorkspace.shared.open(url)
                 decisionHandler(.cancel)
