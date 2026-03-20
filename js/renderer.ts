@@ -32,9 +32,26 @@ function attachMermaidClickHandlers() {
   });
 }
 
-async function renderContent(markdown: string) {
+function resolveImagePaths(container: HTMLElement, basePath: string) {
+  container.querySelectorAll<HTMLImageElement>("img").forEach((img) => {
+    const src = img.getAttribute("src");
+    if (!src) return;
+    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:") || src.startsWith("file://")) return;
+    if (src.startsWith("/")) {
+      img.src = "file://" + encodeURI(src);
+    } else {
+      img.src = "file://" + encodeURI(basePath + "/" + src);
+    }
+  });
+}
+
+async function renderContent(markdown: string, basePath?: string) {
   const html = renderMarkdown(markdown);
   contentEl.innerHTML = DOMPurify.sanitize(html);
+
+  if (basePath) {
+    resolveImagePaths(contentEl, basePath);
+  }
 
   const mermaidEls = contentEl.querySelectorAll<HTMLElement>("pre.mermaid");
   if (mermaidEls.length > 0) {
@@ -44,11 +61,13 @@ async function renderContent(markdown: string) {
 }
 
 let lastMarkdown: string | null = null;
+let lastBasePath: string | undefined;
 let highlighterReady = false;
 
-(window as any).updateMarkdown = (markdown: string) => {
+(window as any).updateMarkdown = (markdown: string, basePath?: string) => {
   lastMarkdown = markdown;
-  renderContent(markdown).catch(console.error);
+  lastBasePath = basePath ?? undefined;
+  renderContent(markdown, lastBasePath).catch(console.error);
 };
 
 (async () => {
@@ -59,7 +78,7 @@ let highlighterReady = false;
     await initHighlighter();
     highlighterReady = true;
     if (lastMarkdown) {
-      renderContent(lastMarkdown).catch(console.error);
+      renderContent(lastMarkdown, lastBasePath).catch(console.error);
     }
   } catch (e) {
     console.error("shiki initialization failed, continuing without syntax highlighting:", e);

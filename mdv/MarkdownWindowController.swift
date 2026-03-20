@@ -14,6 +14,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
     private var filePath: String?
     private var isReady = false
     private var pendingMarkdown: String?
+    private var pendingBasePath: String?
     private var currentZoom: CGFloat = 1.0
 
     var onWindowClose: ((String) -> Void)?
@@ -59,7 +60,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
         guard let resourceURL = Bundle.main.resourceURL else { return }
         let htmlURL = resourceURL.appendingPathComponent("index.html")
-        webView.loadFileURL(htmlURL, allowingReadAccessTo: resourceURL)
+        webView.loadFileURL(htmlURL, allowingReadAccessTo: URL(fileURLWithPath: "/"))
     }
 
     func openFile(path: String) {
@@ -107,17 +108,27 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
             alert.runModal()
             return
         }
-        sendMarkdown(markdown)
+        let basePath = (filePath as NSString).deletingLastPathComponent
+        sendMarkdown(markdown, basePath: basePath)
     }
 
-    private func sendMarkdown(_ markdown: String) {
+    private func sendMarkdown(_ markdown: String, basePath: String? = nil) {
         guard isReady else {
             pendingMarkdown = markdown
+            pendingBasePath = basePath
             return
         }
         guard let jsonData = try? JSONEncoder().encode(markdown),
               let jsonString = String(data: jsonData, encoding: .utf8) else { return }
-        webView.evaluateJavaScript("window.updateMarkdown(\(jsonString))") { _, error in
+        let basePathArg: String
+        if let basePath = basePath,
+           let basePathData = try? JSONEncoder().encode(basePath),
+           let basePathJson = String(data: basePathData, encoding: .utf8) {
+            basePathArg = basePathJson
+        } else {
+            basePathArg = "null"
+        }
+        webView.evaluateJavaScript("window.updateMarkdown(\(jsonString), \(basePathArg))") { _, error in
             if let error = error {
                 NSLog("evaluateJavaScript error: \(error)")
             }
@@ -138,8 +149,10 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         case "ready":
             isReady = true
             if let pending = pendingMarkdown {
+                let basePath = pendingBasePath
                 pendingMarkdown = nil
-                sendMarkdown(pending)
+                pendingBasePath = nil
+                sendMarkdown(pending, basePath: basePath)
             }
         case "openExternal":
             if let urlString = message.body as? String, let url = URL(string: urlString) {
