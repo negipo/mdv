@@ -32,16 +32,20 @@ function attachMermaidClickHandlers() {
   });
 }
 
+function resolveLocalPath(raw: string, basePath: string): string {
+  const decoded = decodeURI(raw);
+  if (decoded.startsWith("/")) {
+    return "file://" + encodeURI(decoded);
+  }
+  return "file://" + encodeURI(basePath + "/" + decoded);
+}
+
 function resolveImagePaths(container: HTMLElement, basePath: string) {
   container.querySelectorAll<HTMLImageElement>("img").forEach((img) => {
     const src = img.getAttribute("src");
     if (!src) return;
     if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:") || src.startsWith("file://")) return;
-    if (src.startsWith("/")) {
-      img.src = "file://" + encodeURI(src);
-    } else {
-      img.src = "file://" + encodeURI(basePath + "/" + src);
-    }
+    img.src = resolveLocalPath(src, basePath);
   });
 }
 
@@ -50,11 +54,7 @@ function resolveLinkPaths(container: HTMLElement, basePath: string) {
     const href = a.getAttribute("href");
     if (!href) return;
     if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("data:") || href.startsWith("file://") || href.startsWith("#")) return;
-    if (href.startsWith("/")) {
-      a.href = "file://" + encodeURI(href);
-    } else {
-      a.href = "file://" + encodeURI(basePath + "/" + href);
-    }
+    a.href = resolveLocalPath(href, basePath);
   });
 }
 
