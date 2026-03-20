@@ -38,9 +38,9 @@ function resolveImagePaths(container: HTMLElement, basePath: string) {
     if (!src) return;
     if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:") || src.startsWith("file://")) return;
     if (src.startsWith("/")) {
-      img.src = "file://" + src;
+      img.src = "file://" + encodeURI(src);
     } else {
-      img.src = "file://" + basePath + "/" + src;
+      img.src = "file://" + encodeURI(basePath + "/" + src);
     }
   });
 }
