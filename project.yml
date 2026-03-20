@@ -13,8 +13,6 @@ targets:
           - Resources
       - path: mdv/Resources
         buildPhase: resources
-      - path: resources/bin
-        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.negipo.mdv
@@ -36,3 +34,9 @@ targets:
           - $(SRCROOT)/js/markdown.ts
         outputFiles:
           - $(SRCROOT)/mdv/Resources/renderer.js
+    postBuildScripts:
+      - name: Copy CLI wrapper
+        script: |
+          mkdir -p "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin"
+          cp "${SRCROOT}/resources/bin/mdv" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin/mdv"
+          chmod +x "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin/mdv"
