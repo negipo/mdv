@@ -27,11 +27,9 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
             height: windowState.height
         )
         let styleMask: NSWindow.StyleMask = [.titled, .closable, .miniaturizable, .resizable]
-        let window = NSWindow(contentRect: rect, styleMask: styleMask, backing: .buffered, defer: false)
+        let window = TitlebarTabsWindow(contentRect: rect, styleMask: styleMask, backing: .buffered, defer: false)
         window.title = "mdv"
         window.isReleasedWhenClosed = false
-        window.tabbingMode = .preferred
-        window.tabbingIdentifier = "mdv-markdown"
 
         super.init(window: window)
 
@@ -67,7 +65,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
     func openFile(path: String) {
         filePath = path
         window?.representedURL = URL(fileURLWithPath: path)
-        window?.title = "mdv - \((path as NSString).lastPathComponent)"
+        window?.title = (path as NSString).lastPathComponent
 
         loadAndSendMarkdown()
         startWatching()
@@ -97,7 +95,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
         guard FileManager.default.fileExists(atPath: filePath) else {
             fileWatcher?.stop()
-            window?.title = "mdv - \((filePath as NSString).lastPathComponent) (削除済み)"
+            window?.title = "\((filePath as NSString).lastPathComponent) (削除済み)"
             return
         }
 
