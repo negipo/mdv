@@ -44,7 +44,7 @@ async function renderContent(markdown: string) {
 }
 
 (window as any).updateMarkdown = (markdown: string) => {
-  renderContent(markdown);
+  renderContent(markdown).catch(console.error);
 };
 
 (async () => {
