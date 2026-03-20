@@ -1,0 +1,37 @@
+name: mdv
+options:
+  bundleIdPrefix: com.negipo
+  deploymentTarget:
+    macOS: "14.0"
+targets:
+  mdv:
+    type: application
+    platform: macOS
+    sources:
+      - path: mdv
+        excludes:
+          - Resources
+    resources:
+      - path: mdv/Resources
+      - path: resources/bin
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.negipo.mdv
+        INFOPLIST_FILE: mdv/Info.plist
+        CODE_SIGN_ENTITLEMENTS: mdv/mdv.entitlements
+        CODE_SIGN_IDENTITY: "-"
+        PRODUCT_NAME: mdv
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        SWIFT_VERSION: "5.9"
+    preBuildScripts:
+      - name: Build JS Bundle
+        script: |
+          cd "$SRCROOT"
+          if command -v npm &> /dev/null; then
+            npm run build:js
+          fi
+        inputFiles:
+          - $(SRCROOT)/js/renderer.ts
+          - $(SRCROOT)/js/markdown.ts
+        outputFiles:
+          - $(SRCROOT)/mdv/Resources/renderer.js

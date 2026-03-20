@@ -6,3 +6,4 @@ tmp/
 mdv/Resources/renderer.js
 mdv/Resources/renderer.js.map
 mdv/Resources/*.wasm
+mdv.xcodeproj/xcuserdata/
