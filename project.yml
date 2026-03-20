@@ -40,3 +40,17 @@ targets:
           mkdir -p "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin"
           cp "${SRCROOT}/resources/bin/mdv" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin/mdv"
           chmod +x "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin/mdv"
+  mdvTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: mdvTests
+    dependencies:
+      - target: mdv
+    settings:
+      base:
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/mdv.app/Contents/MacOS/mdv"
+        GENERATE_INFOPLIST_FILE: "YES"

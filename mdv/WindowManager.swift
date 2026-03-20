@@ -22,6 +22,14 @@ class WindowManager {
         try? FileManager.default.createDirectory(atPath: configDir, withIntermediateDirectories: true)
     }
 
+    init(configDir: String) {
+        self.configDir = configDir
+        self.windowStatePath = (configDir as NSString).appendingPathComponent("window-state.json")
+        self.sessionPath = (configDir as NSString).appendingPathComponent("session.json")
+
+        try? FileManager.default.createDirectory(atPath: configDir, withIntermediateDirectories: true)
+    }
+
     func openOrFocus(filePath: String) {
         let resolved = URL(fileURLWithPath: filePath).resolvingSymlinksInPath().path
 
