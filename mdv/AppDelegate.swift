@@ -115,6 +115,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let windowMenu = NSMenu(title: "Window")
         windowMenu.addItem(withTitle: "Minimize", action: #selector(NSWindow.performMiniaturize(_:)), keyEquivalent: "m")
         windowMenu.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
+        windowMenu.addItem(.separator())
+
+        let prevTab1 = windowMenu.addItem(withTitle: "Show Previous Tab", action: #selector(NSWindow.selectPreviousTab(_:)), keyEquivalent: "{")
+        prevTab1.keyEquivalentModifierMask = [.command]
+
+        let nextTab1 = windowMenu.addItem(withTitle: "Show Next Tab", action: #selector(NSWindow.selectNextTab(_:)), keyEquivalent: "}")
+        nextTab1.keyEquivalentModifierMask = [.command]
+
+        let leftArrow = String(Character(UnicodeScalar(NSLeftArrowFunctionKey)!))
+        let rightArrow = String(Character(UnicodeScalar(NSRightArrowFunctionKey)!))
+
+        let prevTab2 = windowMenu.addItem(withTitle: "Show Previous Tab", action: #selector(NSWindow.selectPreviousTab(_:)), keyEquivalent: leftArrow)
+        prevTab2.keyEquivalentModifierMask = [.command, .option]
+        prevTab2.isAlternate = true
+
+        let nextTab2 = windowMenu.addItem(withTitle: "Show Next Tab", action: #selector(NSWindow.selectNextTab(_:)), keyEquivalent: rightArrow)
+        nextTab2.keyEquivalentModifierMask = [.command, .option]
+        nextTab2.isAlternate = true
+
+        windowMenu.addItem(.separator())
+        windowMenu.addItem(withTitle: "Move Tab to New Window", action: #selector(NSWindow.moveTabToNewWindow(_:)), keyEquivalent: "")
+        windowMenu.addItem(withTitle: "Merge All Windows", action: #selector(NSWindow.mergeAllWindows(_:)), keyEquivalent: "")
         windowMenuItem.submenu = windowMenu
         mainMenu.addItem(windowMenuItem)
 
