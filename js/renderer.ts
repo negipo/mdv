@@ -45,12 +45,26 @@ function resolveImagePaths(container: HTMLElement, basePath: string) {
   });
 }
 
+function resolveLinkPaths(container: HTMLElement, basePath: string) {
+  container.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((a) => {
+    const href = a.getAttribute("href");
+    if (!href) return;
+    if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("data:") || href.startsWith("file://") || href.startsWith("#")) return;
+    if (href.startsWith("/")) {
+      a.href = "file://" + encodeURI(href);
+    } else {
+      a.href = "file://" + encodeURI(basePath + "/" + href);
+    }
+  });
+}
+
 async function renderContent(markdown: string, basePath?: string) {
   const html = renderMarkdown(markdown);
   contentEl.innerHTML = DOMPurify.sanitize(html);
 
   if (basePath) {
     resolveImagePaths(contentEl, basePath);
+    resolveLinkPaths(contentEl, basePath);
   }
 
   const mermaidEls = contentEl.querySelectorAll<HTMLElement>("pre.mermaid");

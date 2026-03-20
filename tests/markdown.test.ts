@@ -28,4 +28,10 @@ describe("renderMarkdown", () => {
     const result = renderMarkdown("```js\nconst x = 1;\n```");
     expect(result).not.toContain('class="mermaid"');
   });
+
+  it("リンクをHTMLのa要素に変換する", () => {
+    const result = renderMarkdown("[テスト](./other.md)");
+    expect(result).toContain('<a href="./other.md"');
+    expect(result).toContain("テスト</a>");
+  });
 });
