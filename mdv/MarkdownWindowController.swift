@@ -59,7 +59,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
         guard let resourceURL = Bundle.main.resourceURL else { return }
         let htmlURL = resourceURL.appendingPathComponent("index.html")
-        webView.loadFileURL(htmlURL, allowingReadAccessTo: resourceURL)
+        webView.loadFileURL(htmlURL, allowingReadAccessTo: URL(fileURLWithPath: "/"))
     }
 
     func openFile(path: String) {
