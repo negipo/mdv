@@ -7,25 +7,48 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0937AD77243ED3C9F9171B0E /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = C7F1AA7DC28AF36B7292C647 /* icon.icns */; };
 		296B47878B95677598DC799B /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D708408FCE877C3E8AF5CC73 /* WindowManager.swift */; };
+		2BF8E8DAFB1D960F2DA5BAD8 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = B413609107B2EDD6211D9350 /* index.html */; };
 		35EF0146C475E557F1F874D2 /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E3CC8CFD7C83675C6A139A0 /* FileWatcher.swift */; };
+		494EAC99803F71C735018B27 /* renderer.js.map in Resources */ = {isa = PBXBuildFile; fileRef = AB2D2E2601C9B62201DEF3B3 /* renderer.js.map */; };
+		55B2F46314DD4E6276E0620F /* mdv in Resources */ = {isa = PBXBuildFile; fileRef = 31E085FE29727446562C56BA /* mdv */; };
 		6028971FDCDC82FF13C73B97 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4234DDA62F91524588789642 /* main.swift */; };
+		61A3680B63E453B6A206432A /* onig.wasm in Resources */ = {isa = PBXBuildFile; fileRef = 02F725766F207B8E226649D7 /* onig.wasm */; };
+		7B9C2C1730331EC2E001EF80 /* renderer.js in Resources */ = {isa = PBXBuildFile; fileRef = 3AD27A96CFBA13C56ADEB4FE /* renderer.js */; };
 		9816EF9A811ABADC3BF0A5F0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3558EDEA41BFAB24695C8CD4 /* AppDelegate.swift */; };
 		DB799679D55B4F614EB4C67F /* MarkdownWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EF87C3A16C54DFEB0720EBD /* MarkdownWindowController.swift */; };
+		F2829301E9AD7078719DE040 /* style.css in Resources */ = {isa = PBXBuildFile; fileRef = 4F4DBB99C3337AAA4C3CBF62 /* style.css */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		02F725766F207B8E226649D7 /* onig.wasm */ = {isa = PBXFileReference; path = onig.wasm; sourceTree = "<group>"; };
 		2BA9677ECE546AC5A6EE9600 /* mdv.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mdv.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D727275E19E4FB30D5B8B36 /* mdv.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = mdv.entitlements; sourceTree = "<group>"; };
 		2E3CC8CFD7C83675C6A139A0 /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
+		31E085FE29727446562C56BA /* mdv */ = {isa = PBXFileReference; path = mdv; sourceTree = "<group>"; };
 		3558EDEA41BFAB24695C8CD4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		3AD27A96CFBA13C56ADEB4FE /* renderer.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = renderer.js; sourceTree = "<group>"; };
 		4234DDA62F91524588789642 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		4F4DBB99C3337AAA4C3CBF62 /* style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = style.css; sourceTree = "<group>"; };
 		4F5DAB944FE72BDA7695E45D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8EF87C3A16C54DFEB0720EBD /* MarkdownWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownWindowController.swift; sourceTree = "<group>"; };
+		AB2D2E2601C9B62201DEF3B3 /* renderer.js.map */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = renderer.js.map; sourceTree = "<group>"; };
+		B413609107B2EDD6211D9350 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		C7F1AA7DC28AF36B7292C647 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		D708408FCE877C3E8AF5CC73 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		02EB00A23F0A6E79A6AB17C5 /* bin */ = {
+			isa = PBXGroup;
+			children = (
+				31E085FE29727446562C56BA /* mdv */,
+			);
+			name = bin;
+			path = resources/bin;
+			sourceTree = "<group>";
+		};
 		0B09148D8C86E5522D151E0D /* mdv */ = {
 			isa = PBXGroup;
 			children = (
@@ -40,6 +63,20 @@
 			path = mdv;
 			sourceTree = "<group>";
 		};
+		4C8193D8FC9EC4F87EA0546D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				C7F1AA7DC28AF36B7292C647 /* icon.icns */,
+				B413609107B2EDD6211D9350 /* index.html */,
+				02F725766F207B8E226649D7 /* onig.wasm */,
+				3AD27A96CFBA13C56ADEB4FE /* renderer.js */,
+				AB2D2E2601C9B62201DEF3B3 /* renderer.js.map */,
+				4F4DBB99C3337AAA4C3CBF62 /* style.css */,
+			);
+			name = Resources;
+			path = mdv/Resources;
+			sourceTree = "<group>";
+		};
 		D2AA913C69CE56B8DA68079E /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -51,7 +88,9 @@
 		EBDE7D2607B955EF2CF8C66F = {
 			isa = PBXGroup;
 			children = (
+				02EB00A23F0A6E79A6AB17C5 /* bin */,
 				0B09148D8C86E5522D151E0D /* mdv */,
+				4C8193D8FC9EC4F87EA0546D /* Resources */,
 				D2AA913C69CE56B8DA68079E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -65,6 +104,7 @@
 			buildPhases = (
 				0AF1687F87C4126681B3BE9C /* Build JS Bundle */,
 				132F88275EF63E65E7279E59 /* Sources */,
+				7475969CFEAD047DA46424D8 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -106,6 +146,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7475969CFEAD047DA46424D8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0937AD77243ED3C9F9171B0E /* icon.icns in Resources */,
+				2BF8E8DAFB1D960F2DA5BAD8 /* index.html in Resources */,
+				55B2F46314DD4E6276E0620F /* mdv in Resources */,
+				61A3680B63E453B6A206432A /* onig.wasm in Resources */,
+				7B9C2C1730331EC2E001EF80 /* renderer.js in Resources */,
+				494EAC99803F71C735018B27 /* renderer.js.map in Resources */,
+				F2829301E9AD7078719DE040 /* style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		0AF1687F87C4126681B3BE9C /* Build JS Bundle */ = {
