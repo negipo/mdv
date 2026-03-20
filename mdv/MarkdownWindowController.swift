@@ -1,6 +1,13 @@
 import AppKit
 import WebKit
 
+class NoBeepWebView: WKWebView {
+    override func performKeyEquivalent(with event: NSEvent) -> Bool {
+        if event.keyCode == 53 { return true }
+        return super.performKeyEquivalent(with: event)
+    }
+}
+
 class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNavigationDelegate {
     private var webView: WKWebView!
     private var fileWatcher: FileWatcher?
@@ -42,7 +49,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         contentController.add(self, name: "openExternal")
         config.userContentController = contentController
 
-        webView = WKWebView(frame: .zero, configuration: config)
+        webView = NoBeepWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = self
         #if DEBUG
         if #available(macOS 13.3, *) {

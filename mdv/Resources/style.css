@@ -31,6 +31,15 @@ pre.shiki {
   background-color: #f6f8fa !important;
 }
 
+a {
+  color: #0969da;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
 img {
   max-width: 100%;
 }
