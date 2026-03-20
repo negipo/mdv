@@ -2,7 +2,7 @@
 
 ![mdv icon](resources/icon.png)
 
-CLIから起動できるMarkdownビューア。Mermaidダイアグラムのレンダリングとファイル変更時の自動更新に対応。
+CLIから起動できるMarkdownビューア。Mermaidダイアグラムのレンダリングに対応。
 
 ## インストール
 
@@ -18,14 +18,6 @@ npm run install:local
 ```bash
 mdv path/to/file.md
 ```
-
-## 機能
-
-- Markdownのレンダリング (GitHub風スタイル)
-- シンタックスハイライト (shiki)
-- Mermaidダイアグラムのレンダリング
-- ファイル変更時の自動更新
-- セッション復元
 
 ## 開発
 
