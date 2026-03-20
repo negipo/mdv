@@ -15,8 +15,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             pendingFilePaths.removeAll()
         } else {
             let args = ProcessInfo.processInfo.arguments
-            if let filePath = parseFilePathFromArgs(args) {
-                WindowManager.shared.openOrFocus(filePath: filePath)
+            let filePaths = parseFilePathsFromArgs(args)
+            if !filePaths.isEmpty {
+                for path in filePaths {
+                    WindowManager.shared.openOrFocus(filePath: path)
+                }
             } else {
                 let sessionFiles = WindowManager.shared.loadSession()
                 if !sessionFiles.isEmpty {
@@ -56,11 +59,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return .terminateNow
     }
 
-    private func parseFilePathFromArgs(_ args: [String]) -> String? {
+    private func parseFilePathsFromArgs(_ args: [String]) -> [String] {
         let filtered = args.dropFirst().filter { !$0.hasPrefix("-") }
-        guard let raw = filtered.first else { return nil }
-        let url = URL(fileURLWithPath: raw, relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
-        return url.standardizedFileURL.path
+        return filtered.map { raw in
+            let url = URL(fileURLWithPath: raw, relativeTo: URL(fileURLWithPath: FileManager.default.currentDirectoryPath))
+            return url.standardizedFileURL.path
+        }
     }
 
     private func buildMenu() {
