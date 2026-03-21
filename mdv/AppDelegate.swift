@@ -67,12 +67,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         }
     }
 
-    private func buildMenu() {
+    func buildMenu() {
         let mainMenu = NSMenu()
 
         let appMenuItem = NSMenuItem()
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: "About mdv", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        appMenu.addItem(withTitle: "Install Command Line Tool\u{2026}", action: #selector(installCLI(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Hide mdv", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         let hideOthers = appMenu.addItem(withTitle: "Hide Others", action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h")
@@ -144,6 +145,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
         NSApplication.shared.mainMenu = mainMenu
         NSApplication.shared.windowsMenu = windowMenu
+    }
+
+    @objc private func installCLI(_ sender: Any?) {
     }
 
     @objc private func openDocument(_ sender: Any?) {
