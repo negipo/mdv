@@ -12,7 +12,7 @@ Useful as a preview tool for coding agents — add `mdv` to your CLAUDE.md to le
 - Syntax highlighting
 - Live reload on file changes
 
-## Installation
+## Installation and Usage
 
 Download the latest zip from [Releases](https://github.com/negipo/mdv/releases), extract it, and move `mdv.app` to `/Applications`.
 
@@ -22,20 +22,7 @@ On first launch, macOS may show a warning about an unidentified developer. Run t
 xattr -cr /Applications/mdv.app
 ```
 
-## Installation from Source
-
-Requires Xcode (including Command Line Tools) and Node.js.
-
-```bash
-git clone https://github.com/negipo/mdv.git
-cd mdv
-npm install
-npm run install:local
-```
-
-## Usage
-
-On first launch, open mdv.app from Finder to install the CLI command. After that, you can use it from the terminal:
+Open mdv.app from Finder to install the CLI command. After that, you can use it from the terminal:
 
 ```bash
 mdv path/to/file.md
@@ -44,6 +31,13 @@ mdv path/to/file.md
 ## Development
 
 Requires Xcode (including Command Line Tools) and Node.js.
+
+```bash
+git clone https://github.com/negipo/mdv.git
+cd mdv
+npm install
+npm run install:local  # Build and install locally
+```
 
 ```bash
 npm run build:js  # Build JS bundle
