@@ -35,6 +35,8 @@ npm run install:local
 
 ## Usage
 
+On first launch, open mdv.app from Finder to install the CLI command. After that, you can use it from the terminal:
+
 ```bash
 mdv path/to/file.md
 ```
