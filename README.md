@@ -3,7 +3,7 @@
 <img width="1392" height="1087" alt="image" src="https://github.com/user-attachments/assets/928bee99-dc9d-4e31-9c95-53026798ef68" />
 
 A native macOS Markdown viewer launchable from the CLI, with Mermaid diagram rendering support.
-Useful as a preview tool for coding agents — add `mdv` to your CLAUDE.md to let agents preview Markdown files.
+Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to let agents preview Markdown files.
 
 ## Features
 
