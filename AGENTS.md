@@ -1,16 +1,16 @@
 # mdv
 
-macOS向けMarkdownビューアアプリ。Swift (AppKit) + TypeScript (marked, mermaid, shiki) で構成。
+A Markdown viewer app for macOS. Built with Swift (AppKit) + TypeScript (marked, mermaid, shiki).
 
-## ビルド・テスト
+## Build & Test
 
 ```bash
 npm ci
-npm run test:js    # JSテスト (vitest)
-npm run test:swift # Swiftテスト (xcodegen + xcodebuild)
-npm run build      # フルビルド
+npm run test:js    # JS tests (vitest)
+npm run test:swift # Swift tests (xcodegen + xcodebuild)
+npm run build      # Full build
 ```
 
-## 開発ルール
+## Development Rules
 
-- PRを作成してmainにマージすること。mainへの直接pushは避ける。
+- Create a PR and merge into main. Avoid pushing directly to main.
