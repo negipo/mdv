@@ -9,3 +9,4 @@ mdv/Resources/renderer.js.map
 mdv/Resources/*.wasm
 mdv.xcodeproj/
 .worktrees/
+mdv-*.zip

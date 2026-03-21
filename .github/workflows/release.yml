@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'latest'
+
+      - name: Install xcodegen
+        run: brew install xcodegen
+
+      - name: Calculate CalVer tag
+        id: calver
+        run: |
+          TODAY=$(date -u +"%Y.%m.%d")
+          PREFIX="v${TODAY}."
+          LAST_SEQ=$(git tag -l "${PREFIX}*" | while read -r tag; do echo "${tag#${PREFIX}}"; done | sort -n | tail -1)
+          if [ -z "$LAST_SEQ" ]; then
+            SEQ=1
+          else
+            SEQ=$((LAST_SEQ + 1))
+          fi
+          TAG="${PREFIX}${SEQ}"
+          VERSION="${TODAY}.${SEQ}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: scripts/build.sh
+        env:
+          CI: 'true'
+          VERSION: ${{ steps.calver.outputs.version }}
+          BUILD_NUMBER: ${{ github.run_number }}
+
+      - name: Create release
+        run: |
+          gh release create ${{ steps.calver.outputs.tag }} \
+            mdv-${{ steps.calver.outputs.version }}-macos.zip \
+            --generate-notes \
+            --target ${{ github.sha }}
+        env:
+          GH_TOKEN: ${{ github.token }}
