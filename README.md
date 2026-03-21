@@ -2,9 +2,19 @@
 
 ![mdv icon](resources/icon.png)
 
-CLIから起動できるMarkdownビューア。Mermaidダイアグラムのレンダリングに対応。
+A native macOS Markdown viewer launchable from the CLI, with Mermaid diagram rendering support.
+Useful as a preview tool for coding agents — add `mdv` to your CLAUDE.md to let agents preview Markdown files.
 
-## インストール
+## Features
+
+- Mermaid diagram rendering
+- Native macOS tab UI
+- Syntax highlighting
+- Live reload on file changes
+
+## Installation
+
+Requires Xcode (including Command Line Tools) and Node.js.
 
 ```bash
 git clone https://github.com/negipo/mdv.git
@@ -13,21 +23,21 @@ npm install
 npm run install:local
 ```
 
-## 使い方
+## Usage
 
 ```bash
 mdv path/to/file.md
 ```
 
-## 開発
+## Development
 
-Xcode (Command Line Tools含む) と Node.js が必要。
+Requires Xcode (including Command Line Tools) and Node.js.
 
 ```bash
-npm run build:js  # JSバンドルのビルド
-npm test          # テスト実行
-npm run lint      # 型チェック
-npm run build     # JSバンドル + Xcodeビルド
+npm run build:js  # Build JS bundle
+npm test          # Run tests
+npm run lint      # Type check
+npm run build     # JS bundle + Xcode build
 ```
 
 ## License
