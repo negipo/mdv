@@ -14,6 +14,12 @@ Useful as a preview tool for coding agents — add `mdv` to your CLAUDE.md to le
 
 ## Installation
 
+Download the latest zip from [Releases](https://github.com/negipo/mdv/releases), extract it, and move `mdv.app` to `/Applications`.
+
+On first launch, macOS may show a warning about an unidentified developer. Right-click the app and select "Open" to bypass this.
+
+## Installation from Source
+
 Requires Xcode (including Command Line Tools) and Node.js.
 
 ```bash
