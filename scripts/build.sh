@@ -32,7 +32,6 @@ xcodebuild build \
 if [ -n "${VERSION:-}" ]; then
   APP_PATH="build/Build/Products/Release/mdv.app"
   ZIP_NAME="mdv-${VERSION}-macos.zip"
-  codesign --force --deep --sign - "$APP_PATH"
   ditto -c -k --keepParent "$APP_PATH" "$ZIP_NAME"
   echo "Created $ZIP_NAME"
 fi
