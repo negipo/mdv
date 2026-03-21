@@ -1,15 +1,21 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "schedule": ["before 9am on monday"],
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "before 9am on monday"
+  ],
   "timezone": "Asia/Tokyo",
   "automerge": true,
   "platformAutomerge": true,
   "packageRules": [
     {
-      "matchPackagePatterns": ["*"],
       "groupName": "all-dependencies",
-      "groupSlug": "all-dependencies"
+      "groupSlug": "all-dependencies",
+      "matchPackageNames": [
+        "*"
+      ]
     }
   ],
   "lockFileMaintenance": {
