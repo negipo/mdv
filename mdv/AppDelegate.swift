@@ -34,6 +34,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
                 }
             }
         }
+
+        promptCLIInstallIfNeeded()
     }
 
     func application(_ sender: NSApplication, open urls: [URL]) {
@@ -147,20 +149,45 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         NSApplication.shared.windowsMenu = windowMenu
     }
 
-    @objc private func installCLI(_ sender: Any?) {
-        let cliInstallPath = "/usr/local/bin/mdv"
+    private static let cliInstallPath = "/usr/local/bin/mdv"
+    private static let cliPromptShownKey = "CLIInstallPromptShown"
 
-        let fileExists = (try? FileManager.default.attributesOfItem(atPath: cliInstallPath)) != nil
-        if fileExists {
+    private var isCLIInstalled: Bool {
+        (try? FileManager.default.attributesOfItem(atPath: Self.cliInstallPath)) != nil
+    }
+
+    func promptCLIInstallIfNeeded() {
+        if isCLIInstalled { return }
+        if UserDefaults.standard.bool(forKey: Self.cliPromptShownKey) { return }
+
+        UserDefaults.standard.set(true, forKey: Self.cliPromptShownKey)
+
+        let alert = NSAlert()
+        alert.messageText = "Install command line tool?"
+        alert.informativeText = "Would you like to use mdv from the terminal? You can also install it later from the mdv menu."
+        alert.addButton(withTitle: "Install")
+        alert.addButton(withTitle: "Not Now")
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            performCLIInstall()
+        }
+    }
+
+    @objc private func installCLI(_ sender: Any?) {
+        if isCLIInstalled {
             let alert = NSAlert()
             alert.messageText = "Command line tool is already installed."
-            alert.informativeText = "The mdv command is available at \(cliInstallPath)."
+            alert.informativeText = "The mdv command is available at \(Self.cliInstallPath)."
             alert.alertStyle = .informational
             alert.addButton(withTitle: "OK")
             alert.runModal()
             return
         }
 
+        performCLIInstall()
+    }
+
+    private func performCLIInstall() {
         guard let resourcePath = Bundle.main.resourcePath else {
             let alert = NSAlert()
             alert.messageText = "Installation failed."
@@ -172,7 +199,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         }
 
         let bundleCLIPath = resourcePath + "/bin/mdv"
-        let script = "do shell script \"mkdir -p /usr/local/bin && ln -sf '\(bundleCLIPath)' '\(cliInstallPath)'\" with administrator privileges"
+        let script = "do shell script \"mkdir -p /usr/local/bin && ln -sf '\(bundleCLIPath)' '\(Self.cliInstallPath)'\" with administrator privileges"
 
         DispatchQueue.global(qos: .userInitiated).async {
             let process = Process()
