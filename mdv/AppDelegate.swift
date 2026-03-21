@@ -148,6 +148,79 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     @objc private func installCLI(_ sender: Any?) {
+        let cliInstallPath = "/usr/local/bin/mdv"
+
+        let fileExists = (try? FileManager.default.attributesOfItem(atPath: cliInstallPath)) != nil
+        if fileExists {
+            let alert = NSAlert()
+            alert.messageText = "Command line tool is already installed."
+            alert.informativeText = "The mdv command is available at \(cliInstallPath)."
+            alert.alertStyle = .informational
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+            return
+        }
+
+        guard let resourcePath = Bundle.main.resourcePath else {
+            let alert = NSAlert()
+            alert.messageText = "Installation failed."
+            alert.informativeText = "Could not locate app bundle resources."
+            alert.alertStyle = .critical
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+            return
+        }
+
+        let bundleCLIPath = resourcePath + "/bin/mdv"
+        let script = "do shell script \"mkdir -p /usr/local/bin && ln -sf '\(bundleCLIPath)' '\(cliInstallPath)'\" with administrator privileges"
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+            process.arguments = ["-e", script]
+
+            let pipe = Pipe()
+            process.standardError = pipe
+
+            do {
+                try process.run()
+            } catch {
+                DispatchQueue.main.async {
+                    let alert = NSAlert()
+                    alert.messageText = "Installation failed."
+                    alert.informativeText = error.localizedDescription
+                    alert.alertStyle = .critical
+                    alert.addButton(withTitle: "OK")
+                    alert.runModal()
+                }
+                return
+            }
+
+            let errorData = pipe.fileHandleForReading.readDataToEndOfFile()
+            process.waitUntilExit()
+
+            DispatchQueue.main.async {
+                if process.terminationStatus == 0 {
+                    let alert = NSAlert()
+                    alert.messageText = "Command line tool installed successfully."
+                    alert.informativeText = "You can now use 'mdv' from the terminal."
+                    alert.alertStyle = .informational
+                    alert.addButton(withTitle: "OK")
+                    alert.runModal()
+                } else {
+                    let errorMessage = String(data: errorData, encoding: .utf8) ?? "Unknown error"
+                    if errorMessage.contains("User canceled") {
+                        return
+                    }
+                    let alert = NSAlert()
+                    alert.messageText = "Installation failed."
+                    alert.informativeText = errorMessage
+                    alert.alertStyle = .critical
+                    alert.addButton(withTitle: "OK")
+                    alert.runModal()
+                }
+            }
+        }
     }
 
     @objc private func openDocument(_ sender: Any?) {
