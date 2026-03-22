@@ -21,8 +21,8 @@ jobs:
         with:
           node-version: '25.8.1'
 
-      - name: Install xcodegen
-        run: brew install xcodegen
+      - name: Install xcodegen and create-dmg
+        run: brew install xcodegen create-dmg
 
       - name: Calculate CalVer tag
         id: calver
