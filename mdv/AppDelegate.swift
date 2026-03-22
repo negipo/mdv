@@ -7,6 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     func applicationDidFinishLaunching(_ notification: Notification) {
         isFinishedLaunching = true
         buildMenu()
+        promptCLIInstallIfNeeded()
 
         if !pendingFilePaths.isEmpty {
             for path in pendingFilePaths {
@@ -34,8 +35,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
                 }
             }
         }
-
-        promptCLIInstallIfNeeded()
     }
 
     func application(_ sender: NSApplication, open urls: [URL]) {
