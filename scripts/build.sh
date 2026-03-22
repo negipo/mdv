@@ -31,7 +31,9 @@ xcodebuild build \
 
 if [ -n "${VERSION:-}" ]; then
   APP_PATH="build/Build/Products/Release/mdv.app"
-  ZIP_NAME="mdv-${VERSION}-macos.zip"
-  ditto -c -k --keepParent "$APP_PATH" "$ZIP_NAME"
-  echo "Created $ZIP_NAME"
+  DMG_NAME="mdv-${VERSION}-macos.dmg"
+  hdiutil create -volname "mdv" \
+    -srcfolder "$APP_PATH" \
+    -ov -format UDZO "$DMG_NAME"
+  echo "Created $DMG_NAME"
 fi

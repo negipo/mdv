@@ -50,7 +50,7 @@ jobs:
       - name: Create release
         run: |
           gh release create ${{ steps.calver.outputs.tag }} \
-            mdv-${{ steps.calver.outputs.version }}-macos.zip \
+            mdv-${{ steps.calver.outputs.version }}-macos.dmg \
             --generate-notes \
             --target ${{ github.sha }}
         env:
