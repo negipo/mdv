@@ -32,8 +32,13 @@ xcodebuild build \
 if [ -n "${VERSION:-}" ]; then
   APP_PATH="build/Build/Products/Release/mdv.app"
   DMG_NAME="mdv-${VERSION}-macos.dmg"
-  hdiutil create -volname "mdv" \
-    -srcfolder "$APP_PATH" \
-    -ov -format UDZO "$DMG_NAME"
+  create-dmg \
+    --volname "mdv" \
+    --window-size 600 400 \
+    --icon-size 128 \
+    --icon "mdv.app" 150 200 \
+    --app-drop-link 450 200 \
+    --no-internet-enable \
+    "$DMG_NAME" "$APP_PATH"
   echo "Created $DMG_NAME"
 fi
