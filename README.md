@@ -14,9 +14,11 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 
 ## Installation and Usage
 
-Download the latest zip from [Releases](https://github.com/negipo/mdv/releases), extract it, and move `mdv.app` to `/Applications`.
+Download the latest dmg from [Releases](https://github.com/negipo/mdv/releases), open it, and drag `mdv.app` to `/Applications`.
 
-On first launch, macOS may show a warning about an unidentified developer. Run the following command before launching:
+On first launch, macOS may show a warning about an unidentified developer. Right-click the app and select "Open" to bypass the warning.
+
+If that doesn't work, go to System Settings > Privacy & Security, scroll down, and click "Open Anyway" next to the blocked app message. Alternatively, run:
 
 ```bash
 xattr -cr /Applications/mdv.app
