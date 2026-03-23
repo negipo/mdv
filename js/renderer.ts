@@ -75,8 +75,34 @@ const overlay = document.createElement("div");
 overlay.id = "mermaid-overlay";
 const overlayContent = document.createElement("div");
 overlayContent.id = "mermaid-overlay-content";
+const overlayInner = document.createElement("div");
+overlayInner.id = "mermaid-overlay-inner";
+overlayContent.appendChild(overlayInner);
 overlay.appendChild(overlayContent);
 document.body.appendChild(overlay);
+
+let scale = 1.0;
+const maxScale = 5.0;
+let translateX = 0;
+let translateY = 0;
+let isPanning = false;
+
+function applyTransform() {
+  overlayInner.style.transform =
+    `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+}
+
+function centerOverlayInner() {
+  scale = 1.0;
+  translateX = 0;
+  translateY = 0;
+  applyTransform();
+  const contentRect = overlayContent.getBoundingClientRect();
+  const innerRect = overlayInner.getBoundingClientRect();
+  translateX = (contentRect.width - innerRect.width) / 2;
+  translateY = (contentRect.height - innerRect.height) / 2;
+  applyTransform();
+}
 
 overlay.addEventListener("click", () => {
   overlay.classList.remove("active");
@@ -95,8 +121,9 @@ overlay.addEventListener("click", () => {
 function attachMermaidClickHandlers() {
   contentEl.querySelectorAll<HTMLElement>("pre.mermaid").forEach((el) => {
     el.addEventListener("click", () => {
-      overlayContent.innerHTML = el.innerHTML;
+      overlayInner.innerHTML = el.innerHTML;
       overlay.classList.add("active");
+      centerOverlayInner();
     });
   });
 }
