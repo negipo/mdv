@@ -8,6 +8,7 @@
     "before 9am on monday"
   ],
   "timezone": "Asia/Tokyo",
+  "minimumReleaseAge": "3 days",
   "automerge": true,
   "platformAutomerge": true,
   "packageRules": [
