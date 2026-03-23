@@ -1,6 +1,6 @@
 # mdv
 
-<img width="1392" height="1087" alt="image" src="docs/screenshot.png" />
+![image](docs/screenshot.png)
 
 A native macOS Markdown viewer launchable from the CLI, with Mermaid diagram rendering support.
 Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to let agents preview Markdown files.
