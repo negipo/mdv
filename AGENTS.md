@@ -14,3 +14,4 @@ npm run build      # Full build
 ## Development Rules
 
 - Create a PR and merge into main. Avoid pushing directly to main.
+- All user-facing UI text (menu items, labels, alerts, etc.) must be in English.
