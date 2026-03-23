@@ -2,8 +2,13 @@ import AppKit
 import WebKit
 
 class NoBeepWebView: WKWebView {
+    var onEscape: (() -> Void)?
+
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
-        if event.keyCode == 53 { return true }
+        if event.keyCode == 53 {
+            onEscape?()
+            return true
+        }
         return super.performKeyEquivalent(with: event)
     }
 
@@ -25,7 +30,7 @@ class NoBeepWebView: WKWebView {
 }
 
 class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNavigationDelegate {
-    private var webView: WKWebView!
+    private var webView: NoBeepWebView!
     private var fileWatcher: FileWatcher?
     private var filePath: String?
     var currentFilePath: String? { filePath }
@@ -69,6 +74,9 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
         webView = NoBeepWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = self
+        webView.onEscape = { [weak self] in
+            self?.webView.evaluateJavaScript("window.handleEscape()") { _, _ in }
+        }
         #if DEBUG
         if #available(macOS 13.3, *) {
             webView.isInspectable = true
@@ -121,6 +129,14 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
     func resetZoom() {
         currentZoom = 1.0
         webView.pageZoom = currentZoom
+    }
+
+    func performFind() {
+        webView.evaluateJavaScript("window.showSearchBar()") { _, error in
+            if let error = error {
+                NSLog("showSearchBar error: \(error)")
+            }
+        }
     }
 
     private func loadAndSendMarkdown() {
