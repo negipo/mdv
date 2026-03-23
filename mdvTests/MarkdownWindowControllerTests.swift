@@ -90,4 +90,19 @@ final class MarkdownWindowControllerTests: XCTestCase {
 
         XCTAssertTrue(controller.window?.title.contains("削除済み") ?? false)
     }
+
+    // ファイルを開く前はcurrentFilePathがnilを返す
+    func testCurrentFilePathReturnsNilBeforeOpen() {
+        XCTAssertNil(controller.currentFilePath)
+    }
+
+    // ファイルを開くとcurrentFilePathがフルパスを返す
+    func testCurrentFilePathReturnsFullPath() {
+        let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctrl_\(UUID().uuidString).md")
+        FileManager.default.createFile(atPath: tmpFile, contents: "# Hello".data(using: .utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpFile) }
+
+        controller.openFile(path: tmpFile)
+        XCTAssertEqual(controller.currentFilePath, tmpFile)
+    }
 }

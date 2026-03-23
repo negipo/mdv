@@ -6,12 +6,29 @@ class NoBeepWebView: WKWebView {
         if event.keyCode == 53 { return true }
         return super.performKeyEquivalent(with: event)
     }
+
+    override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
+        super.willOpenMenu(menu, with: event)
+        guard let controller = window?.windowController as? MarkdownWindowController,
+              controller.currentFilePath != nil else { return }
+
+        menu.addItem(.separator())
+
+        let pathItem = NSMenuItem(title: "Copy File Path", action: #selector(MarkdownWindowController.copyFullPath(_:)), keyEquivalent: "")
+        pathItem.target = controller
+        menu.addItem(pathItem)
+
+        let contentItem = NSMenuItem(title: "Copy as Markdown", action: #selector(MarkdownWindowController.copyContent(_:)), keyEquivalent: "")
+        contentItem.target = controller
+        menu.addItem(contentItem)
+    }
 }
 
 class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNavigationDelegate {
     private var webView: WKWebView!
     private var fileWatcher: FileWatcher?
     private var filePath: String?
+    var currentFilePath: String? { filePath }
     private var isReady = false
     private var pendingMarkdown: String?
     private var pendingBasePath: String?
@@ -74,6 +91,21 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
     func reloadFile() {
         loadAndSendMarkdown()
+    }
+
+    @objc func copyFullPath(_ sender: Any?) {
+        guard let path = filePath else { return }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(path, forType: .string)
+    }
+
+    @objc func copyContent(_ sender: Any?) {
+        guard let path = filePath,
+              let content = try? String(contentsOfFile: path, encoding: .utf8) else { return }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(content, forType: .string)
     }
 
     func zoomIn() {
