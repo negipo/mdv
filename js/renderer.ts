@@ -2,6 +2,7 @@ import mermaid from "mermaid";
 import DOMPurify from "dompurify";
 import { initHighlighter, renderMarkdown, loadLanguageOnDemand } from "./markdown";
 import { SearchManager } from "./search";
+import { computeZoom, isDrag } from "./zoom";
 
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
@@ -75,11 +76,114 @@ const overlay = document.createElement("div");
 overlay.id = "mermaid-overlay";
 const overlayContent = document.createElement("div");
 overlayContent.id = "mermaid-overlay-content";
+const overlayInner = document.createElement("div");
+overlayInner.id = "mermaid-overlay-inner";
+overlayContent.appendChild(overlayInner);
 overlay.appendChild(overlayContent);
 document.body.appendChild(overlay);
 
+let scale = 1.0;
+let minScale = 1.0;
+let maxScale = 5.0;
+let translateX = 0;
+let translateY = 0;
+let isPanning = false;
+
+function applyTransform() {
+  overlayInner.style.transform =
+    `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+}
+
+function centerOverlayInner() {
+  scale = 1.0;
+  translateX = 0;
+  translateY = 0;
+  applyTransform();
+  const contentRect = overlayContent.getBoundingClientRect();
+  const innerRect = overlayInner.getBoundingClientRect();
+  const fitScale = Math.min(
+    contentRect.width / innerRect.width,
+    contentRect.height / innerRect.height
+  );
+  minScale = fitScale;
+  maxScale = fitScale * 20;
+  scale = fitScale;
+  translateX = (contentRect.width - innerRect.width * fitScale) / 2;
+  translateY = (contentRect.height - innerRect.height * fitScale) / 2;
+  applyTransform();
+}
+
 overlay.addEventListener("click", () => {
   overlay.classList.remove("active");
+});
+
+window.addEventListener("resize", () => {
+  if (overlay.classList.contains("active")) {
+    centerOverlayInner();
+  }
+});
+
+overlayContent.addEventListener(
+  "wheel",
+  (e: WheelEvent) => {
+    e.preventDefault();
+    const rect = overlayContent.getBoundingClientRect();
+    const cursorX = e.clientX - rect.left;
+    const cursorY = e.clientY - rect.top;
+
+    const delta = e.deltaY > 0 ? -1 : 1;
+    const newScale = scale * (1 + delta * 0.1);
+
+    const result = computeZoom(cursorX, cursorY, scale, newScale, translateX, translateY, minScale, maxScale);
+    if (result.scale === scale) return;
+
+    scale = result.scale;
+    translateX = result.translateX;
+    translateY = result.translateY;
+    applyTransform();
+  },
+  { passive: false }
+);
+
+let panStartX = 0;
+let panStartY = 0;
+let panStartTranslateX = 0;
+let panStartTranslateY = 0;
+let didDrag = false;
+
+overlayContent.addEventListener("mousedown", (e: MouseEvent) => {
+  if (e.button !== 0) return;
+  isPanning = true;
+  didDrag = false;
+  panStartX = e.clientX;
+  panStartY = e.clientY;
+  panStartTranslateX = translateX;
+  panStartTranslateY = translateY;
+  overlayContent.classList.add("panning");
+});
+
+document.addEventListener("mousemove", (e: MouseEvent) => {
+  if (!isPanning) return;
+  const dx = e.clientX - panStartX;
+  const dy = e.clientY - panStartY;
+  if (isDrag(panStartX, panStartY, e.clientX, e.clientY)) {
+    didDrag = true;
+  }
+  translateX = panStartTranslateX + dx;
+  translateY = panStartTranslateY + dy;
+  applyTransform();
+});
+
+document.addEventListener("mouseup", () => {
+  if (!isPanning) return;
+  isPanning = false;
+  overlayContent.classList.remove("panning");
+});
+
+overlayContent.addEventListener("click", (e: MouseEvent) => {
+  if (didDrag) {
+    e.stopPropagation();
+  }
 });
 
 (window as any).handleEscape = () => {
@@ -95,8 +199,9 @@ overlay.addEventListener("click", () => {
 function attachMermaidClickHandlers() {
   contentEl.querySelectorAll<HTMLElement>("pre.mermaid").forEach((el) => {
     el.addEventListener("click", () => {
-      overlayContent.innerHTML = el.innerHTML;
+      overlayInner.innerHTML = el.innerHTML;
       overlay.classList.add("active");
+      centerOverlayInner();
     });
   });
 }
