@@ -2,6 +2,7 @@ import mermaid from "mermaid";
 import DOMPurify from "dompurify";
 import { initHighlighter, renderMarkdown, loadLanguageOnDemand } from "./markdown";
 import { SearchManager } from "./search";
+import { computeZoom, isDrag } from "./zoom";
 
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
@@ -107,6 +108,28 @@ function centerOverlayInner() {
 overlay.addEventListener("click", () => {
   overlay.classList.remove("active");
 });
+
+overlayContent.addEventListener(
+  "wheel",
+  (e: WheelEvent) => {
+    e.preventDefault();
+    const rect = overlayContent.getBoundingClientRect();
+    const cursorX = e.clientX - rect.left;
+    const cursorY = e.clientY - rect.top;
+
+    const delta = e.deltaY > 0 ? -1 : 1;
+    const newScale = scale * (1 + delta * 0.1);
+
+    const result = computeZoom(cursorX, cursorY, scale, newScale, translateX, translateY);
+    if (result.scale === scale) return;
+
+    scale = result.scale;
+    translateX = result.translateX;
+    translateY = result.translateY;
+    applyTransform();
+  },
+  { passive: false }
+);
 
 (window as any).handleEscape = () => {
   if (overlay.classList.contains("active")) {
