@@ -83,7 +83,8 @@ overlay.appendChild(overlayContent);
 document.body.appendChild(overlay);
 
 let scale = 1.0;
-const maxScale = 5.0;
+let minScale = 1.0;
+let maxScale = 5.0;
 let translateX = 0;
 let translateY = 0;
 let isPanning = false;
@@ -100,13 +101,26 @@ function centerOverlayInner() {
   applyTransform();
   const contentRect = overlayContent.getBoundingClientRect();
   const innerRect = overlayInner.getBoundingClientRect();
-  translateX = (contentRect.width - innerRect.width) / 2;
-  translateY = (contentRect.height - innerRect.height) / 2;
+  const fitScale = Math.min(
+    contentRect.width / innerRect.width,
+    contentRect.height / innerRect.height
+  );
+  minScale = fitScale;
+  maxScale = fitScale * 20;
+  scale = fitScale;
+  translateX = (contentRect.width - innerRect.width * fitScale) / 2;
+  translateY = (contentRect.height - innerRect.height * fitScale) / 2;
   applyTransform();
 }
 
 overlay.addEventListener("click", () => {
   overlay.classList.remove("active");
+});
+
+window.addEventListener("resize", () => {
+  if (overlay.classList.contains("active")) {
+    centerOverlayInner();
+  }
 });
 
 overlayContent.addEventListener(
@@ -120,7 +134,7 @@ overlayContent.addEventListener(
     const delta = e.deltaY > 0 ? -1 : 1;
     const newScale = scale * (1 + delta * 0.1);
 
-    const result = computeZoom(cursorX, cursorY, scale, newScale, translateX, translateY);
+    const result = computeZoom(cursorX, cursorY, scale, newScale, translateX, translateY, minScale, maxScale);
     if (result.scale === scale) return;
 
     scale = result.scale;
