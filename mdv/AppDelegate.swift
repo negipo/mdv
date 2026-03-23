@@ -99,6 +99,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         let editMenu = NSMenu(title: "Edit")
         editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
         editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenu.addItem(.separator())
+        editMenu.addItem(withTitle: "Find\u{2026}", action: #selector(performFindAction(_:)), keyEquivalent: "f")
         editMenuItem.submenu = editMenu
         mainMenu.addItem(editMenuItem)
 
@@ -262,6 +264,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             return WindowManager.shared.canReopenLastClosed
         }
         return true
+    }
+
+    @objc private func performFindAction(_ sender: Any?) {
+        if let window = NSApplication.shared.keyWindow,
+           let controller = window.windowController as? MarkdownWindowController {
+            controller.performFind()
+        }
     }
 
     @objc private func reloadContent(_ sender: Any?) {

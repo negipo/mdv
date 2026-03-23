@@ -1,10 +1,75 @@
 import mermaid from "mermaid";
 import DOMPurify from "dompurify";
 import { initHighlighter, renderMarkdown, loadLanguageOnDemand } from "./markdown";
+import { SearchManager } from "./search";
 
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
 const contentEl = document.getElementById("content")!;
+
+const searchBar = document.createElement("div");
+searchBar.id = "search-bar";
+searchBar.innerHTML = `
+  <input id="search-input" type="text" placeholder="Search\u2026" />
+  <span id="search-count"></span>
+  <button id="search-prev" class="search-nav-btn">&#9650;</button>
+  <button id="search-next" class="search-nav-btn">&#9660;</button>
+`;
+document.body.appendChild(searchBar);
+
+const searchInput = document.getElementById("search-input") as HTMLInputElement;
+const searchCount = document.getElementById("search-count")!;
+const searchManager = new SearchManager(contentEl);
+
+function updateSearchCount() {
+  if (searchManager.count === 0 && searchInput.value) {
+    searchCount.textContent = "0 matches";
+  } else if (searchManager.count > 0) {
+    searchCount.textContent = `${searchManager.current + 1}/${searchManager.count}`;
+  } else {
+    searchCount.textContent = "";
+  }
+}
+
+searchInput.addEventListener("input", () => {
+  searchManager.search(searchInput.value);
+  updateSearchCount();
+});
+
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    if (e.shiftKey) {
+      searchManager.prev();
+    } else {
+      searchManager.next();
+    }
+    updateSearchCount();
+    e.preventDefault();
+  }
+});
+
+document.getElementById("search-prev")!.addEventListener("click", () => {
+  searchManager.prev();
+  updateSearchCount();
+});
+
+document.getElementById("search-next")!.addEventListener("click", () => {
+  searchManager.next();
+  updateSearchCount();
+});
+
+(window as any).showSearchBar = () => {
+  searchBar.classList.add("active");
+  searchInput.focus();
+  searchInput.select();
+};
+
+(window as any).hideSearchBar = () => {
+  searchBar.classList.remove("active");
+  searchManager.close();
+  searchCount.textContent = "";
+  searchInput.value = "";
+};
 
 const overlay = document.createElement("div");
 overlay.id = "mermaid-overlay";
@@ -17,11 +82,15 @@ overlay.addEventListener("click", () => {
   overlay.classList.remove("active");
 });
 
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && overlay.classList.contains("active")) {
+(window as any).handleEscape = () => {
+  if (overlay.classList.contains("active")) {
     overlay.classList.remove("active");
+    return;
   }
-});
+  if (searchBar.classList.contains("active")) {
+    (window as any).hideSearchBar();
+  }
+};
 
 function attachMermaidClickHandlers() {
   contentEl.querySelectorAll<HTMLElement>("pre.mermaid").forEach((el) => {
