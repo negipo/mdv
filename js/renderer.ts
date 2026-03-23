@@ -131,6 +131,47 @@ overlayContent.addEventListener(
   { passive: false }
 );
 
+let panStartX = 0;
+let panStartY = 0;
+let panStartTranslateX = 0;
+let panStartTranslateY = 0;
+let didDrag = false;
+
+overlayContent.addEventListener("mousedown", (e: MouseEvent) => {
+  if (e.button !== 0) return;
+  isPanning = true;
+  didDrag = false;
+  panStartX = e.clientX;
+  panStartY = e.clientY;
+  panStartTranslateX = translateX;
+  panStartTranslateY = translateY;
+  overlayContent.classList.add("panning");
+});
+
+document.addEventListener("mousemove", (e: MouseEvent) => {
+  if (!isPanning) return;
+  const dx = e.clientX - panStartX;
+  const dy = e.clientY - panStartY;
+  if (isDrag(panStartX, panStartY, e.clientX, e.clientY)) {
+    didDrag = true;
+  }
+  translateX = panStartTranslateX + dx;
+  translateY = panStartTranslateY + dy;
+  applyTransform();
+});
+
+document.addEventListener("mouseup", () => {
+  if (!isPanning) return;
+  isPanning = false;
+  overlayContent.classList.remove("panning");
+});
+
+overlayContent.addEventListener("click", (e: MouseEvent) => {
+  if (didDrag) {
+    e.stopPropagation();
+  }
+});
+
 (window as any).handleEscape = () => {
   if (overlay.classList.contains("active")) {
     overlay.classList.remove("active");
