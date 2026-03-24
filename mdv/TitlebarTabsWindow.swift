@@ -176,6 +176,23 @@ class TitlebarTabsWindow: NSWindow {
 // MARK: - WindowDragView
 
 private class WindowDragView: NSView {
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        let pointInSelf = convert(point, from: superview)
+        guard bounds.contains(pointInSelf) else { return nil }
+
+        guard let titlebarView = superview?.firstDescendant(withClassName: "NSTitlebarView"),
+              let tabBar = titlebarView.firstDescendant(withClassName: "NSTabBar") else {
+            return super.hitTest(point)
+        }
+
+        let pointInTabBar = tabBar.convert(point, from: superview)
+        if tabBar.bounds.contains(pointInTabBar) {
+            return nil
+        }
+
+        return super.hitTest(point)
+    }
+
     override func mouseDown(with event: NSEvent) {
         if event.type == .leftMouseDown && event.clickCount == 1 {
             window?.performDrag(with: event)
