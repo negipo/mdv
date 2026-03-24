@@ -26,6 +26,13 @@ class TitlebarTabsWindow: NSWindow {
         }
     }
 
+    override func becomeMain() {
+        super.becomeMain()
+        if let tabGroup, !tabGroup.isTabBarVisible {
+            toggleTabBar(nil)
+        }
+    }
+
     override func update() {
         super.update()
         hideToolbarOverflowButton()
