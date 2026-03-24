@@ -107,6 +107,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         let viewMenuItem = NSMenuItem()
         let viewMenu = NSMenu(title: "View")
         viewMenu.addItem(withTitle: "Reload", action: #selector(reloadContent(_:)), keyEquivalent: "r")
+        viewMenu.addItem(withTitle: "Table of Contents", action: #selector(toggleTableOfContents(_:)), keyEquivalent: "t")
         viewMenu.addItem(.separator())
         viewMenu.addItem(withTitle: "Zoom In", action: #selector(zoomIn(_:)), keyEquivalent: "+")
         viewMenu.addItem(withTitle: "Zoom Out", action: #selector(zoomOut(_:)), keyEquivalent: "-")
@@ -270,6 +271,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         if let window = NSApplication.shared.keyWindow,
            let controller = window.windowController as? MarkdownWindowController {
             controller.performFind()
+        }
+    }
+
+    @objc private func toggleTableOfContents(_ sender: Any?) {
+        if let window = NSApplication.shared.keyWindow,
+           let controller = window.windowController as? MarkdownWindowController {
+            controller.toggleToc()
         }
     }
 
