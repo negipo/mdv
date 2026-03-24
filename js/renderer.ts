@@ -3,10 +3,17 @@ import DOMPurify from "dompurify";
 import { initHighlighter, renderMarkdown, loadLanguageOnDemand } from "./markdown";
 import { SearchManager } from "./search";
 import { computeZoom, isDrag } from "./zoom";
+import { TocManager } from "./toc";
 
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
 const contentEl = document.getElementById("content")!;
+
+const tocPane = document.createElement("div");
+tocPane.id = "toc-pane";
+document.body.insertBefore(tocPane, contentEl);
+
+const tocManager = new TocManager(contentEl, tocPane);
 
 const searchBar = document.createElement("div");
 searchBar.id = "search-bar";
@@ -70,6 +77,18 @@ document.getElementById("search-next")!.addEventListener("click", () => {
   searchManager.close();
   searchCount.textContent = "";
   searchInput.value = "";
+};
+
+(window as any).toggleToc = () => {
+  tocManager.toggle();
+};
+
+(window as any).showToc = () => {
+  tocManager.show();
+};
+
+(window as any).hideToc = () => {
+  tocManager.hide();
 };
 
 const overlay = document.createElement("div");
@@ -246,6 +265,7 @@ async function renderContent(markdown: string, basePath?: string) {
     await mermaid.run({ nodes: mermaidEls });
   }
   attachMermaidClickHandlers();
+  tocManager.update();
 }
 
 let lastMarkdown: string | null = null;
