@@ -1,15 +1,6 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { TocManager } from "../js/toc";
-
-class MockIntersectionObserver {
-  observe = vi.fn();
-  unobserve = vi.fn();
-  disconnect = vi.fn();
-  constructor(_callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {}
-}
-
-vi.stubGlobal("IntersectionObserver", MockIntersectionObserver);
 
 describe("TocManager", () => {
   let container: HTMLElement;
