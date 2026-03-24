@@ -59,16 +59,10 @@ class TitlebarTabsWindow: NSWindow {
 
     override func removeTitlebarAccessoryViewController(at index: Int) {
         let isTab = titlebarAccessoryViewControllers[index].identifier == Self.tabBarIdentifier
-        super.removeTitlebarAccessoryViewController(at: index)
         if isTab {
-            windowButtonsBackdrop?.isHidden = true
-            windowDragHandle?.isHidden = true
-            titleVisibility = .hidden
-            if let toolbar = toolbar as? TitlebarTabsToolbar {
-                toolbar.titleIsHidden = false
-                toolbar.titleText = title
-            }
+            return
         }
+        super.removeTitlebarAccessoryViewController(at: index)
     }
 
     private func isTabBar(_ childViewController: NSTitlebarAccessoryViewController) -> Bool {
