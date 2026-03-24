@@ -104,7 +104,7 @@ class TitlebarTabsWindow: NSWindow {
 
             accessoryClipView.translatesAutoresizingMaskIntoConstraints = false
             accessoryClipView.leftAnchor.constraint(equalTo: windowButtonsBackdrop.rightAnchor).isActive = true
-            accessoryClipView.rightAnchor.constraint(equalTo: toolbarView.rightAnchor).isActive = true
+            accessoryClipView.rightAnchor.constraint(equalTo: toolbarView.rightAnchor, constant: -36).isActive = true
             accessoryClipView.topAnchor.constraint(equalTo: toolbarView.topAnchor).isActive = true
             accessoryClipView.heightAnchor.constraint(equalTo: toolbarView.heightAnchor).isActive = true
 
@@ -260,15 +260,24 @@ private class TitlebarTabsToolbar: NSToolbar, NSToolbarDelegate {
             titleTextField.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
             return item
         }
+        if itemIdentifier.rawValue == "TocToggle" {
+            let item = NSToolbarItem(itemIdentifier: itemIdentifier)
+            let button = NSButton(image: NSImage(systemSymbolName: "list.bullet.indent", accessibilityDescription: "Table of Contents")!, target: nil, action: #selector(MarkdownWindowController.toggleTocAction(_:)))
+            button.bezelStyle = .toolbar
+            button.setButtonType(.momentaryPushIn)
+            item.view = button
+            item.label = "Table of Contents"
+            return item
+        }
         return NSToolbarItem(itemIdentifier: itemIdentifier)
     }
 
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        return [.flexibleSpace, .init("TitleText")]
+        return [.flexibleSpace, .init("TitleText"), .init("TocToggle")]
     }
 
     func toolbarDefaultItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
-        return [.flexibleSpace, .init("TitleText"), .flexibleSpace]
+        return [.flexibleSpace, .init("TitleText"), .flexibleSpace, .init("TocToggle")]
     }
 }
 

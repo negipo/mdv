@@ -139,6 +139,10 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         }
     }
 
+    @objc func toggleTocAction(_ sender: Any?) {
+        toggleToc()
+    }
+
     func toggleToc() {
         webView.evaluateJavaScript("window.toggleToc()") { _, error in
             if let error = error {
