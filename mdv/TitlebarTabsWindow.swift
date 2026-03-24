@@ -114,6 +114,15 @@ class TitlebarTabsWindow: NSWindow {
             accessoryView.topAnchor.constraint(equalTo: accessoryClipView.topAnchor).isActive = true
             accessoryView.heightAnchor.constraint(equalTo: accessoryClipView.heightAnchor).isActive = true
 
+            if let tabBar = accessoryView.firstDescendant(withClassName: "NSTabBar") {
+                let expectedHeight = accessoryClipView.frame.height - 12
+                if tabBar.frame.height > expectedHeight {
+                    var tabFrame = tabBar.frame
+                    tabFrame.size.height = expectedHeight
+                    tabBar.frame = tabFrame
+                }
+            }
+
             accessoryClipView.wantsLayer = true
             accessoryClipView.layer?.sublayerTransform = CATransform3DMakeTranslation(0, -2, 0)
 
