@@ -260,6 +260,7 @@ private class TitlebarTabsToolbar: NSToolbar, NSToolbarDelegate {
             titleTextField.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
             return item
         }
+
         return NSToolbarItem(itemIdentifier: itemIdentifier)
     }
 
