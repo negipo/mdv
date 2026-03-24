@@ -60,8 +60,7 @@ class WindowManager {
         controllers[resolved] = controller
         controller.openFile(path: resolved)
 
-        if let existingController = controllers.values.first(where: { $0.window?.tabbingIdentifier == "mdv-markdown" && $0 !== controller }),
-           let existingWindow = existingController.window,
+        if let existingWindow = findTargetWindow(excluding: controller),
            let newWindow = controller.window {
             existingWindow.addTabbedWindow(newWindow, ordered: .above)
             newWindow.makeKeyAndOrderFront(nil)
@@ -96,6 +95,19 @@ class WindowManager {
                 openOrFocus(filePath: url.path)
             }
         }
+    }
+
+    func findTargetWindow(excluding controller: MarkdownWindowController?) -> NSWindow? {
+        if let keyWindow = NSApplication.shared.keyWindow,
+           keyWindow.tabbingIdentifier == "mdv-markdown",
+           let keyController = keyWindow.windowController as? MarkdownWindowController,
+           keyController !== controller {
+            return keyWindow
+        }
+
+        return controllers.values
+            .first(where: { $0 !== controller && $0.window?.tabbingIdentifier == "mdv-markdown" })?
+            .window
     }
 
     struct WindowState: Codable {
