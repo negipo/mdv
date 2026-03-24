@@ -15,3 +15,13 @@ npm run build      # Full build
 
 - Create a PR and merge into main. Avoid pushing directly to main.
 - All user-facing UI text (menu items, labels, alerts, etc.) must be in English.
+
+## Manual UI Verification
+
+When verifying UI changes, kill the running app, rebuild, and relaunch for the user to check:
+
+```bash
+pkill -x mdv 2>/dev/null
+xcodebuild -scheme mdv -configuration Debug build 2>&1 | tail -5
+open ~/Library/Developer/Xcode/DerivedData/mdv-afrghrsxmvulxhcshpjiumlziahy/Build/Products/Debug/mdv.app
+```
