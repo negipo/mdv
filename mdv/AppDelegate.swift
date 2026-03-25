@@ -277,7 +277,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     @objc private func toggleTableOfContents(_ sender: Any?) {
         if let window = NSApplication.shared.keyWindow,
            let controller = window.windowController as? MarkdownWindowController {
-            controller.toggleToc()
+            controller.toggleToc(nil)
         }
     }
 
