@@ -5,6 +5,7 @@ class TitlebarTabsWindow: NSWindow {
 
     private var windowButtonsBackdrop: WindowButtonsBackdropView?
     private var windowDragHandle: WindowDragView?
+    private var tocToggleButton: NSButton?
 
     override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
         super.init(contentRect: contentRect, styleMask: style, backing: backingStoreType, defer: flag)
@@ -100,10 +101,19 @@ class TitlebarTabsWindow: NSWindow {
             self?.addWindowButtonsBackdrop(titlebarView: titlebarView, toolbarView: toolbarView)
             guard let windowButtonsBackdrop = self?.windowButtonsBackdrop else { return }
 
+            self?.addTocToggleButton(titlebarView: titlebarView, toolbarView: toolbarView)
+
             self?.addWindowDragHandle(titlebarView: titlebarView, toolbarView: toolbarView)
 
+            let tabLeftAnchor: NSLayoutXAxisAnchor
+            if let tocButton = self?.tocToggleButton, tocButton.superview == titlebarView {
+                tabLeftAnchor = tocButton.rightAnchor
+            } else {
+                tabLeftAnchor = windowButtonsBackdrop.rightAnchor
+            }
+
             accessoryClipView.translatesAutoresizingMaskIntoConstraints = false
-            accessoryClipView.leftAnchor.constraint(equalTo: windowButtonsBackdrop.rightAnchor).isActive = true
+            accessoryClipView.leftAnchor.constraint(equalTo: tabLeftAnchor).isActive = true
             accessoryClipView.rightAnchor.constraint(equalTo: toolbarView.rightAnchor).isActive = true
             accessoryClipView.topAnchor.constraint(equalTo: toolbarView.topAnchor).isActive = true
             accessoryClipView.heightAnchor.constraint(equalTo: toolbarView.heightAnchor).isActive = true
@@ -149,6 +159,34 @@ class TitlebarTabsWindow: NSWindow {
         view.heightAnchor.constraint(equalTo: toolbarView.heightAnchor).isActive = true
 
         windowButtonsBackdrop = view
+    }
+
+    private func addTocToggleButton(titlebarView: NSView, toolbarView: NSView) {
+        guard tocToggleButton?.superview != titlebarView else { return }
+        tocToggleButton?.removeFromSuperview()
+        tocToggleButton = nil
+
+        guard let windowButtonsBackdrop else { return }
+
+        let button = NSButton(frame: .zero)
+        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+        button.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: "Table of Contents")?.withSymbolConfiguration(config)
+        button.contentTintColor = .labelColor
+        button.bezelStyle = .toolbar
+        button.setButtonType(.momentaryPushIn)
+        button.isBordered = false
+        button.target = nil
+        button.action = #selector(MarkdownWindowController.toggleToc(_:))
+        button.identifier = NSUserInterfaceItemIdentifier("_tocToggleButton")
+        titlebarView.addSubview(button)
+
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.leftAnchor.constraint(equalTo: windowButtonsBackdrop.rightAnchor, constant: 4).isActive = true
+        button.centerYAnchor.constraint(equalTo: toolbarView.centerYAnchor).isActive = true
+        button.widthAnchor.constraint(equalToConstant: 36).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+
+        tocToggleButton = button
     }
 
     private func addWindowDragHandle(titlebarView: NSView, toolbarView: NSView) {
@@ -199,6 +237,13 @@ private class WindowDragView: NSView {
         guard let titlebarView = superview?.firstDescendant(withClassName: "NSTitlebarView"),
               let tabBar = titlebarView.firstDescendant(withClassName: "NSTabBar") else {
             return super.hitTest(point)
+        }
+
+        if let tocButton = titlebarView.subviews.first(where: { $0.identifier?.rawValue == "_tocToggleButton" }) {
+            let pointInButton = tocButton.convert(point, from: superview)
+            if tocButton.bounds.contains(pointInButton) {
+                return nil
+            }
         }
 
         let pointInTabBar = tabBar.convert(point, from: superview)
