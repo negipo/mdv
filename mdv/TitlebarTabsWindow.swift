@@ -300,7 +300,9 @@ private class TitlebarTabsToolbar: NSToolbar, NSToolbarDelegate {
     override init(identifier: NSToolbar.Identifier) {
         super.init(identifier: identifier)
         delegate = self
-        showsBaselineSeparator = false
+        if #unavailable(macOS 15.0) {
+            showsBaselineSeparator = false
+        }
         centeredItemIdentifiers.insert(.init("TitleText"))
     }
 
