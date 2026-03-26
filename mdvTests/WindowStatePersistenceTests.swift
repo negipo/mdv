@@ -43,7 +43,7 @@ final class WindowStatePersistenceTests: XCTestCase {
     // 壊れたJSONファイルの場合はデフォルト値にフォールバックする
     func testCorruptedWindowStateReturnsDefault() {
         let statePath = (tmpDir as NSString).appendingPathComponent("window-state.json")
-        FileManager.default.createFile(atPath: statePath, contents: "not json".data(using: .utf8))
+        FileManager.default.createFile(atPath: statePath, contents: Data("not json".utf8))
 
         let state = manager.loadWindowState()
         XCTAssertEqual(state.width, 900)

@@ -7,7 +7,10 @@ class TitlebarTabsWindow: NSWindow {
     private var windowDragHandle: WindowDragView?
     private var tocToggleButton: NSButton?
 
-    override init(contentRect: NSRect, styleMask style: NSWindow.StyleMask, backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool) {
+    override init(
+        contentRect: NSRect, styleMask style: NSWindow.StyleMask,
+        backing backingStoreType: NSWindow.BackingStoreType, defer flag: Bool
+    ) {
         super.init(contentRect: contentRect, styleMask: style, backing: backingStoreType, defer: flag)
 
         tabbingMode = .preferred
@@ -170,7 +173,11 @@ class TitlebarTabsWindow: NSWindow {
 
         let button = NSButton(frame: .zero)
         let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
-        button.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: "Table of Contents")?.withSymbolConfiguration(config)
+        let icon = NSImage(
+            systemSymbolName: "sidebar.left",
+            accessibilityDescription: "Table of Contents"
+        )?.withSymbolConfiguration(config)
+        button.image = icon
         button.contentTintColor = .labelColor
         button.bezelStyle = .toolbar
         button.setButtonType(.momentaryPushIn)
@@ -306,7 +313,11 @@ private class TitlebarTabsToolbar: NSToolbar, NSToolbarDelegate {
         centeredItemIdentifiers.insert(.init("TitleText"))
     }
 
-    func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
+    func toolbar(
+        _ toolbar: NSToolbar,
+        itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier,
+        willBeInsertedIntoToolbar flag: Bool
+    ) -> NSToolbarItem? {
         if itemIdentifier.rawValue == "TitleText" {
             let item = NSToolbarItem(itemIdentifier: itemIdentifier)
             item.view = titleTextField
