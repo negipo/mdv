@@ -1,4 +1,4 @@
-# mdv
+# mdv - Markdown Viewer for Coding Agents
 
 ![image](docs/screenshot.png)
 
@@ -14,18 +14,11 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 
 ## Installation and Usage
 
-Download the latest dmg from [Releases](https://github.com/negipo/mdv/releases), open it, and drag `mdv.app` to `/Applications`.
-
-On first launch, macOS will block the app because it is not signed. Run the following command before launching:
+### Homebrew
 
 ```bash
-xattr -cr /Applications/mdv.app
-```
-
-Open mdv.app from Finder to install the CLI command. After that, you can use it from the terminal:
-
-```bash
-mdv path/to/file.md
+brew install --cask negipo/tap/mdv
+xattr -dr com.apple.quarantine /Applications/mdv.app
 ```
 
 ## Development
