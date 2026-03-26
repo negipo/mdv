@@ -5,5 +5,5 @@ APP_PATH="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 if [ $# -eq 0 ]; then
   open "$APP_PATH"
 else
-  open "$APP_PATH" "$@"
+  open -a "$APP_PATH" "$@"
 fi
