@@ -14,8 +14,6 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 
 ## Installation and Usage
 
-### Homebrew
-
 ```bash
 brew install --cask negipo/tap/mdv
 xattr -dr com.apple.quarantine /Applications/mdv.app
