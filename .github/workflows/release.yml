@@ -55,3 +55,14 @@ jobs:
             --target ${{ github.sha }}
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Dispatch to homebrew-tap
+        run: |
+          DMG_NAME="mdv-${{ steps.calver.outputs.version }}-macos.dmg"
+          SHA256=$(shasum -a 256 "$DMG_NAME" | awk '{print $1}')
+          gh api repos/negipo/homebrew-tap/dispatches \
+            --field event_type=update-mdv \
+            --field client_payload[version]="${{ steps.calver.outputs.version }}" \
+            --field client_payload[sha256]="$SHA256"
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}

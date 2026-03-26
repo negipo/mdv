@@ -14,6 +14,15 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 
 ## Installation and Usage
 
+### Homebrew
+
+```bash
+brew install --cask negipo/tap/mdv
+xattr -dr com.apple.quarantine /Applications/mdv.app
+```
+
+### Manual
+
 Download the latest dmg from [Releases](https://github.com/negipo/mdv/releases), open it, and drag `mdv.app` to `/Applications`.
 
 On first launch, macOS will block the app because it is not signed. Run the following command before launching:
