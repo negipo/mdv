@@ -152,10 +152,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     private static let cliInstallPath = "/usr/local/bin/mdv"
+    private static let cliSearchPaths = ["/opt/homebrew/bin/mdv", "/usr/local/bin/mdv"]
     private static let cliPromptShownKey = "CLIInstallPromptShown"
 
+    private var installedCLIPath: String? {
+        Self.cliSearchPaths.first { path in
+            (try? FileManager.default.attributesOfItem(atPath: path)) != nil
+        }
+    }
+
     private var isCLIInstalled: Bool {
-        (try? FileManager.default.attributesOfItem(atPath: Self.cliInstallPath)) != nil
+        installedCLIPath != nil
     }
 
     func promptCLIInstallIfNeeded() {
@@ -179,7 +186,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         if isCLIInstalled {
             let alert = NSAlert()
             alert.messageText = "Command line tool is already installed."
-            alert.informativeText = "The mdv command is available at \(Self.cliInstallPath)."
+            alert.informativeText = "The mdv command is available at \(installedCLIPath ?? Self.cliInstallPath)."
             alert.alertStyle = .informational
             alert.addButton(withTitle: "OK")
             alert.runModal()
