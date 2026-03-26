@@ -1,6 +1,5 @@
 #!/bin/bash
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-APP_PATH="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+APP_PATH="/Applications/mdv.app"
 
 if [ $# -eq 0 ]; then
   open "$APP_PATH"
