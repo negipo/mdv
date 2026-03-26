@@ -211,8 +211,8 @@ class TitlebarTabsWindow: NSWindow {
 
     private func hideTitleBarSeparators() {
         guard let titlebarContainer else { return }
-        for v in titlebarContainer.descendantsViews(withClassName: "NSTitlebarSeparatorView") {
-            v.isHidden = true
+        for view in titlebarContainer.descendantsViews(withClassName: "NSTitlebarSeparatorView") {
+            view.isHidden = true
         }
     }
 

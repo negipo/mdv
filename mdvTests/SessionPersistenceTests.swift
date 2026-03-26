@@ -26,6 +26,7 @@ final class SessionPersistenceTests: XCTestCase {
     func testSaveAndLoadSessionRoundTrip() {
         let sessionPath = (tmpDir as NSString).appendingPathComponent("session.json")
         let paths = ["/tmp/test1.md", "/tmp/test2.md"]
+        // swiftlint:disable:next force_try
         let data = try! JSONEncoder().encode(paths)
         FileManager.default.createFile(atPath: sessionPath, contents: data)
 

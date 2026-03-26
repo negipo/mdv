@@ -29,6 +29,7 @@ final class WindowStatePersistenceTests: XCTestCase {
     func testSaveAndLoadWindowStateRoundTrip() {
         let statePath = (tmpDir as NSString).appendingPathComponent("window-state.json")
         let state = WindowManager.WindowState(width: 1200, height: 800, x: 100, y: 200)
+        // swiftlint:disable:next force_try
         let data = try! JSONEncoder().encode(state)
         FileManager.default.createFile(atPath: statePath, contents: data)
 

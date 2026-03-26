@@ -38,9 +38,10 @@ class FileWatcher {
             { _, info, numEvents, eventPaths, _, _ in
                 guard let info = info else { return }
                 let watcher = Unmanaged<FileWatcher>.fromOpaque(info).takeUnretainedValue()
+                // swiftlint:disable:next force_cast
                 let paths = Unmanaged<CFArray>.fromOpaque(eventPaths).takeUnretainedValue() as! [String]
-                for i in 0..<numEvents {
-                    let path = paths[i]
+                for index in 0..<numEvents {
+                    let path = paths[index]
                     if (path as NSString).lastPathComponent == watcher.fileName {
                         watcher.scheduleCallback()
                         break
