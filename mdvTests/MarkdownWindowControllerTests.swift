@@ -61,7 +61,7 @@ final class MarkdownWindowControllerTests: XCTestCase {
     // ファイルを開くとウィンドウタイトルがファイル名になる
     func testOpenFileSetsWindowTitle() {
         let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctrl_\(UUID().uuidString).md")
-        FileManager.default.createFile(atPath: tmpFile, contents: "# Hello".data(using: .utf8))
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Hello".utf8))
         defer { try? FileManager.default.removeItem(atPath: tmpFile) }
 
         controller.openFile(path: tmpFile)
@@ -72,7 +72,7 @@ final class MarkdownWindowControllerTests: XCTestCase {
     // ファイルを開くとrepresentedURLが設定される
     func testOpenFileSetsRepresentedURL() {
         let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctrl_\(UUID().uuidString).md")
-        FileManager.default.createFile(atPath: tmpFile, contents: "# Hello".data(using: .utf8))
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Hello".utf8))
         defer { try? FileManager.default.removeItem(atPath: tmpFile) }
 
         controller.openFile(path: tmpFile)
@@ -82,7 +82,7 @@ final class MarkdownWindowControllerTests: XCTestCase {
     // ファイルが削除された後にリロードするとタイトルに「削除済み」が付く
     func testDeletedFileUpdatesTitle() {
         let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctrl_\(UUID().uuidString).md")
-        FileManager.default.createFile(atPath: tmpFile, contents: "# Hello".data(using: .utf8))
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Hello".utf8))
 
         controller.openFile(path: tmpFile)
         try? FileManager.default.removeItem(atPath: tmpFile)
@@ -99,7 +99,7 @@ final class MarkdownWindowControllerTests: XCTestCase {
     // ファイルを開くとcurrentFilePathがフルパスを返す
     func testCurrentFilePathReturnsFullPath() {
         let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctrl_\(UUID().uuidString).md")
-        FileManager.default.createFile(atPath: tmpFile, contents: "# Hello".data(using: .utf8))
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Hello".utf8))
         defer { try? FileManager.default.removeItem(atPath: tmpFile) }
 
         controller.openFile(path: tmpFile)

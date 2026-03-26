@@ -2,14 +2,39 @@ name: Test
 
 on:
   push:
-  pull_request:
-    branches: [main]
 
 concurrency:
   group: test-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  lint:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: '25.8.1'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Biome
+        run: npx biome check js/ tests/
+
+      - name: Run Oxlint
+        run: npx oxlint js/ tests/
+
+      - name: Run TypeScript typecheck
+        run: npx tsc --noEmit
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Run SwiftLint
+        run: swiftlint
+
   test:
     runs-on: macos-26
     steps:

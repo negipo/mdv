@@ -84,7 +84,7 @@ class WindowManager {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [
             UTType(filenameExtension: "md") ?? .plainText,
-            UTType(filenameExtension: "markdown") ?? .plainText,
+            UTType(filenameExtension: "markdown") ?? .plainText
         ]
         panel.allowsMultipleSelection = true
         panel.canChooseDirectories = false
@@ -113,8 +113,10 @@ class WindowManager {
     struct WindowState: Codable {
         var width: CGFloat = 900
         var height: CGFloat = 700
+        // swiftlint:disable identifier_name
         var x: CGFloat?
         var y: CGFloat?
+        // swiftlint:enable identifier_name
     }
 
     func loadWindowState() -> WindowState {

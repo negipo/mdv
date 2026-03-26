@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SearchManager } from "../js/search";
 
 describe("SearchManager", () => {
@@ -10,7 +10,7 @@ describe("SearchManager", () => {
     document.body.innerHTML = `
       <div id="content"><p>Hello world. Hello again.</p></div>
     `;
-    container = document.getElementById("content")!;
+    container = document.getElementById("content") as HTMLElement;
     searchManager = new SearchManager(container);
   });
 

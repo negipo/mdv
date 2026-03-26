@@ -26,6 +26,7 @@ final class SessionPersistenceTests: XCTestCase {
     func testSaveAndLoadSessionRoundTrip() {
         let sessionPath = (tmpDir as NSString).appendingPathComponent("session.json")
         let paths = ["/tmp/test1.md", "/tmp/test2.md"]
+        // swiftlint:disable:next force_try
         let data = try! JSONEncoder().encode(paths)
         FileManager.default.createFile(atPath: sessionPath, contents: data)
 
@@ -36,7 +37,7 @@ final class SessionPersistenceTests: XCTestCase {
     // 壊れたセッションファイルの場合は空配列を返す
     func testLoadSessionReturnsEmptyForCorruptedFile() {
         let sessionPath = (tmpDir as NSString).appendingPathComponent("session.json")
-        FileManager.default.createFile(atPath: sessionPath, contents: "not json".data(using: .utf8))
+        FileManager.default.createFile(atPath: sessionPath, contents: Data("not json".utf8))
 
         let restored = manager.loadSession()
         XCTAssertTrue(restored.isEmpty)

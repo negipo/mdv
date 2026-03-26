@@ -5,7 +5,7 @@ final class ContentContextMenuTests: XCTestCase {
     // copyFullPathがファイルパスをクリップボードにコピーする
     func testCopyFullPathAction() {
         let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctx_\(UUID().uuidString).md")
-        FileManager.default.createFile(atPath: tmpFile, contents: "# Test".data(using: .utf8))
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
         defer { try? FileManager.default.removeItem(atPath: tmpFile) }
 
         let state = WindowManager.WindowState()
@@ -25,7 +25,7 @@ final class ContentContextMenuTests: XCTestCase {
     func testCopyContentAction() {
         let content = "# Hello\n\nWorld"
         let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctx_\(UUID().uuidString).md")
-        FileManager.default.createFile(atPath: tmpFile, contents: content.data(using: .utf8))
+        FileManager.default.createFile(atPath: tmpFile, contents: Data(content.utf8))
         defer { try? FileManager.default.removeItem(atPath: tmpFile) }
 
         let state = WindowManager.WindowState()

@@ -1,0 +1,16 @@
+included:
+  - mdv
+  - mdvTests
+
+excluded:
+  - build
+  - dist
+  - node_modules
+  - .build
+
+disabled_rules:
+  - trailing_whitespace
+
+opt_in_rules:
+  - empty_count
+  - closure_spacing

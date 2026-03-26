@@ -19,11 +19,19 @@ class NoBeepWebView: WKWebView {
 
         menu.addItem(.separator())
 
-        let pathItem = NSMenuItem(title: "Copy File Path", action: #selector(MarkdownWindowController.copyFullPath(_:)), keyEquivalent: "")
+        let pathItem = NSMenuItem(
+            title: "Copy File Path",
+            action: #selector(MarkdownWindowController.copyFullPath(_:)),
+            keyEquivalent: ""
+        )
         pathItem.target = controller
         menu.addItem(pathItem)
 
-        let contentItem = NSMenuItem(title: "Copy as Markdown", action: #selector(MarkdownWindowController.copyContent(_:)), keyEquivalent: "")
+        let contentItem = NSMenuItem(
+            title: "Copy as Markdown",
+            action: #selector(MarkdownWindowController.copyContent(_:)),
+            keyEquivalent: ""
+        )
         contentItem.target = controller
         menu.addItem(contentItem)
     }
@@ -219,7 +227,11 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         }
     }
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
         if let url = navigationAction.request.url {
             if url.isFileURL {
                 let ext = url.pathExtension.lowercased()

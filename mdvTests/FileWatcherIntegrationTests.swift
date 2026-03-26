@@ -6,7 +6,7 @@ final class FileWatcherIntegrationTests: XCTestCase {
     func testDetectsFileChange() {
         let tmpDir = NSTemporaryDirectory()
         let filePath = (tmpDir as NSString).appendingPathComponent("mdv_test_\(UUID().uuidString).md")
-        FileManager.default.createFile(atPath: filePath, contents: "# Initial".data(using: .utf8))
+        FileManager.default.createFile(atPath: filePath, contents: Data("# Initial".utf8))
         defer { try? FileManager.default.removeItem(atPath: filePath) }
 
         let callbackFired = expectation(description: "FileWatcher callback fires on file change")
@@ -27,7 +27,7 @@ final class FileWatcherIntegrationTests: XCTestCase {
     func testStopPreventsCallback() {
         let tmpDir = NSTemporaryDirectory()
         let filePath = (tmpDir as NSString).appendingPathComponent("mdv_test_\(UUID().uuidString).md")
-        FileManager.default.createFile(atPath: filePath, contents: "# Initial".data(using: .utf8))
+        FileManager.default.createFile(atPath: filePath, contents: Data("# Initial".utf8))
         defer { try? FileManager.default.removeItem(atPath: filePath) }
 
         var callbackCalled = false

@@ -1,13 +1,30 @@
-import mermaid from "mermaid";
 import DOMPurify from "dompurify";
-import { initHighlighter, renderMarkdown, loadLanguageOnDemand } from "./markdown";
+import mermaid from "mermaid";
+import { initHighlighter, renderMarkdown } from "./markdown";
 import { SearchManager } from "./search";
-import { computeZoom, isDrag } from "./zoom";
 import { TocManager } from "./toc";
+import { computeZoom, isDrag } from "./zoom";
+
+declare global {
+  interface Window {
+    showSearchBar: () => void;
+    hideSearchBar: () => void;
+    toggleToc: () => void;
+    showToc: () => void;
+    hideToc: () => void;
+    handleEscape: () => void;
+    updateMarkdown: (markdown: string, basePath?: string) => void;
+    webkit?: {
+      messageHandlers?: {
+        ready?: { postMessage: (message: string) => void };
+      };
+    };
+  }
+}
 
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
-const contentEl = document.getElementById("content")!;
+const contentEl = document.getElementById("content") as HTMLElement;
 
 const tocPane = document.createElement("div");
 tocPane.id = "toc-pane";
@@ -26,7 +43,7 @@ searchBar.innerHTML = `
 document.body.appendChild(searchBar);
 
 const searchInput = document.getElementById("search-input") as HTMLInputElement;
-const searchCount = document.getElementById("search-count")!;
+const searchCount = document.getElementById("search-count") as HTMLElement;
 const searchManager = new SearchManager(contentEl);
 
 function updateSearchCount() {
@@ -56,38 +73,38 @@ searchInput.addEventListener("keydown", (e) => {
   }
 });
 
-document.getElementById("search-prev")!.addEventListener("click", () => {
+document.getElementById("search-prev")?.addEventListener("click", () => {
   searchManager.prev();
   updateSearchCount();
 });
 
-document.getElementById("search-next")!.addEventListener("click", () => {
+document.getElementById("search-next")?.addEventListener("click", () => {
   searchManager.next();
   updateSearchCount();
 });
 
-(window as any).showSearchBar = () => {
+window.showSearchBar = () => {
   searchBar.classList.add("active");
   searchInput.focus();
   searchInput.select();
 };
 
-(window as any).hideSearchBar = () => {
+window.hideSearchBar = () => {
   searchBar.classList.remove("active");
   searchManager.close();
   searchCount.textContent = "";
   searchInput.value = "";
 };
 
-(window as any).toggleToc = () => {
+window.toggleToc = () => {
   tocManager.toggle();
 };
 
-(window as any).showToc = () => {
+window.showToc = () => {
   tocManager.show();
 };
 
-(window as any).hideToc = () => {
+window.hideToc = () => {
   tocManager.hide();
 };
 
@@ -109,8 +126,7 @@ let translateY = 0;
 let isPanning = false;
 
 function applyTransform() {
-  overlayInner.style.transform =
-    `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  overlayInner.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
 }
 
 function centerOverlayInner() {
@@ -122,7 +138,7 @@ function centerOverlayInner() {
   const innerRect = overlayInner.getBoundingClientRect();
   const fitScale = Math.min(
     contentRect.width / innerRect.width,
-    contentRect.height / innerRect.height
+    contentRect.height / innerRect.height,
   );
   minScale = fitScale;
   maxScale = fitScale * 20;
@@ -153,7 +169,16 @@ overlayContent.addEventListener(
     const delta = e.deltaY > 0 ? -1 : 1;
     const newScale = scale * (1 + delta * 0.1);
 
-    const result = computeZoom(cursorX, cursorY, scale, newScale, translateX, translateY, minScale, maxScale);
+    const result = computeZoom(
+      cursorX,
+      cursorY,
+      scale,
+      newScale,
+      translateX,
+      translateY,
+      minScale,
+      maxScale,
+    );
     if (result.scale === scale) return;
 
     scale = result.scale;
@@ -161,7 +186,7 @@ overlayContent.addEventListener(
     translateY = result.translateY;
     applyTransform();
   },
-  { passive: false }
+  { passive: false },
 );
 
 let panStartX = 0;
@@ -205,13 +230,13 @@ overlayContent.addEventListener("click", (e: MouseEvent) => {
   }
 });
 
-(window as any).handleEscape = () => {
+window.handleEscape = () => {
   if (overlay.classList.contains("active")) {
     overlay.classList.remove("active");
     return;
   }
   if (searchBar.classList.contains("active")) {
-    (window as any).hideSearchBar();
+    window.hideSearchBar();
   }
 };
 
@@ -228,16 +253,22 @@ function attachMermaidClickHandlers() {
 function resolveLocalPath(raw: string, basePath: string): string {
   const decoded = decodeURI(raw);
   if (decoded.startsWith("/")) {
-    return "file://" + encodeURI(decoded);
+    return `file://${encodeURI(decoded)}`;
   }
-  return "file://" + encodeURI(basePath + "/" + decoded);
+  return `file://${encodeURI(`${basePath}/${decoded}`)}`;
 }
 
 function resolveImagePaths(container: HTMLElement, basePath: string) {
   container.querySelectorAll<HTMLImageElement>("img").forEach((img) => {
     const src = img.getAttribute("src");
     if (!src) return;
-    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:") || src.startsWith("file://")) return;
+    if (
+      src.startsWith("http://") ||
+      src.startsWith("https://") ||
+      src.startsWith("data:") ||
+      src.startsWith("file://")
+    )
+      return;
     img.src = resolveLocalPath(src, basePath);
   });
 }
@@ -246,7 +277,14 @@ function resolveLinkPaths(container: HTMLElement, basePath: string) {
   container.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((a) => {
     const href = a.getAttribute("href");
     if (!href) return;
-    if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("data:") || href.startsWith("file://") || href.startsWith("#")) return;
+    if (
+      href.startsWith("http://") ||
+      href.startsWith("https://") ||
+      href.startsWith("data:") ||
+      href.startsWith("file://") ||
+      href.startsWith("#")
+    )
+      return;
     a.href = resolveLocalPath(href, basePath);
   });
 }
@@ -270,25 +308,26 @@ async function renderContent(markdown: string, basePath?: string) {
 
 let lastMarkdown: string | null = null;
 let lastBasePath: string | undefined;
-let highlighterReady = false;
 
-(window as any).updateMarkdown = (markdown: string, basePath?: string) => {
+window.updateMarkdown = (markdown: string, basePath?: string) => {
   lastMarkdown = markdown;
   lastBasePath = basePath ?? undefined;
   renderContent(markdown, lastBasePath).catch(console.error);
 };
 
 (async () => {
-  if ((window as any).webkit?.messageHandlers?.ready) {
-    (window as any).webkit.messageHandlers.ready.postMessage("initialized");
+  if (window.webkit?.messageHandlers?.ready) {
+    window.webkit.messageHandlers.ready.postMessage("initialized");
   }
   try {
     await initHighlighter();
-    highlighterReady = true;
     if (lastMarkdown) {
       renderContent(lastMarkdown, lastBasePath).catch(console.error);
     }
   } catch (e) {
-    console.error("shiki initialization failed, continuing without syntax highlighting:", e);
+    console.error(
+      "shiki initialization failed, continuing without syntax highlighting:",
+      e,
+    );
   }
 })();
