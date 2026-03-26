@@ -236,9 +236,9 @@ function attachMermaidClickHandlers() {
 function resolveLocalPath(raw: string, basePath: string): string {
   const decoded = decodeURI(raw);
   if (decoded.startsWith("/")) {
-    return "file://" + encodeURI(decoded);
+    return `file://${encodeURI(decoded)}`;
   }
-  return "file://" + encodeURI(basePath + "/" + decoded);
+  return `file://${encodeURI(`${basePath}/${decoded}`)}`;
 }
 
 function resolveImagePaths(container: HTMLElement, basePath: string) {
@@ -291,7 +291,6 @@ async function renderContent(markdown: string, basePath?: string) {
 
 let lastMarkdown: string | null = null;
 let lastBasePath: string | undefined;
-let _highlighterReady = false;
 
 (window as any).updateMarkdown = (markdown: string, basePath?: string) => {
   lastMarkdown = markdown;
@@ -305,7 +304,6 @@ let _highlighterReady = false;
   }
   try {
     await initHighlighter();
-    _highlighterReady = true;
     if (lastMarkdown) {
       renderContent(lastMarkdown, lastBasePath).catch(console.error);
     }

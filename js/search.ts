@@ -2,7 +2,6 @@ export class SearchManager {
   private container: HTMLElement;
   private currentIndex = -1;
   private matchCount = 0;
-  private query = "";
 
   constructor(container: HTMLElement) {
     this.container = container;
@@ -10,7 +9,6 @@ export class SearchManager {
 
   search(query: string): number {
     this.clearHighlights();
-    this.query = query;
     this.currentIndex = -1;
 
     if (!query) {
@@ -60,7 +58,6 @@ export class SearchManager {
 
   close() {
     this.clearHighlights();
-    this.query = "";
   }
 
   get count(): number {
