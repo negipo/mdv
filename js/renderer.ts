@@ -1,10 +1,6 @@
 import DOMPurify from "dompurify";
 import mermaid from "mermaid";
-import {
-  initHighlighter,
-  loadLanguageOnDemand,
-  renderMarkdown,
-} from "./markdown";
+import { initHighlighter, renderMarkdown } from "./markdown";
 import { SearchManager } from "./search";
 import { TocManager } from "./toc";
 import { computeZoom, isDrag } from "./zoom";
@@ -295,7 +291,7 @@ async function renderContent(markdown: string, basePath?: string) {
 
 let lastMarkdown: string | null = null;
 let lastBasePath: string | undefined;
-let highlighterReady = false;
+let _highlighterReady = false;
 
 (window as any).updateMarkdown = (markdown: string, basePath?: string) => {
   lastMarkdown = markdown;
@@ -309,7 +305,7 @@ let highlighterReady = false;
   }
   try {
     await initHighlighter();
-    highlighterReady = true;
+    _highlighterReady = true;
     if (lastMarkdown) {
       renderContent(lastMarkdown, lastBasePath).catch(console.error);
     }
