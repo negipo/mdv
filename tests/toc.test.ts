@@ -11,8 +11,8 @@ describe("TocManager", () => {
     document.body.innerHTML =
       '<div id="toc-pane"></div><div id="content"></div>';
     document.body.className = "";
-    container = document.getElementById("content")!;
-    tocPane = document.getElementById("toc-pane")!;
+    container = document.getElementById("content") as HTMLElement;
+    tocPane = document.getElementById("toc-pane") as HTMLElement;
     manager = new TocManager(container, tocPane);
   });
 

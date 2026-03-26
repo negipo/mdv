@@ -5,9 +5,26 @@ import { SearchManager } from "./search";
 import { TocManager } from "./toc";
 import { computeZoom, isDrag } from "./zoom";
 
+declare global {
+  interface Window {
+    showSearchBar: () => void;
+    hideSearchBar: () => void;
+    toggleToc: () => void;
+    showToc: () => void;
+    hideToc: () => void;
+    handleEscape: () => void;
+    updateMarkdown: (markdown: string, basePath?: string) => void;
+    webkit?: {
+      messageHandlers?: {
+        ready?: { postMessage: (message: string) => void };
+      };
+    };
+  }
+}
+
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
-const contentEl = document.getElementById("content")!;
+const contentEl = document.getElementById("content") as HTMLElement;
 
 const tocPane = document.createElement("div");
 tocPane.id = "toc-pane";
@@ -26,7 +43,7 @@ searchBar.innerHTML = `
 document.body.appendChild(searchBar);
 
 const searchInput = document.getElementById("search-input") as HTMLInputElement;
-const searchCount = document.getElementById("search-count")!;
+const searchCount = document.getElementById("search-count") as HTMLElement;
 const searchManager = new SearchManager(contentEl);
 
 function updateSearchCount() {
@@ -56,38 +73,38 @@ searchInput.addEventListener("keydown", (e) => {
   }
 });
 
-document.getElementById("search-prev")!.addEventListener("click", () => {
+document.getElementById("search-prev")?.addEventListener("click", () => {
   searchManager.prev();
   updateSearchCount();
 });
 
-document.getElementById("search-next")!.addEventListener("click", () => {
+document.getElementById("search-next")?.addEventListener("click", () => {
   searchManager.next();
   updateSearchCount();
 });
 
-(window as any).showSearchBar = () => {
+window.showSearchBar = () => {
   searchBar.classList.add("active");
   searchInput.focus();
   searchInput.select();
 };
 
-(window as any).hideSearchBar = () => {
+window.hideSearchBar = () => {
   searchBar.classList.remove("active");
   searchManager.close();
   searchCount.textContent = "";
   searchInput.value = "";
 };
 
-(window as any).toggleToc = () => {
+window.toggleToc = () => {
   tocManager.toggle();
 };
 
-(window as any).showToc = () => {
+window.showToc = () => {
   tocManager.show();
 };
 
-(window as any).hideToc = () => {
+window.hideToc = () => {
   tocManager.hide();
 };
 
@@ -213,13 +230,13 @@ overlayContent.addEventListener("click", (e: MouseEvent) => {
   }
 });
 
-(window as any).handleEscape = () => {
+window.handleEscape = () => {
   if (overlay.classList.contains("active")) {
     overlay.classList.remove("active");
     return;
   }
   if (searchBar.classList.contains("active")) {
-    (window as any).hideSearchBar();
+    window.hideSearchBar();
   }
 };
 
@@ -292,15 +309,15 @@ async function renderContent(markdown: string, basePath?: string) {
 let lastMarkdown: string | null = null;
 let lastBasePath: string | undefined;
 
-(window as any).updateMarkdown = (markdown: string, basePath?: string) => {
+window.updateMarkdown = (markdown: string, basePath?: string) => {
   lastMarkdown = markdown;
   lastBasePath = basePath ?? undefined;
   renderContent(markdown, lastBasePath).catch(console.error);
 };
 
 (async () => {
-  if ((window as any).webkit?.messageHandlers?.ready) {
-    (window as any).webkit.messageHandlers.ready.postMessage("initialized");
+  if (window.webkit?.messageHandlers?.ready) {
+    window.webkit.messageHandlers.ready.postMessage("initialized");
   }
   try {
     await initHighlighter();

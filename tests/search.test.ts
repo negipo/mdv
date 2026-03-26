@@ -10,7 +10,7 @@ describe("SearchManager", () => {
     document.body.innerHTML = `
       <div id="content"><p>Hello world. Hello again.</p></div>
     `;
-    container = document.getElementById("content")!;
+    container = document.getElementById("content") as HTMLElement;
     searchManager = new SearchManager(container);
   });
 
