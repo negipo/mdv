@@ -25,7 +25,10 @@ export class SearchManager {
     if (this.matchCount > 0) {
       this.currentIndex = 0;
       marks[0].classList.add("current");
-      (marks[0] as HTMLElement).scrollIntoView?.({ block: "center", behavior: "smooth" });
+      (marks[0] as HTMLElement).scrollIntoView?.({
+        block: "center",
+        behavior: "smooth",
+      });
     }
 
     return this.matchCount;
@@ -44,7 +47,10 @@ export class SearchManager {
     marks.forEach((mark) => {
       const parent = mark.parentNode;
       if (parent) {
-        parent.replaceChild(document.createTextNode(mark.textContent || ""), mark);
+        parent.replaceChild(
+          document.createTextNode(mark.textContent || ""),
+          mark,
+        );
         parent.normalize();
       }
     });
@@ -73,9 +79,13 @@ export class SearchManager {
       marks[this.currentIndex].classList.remove("current");
     }
 
-    this.currentIndex = (this.currentIndex + direction + this.matchCount) % this.matchCount;
+    this.currentIndex =
+      (this.currentIndex + direction + this.matchCount) % this.matchCount;
     marks[this.currentIndex].classList.add("current");
-    (marks[this.currentIndex] as HTMLElement).scrollIntoView?.({ block: "center", behavior: "smooth" });
+    (marks[this.currentIndex] as HTMLElement).scrollIntoView?.({
+      block: "center",
+      behavior: "smooth",
+    });
   }
 
   private highlightMatches(query: string) {
@@ -87,16 +97,18 @@ export class SearchManager {
           const parent = node.parentElement;
           if (!parent) return NodeFilter.FILTER_REJECT;
           if (parent.closest("pre.mermaid")) return NodeFilter.FILTER_REJECT;
-          if (parent.tagName === "SCRIPT" || parent.tagName === "STYLE") return NodeFilter.FILTER_REJECT;
+          if (parent.tagName === "SCRIPT" || parent.tagName === "STYLE")
+            return NodeFilter.FILTER_REJECT;
           return NodeFilter.FILTER_ACCEPT;
         },
-      }
+      },
     );
 
     const textNodes: Text[] = [];
-    let node: Node | null;
-    while ((node = walker.nextNode())) {
+    let node = walker.nextNode();
+    while (node !== null) {
       textNodes.push(node as Text);
+      node = walker.nextNode();
     }
 
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -109,17 +121,20 @@ export class SearchManager {
 
       const fragment = document.createDocumentFragment();
       let lastIndex = 0;
-      let match: RegExpExecArray | null;
+      let match = regex.exec(text);
 
-      while ((match = regex.exec(text)) !== null) {
+      while (match !== null) {
         if (match.index > lastIndex) {
-          fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+          fragment.appendChild(
+            document.createTextNode(text.slice(lastIndex, match.index)),
+          );
         }
         const mark = document.createElement("mark");
         mark.className = "search-highlight";
         mark.textContent = match[0];
         fragment.appendChild(mark);
         lastIndex = regex.lastIndex;
+        match = regex.exec(text);
       }
 
       if (lastIndex < text.length) {

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { computeZoom, isDrag } from "../js/zoom";
 
 describe("computeZoom", () => {
@@ -29,11 +29,16 @@ describe("computeZoom", () => {
   });
 
   it("連続ズームでカーソル位置が固定される", () => {
-    let s = 1.0, tx = 0, ty = 0;
-    const cx = 200, cy = 150;
+    let s = 1.0,
+      tx = 0,
+      ty = 0;
+    const cx = 200,
+      cy = 150;
     for (let i = 0; i < 5; i++) {
       const r = computeZoom(cx, cy, s, s * 1.1, tx, ty);
-      s = r.scale; tx = r.translateX; ty = r.translateY;
+      s = r.scale;
+      tx = r.translateX;
+      ty = r.translateY;
     }
     const pointX = (cx - tx) / s;
     const pointY = (cy - ty) / s;

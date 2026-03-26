@@ -4,9 +4,26 @@ import { bundledLanguages, createHighlighter, type Highlighter } from "shiki";
 let highlighter: Highlighter | null = null;
 
 const initialLangs = [
-  "javascript", "typescript", "python", "ruby", "bash", "shell",
-  "json", "yaml", "html", "css", "swift", "sql", "markdown",
-  "go", "rust", "java", "c", "cpp", "diff", "toml",
+  "javascript",
+  "typescript",
+  "python",
+  "ruby",
+  "bash",
+  "shell",
+  "json",
+  "yaml",
+  "html",
+  "css",
+  "swift",
+  "sql",
+  "markdown",
+  "go",
+  "rust",
+  "java",
+  "c",
+  "cpp",
+  "diff",
+  "toml",
 ];
 
 export async function initHighlighter(): Promise<void> {

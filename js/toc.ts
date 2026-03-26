@@ -10,7 +10,9 @@ export class TocManager {
   update() {
     this.tocPane.innerHTML = "";
 
-    const headings = this.container.querySelectorAll<HTMLElement>("h1, h2, h3, h4, h5, h6");
+    const headings = this.container.querySelectorAll<HTMLElement>(
+      "h1, h2, h3, h4, h5, h6",
+    );
 
     headings.forEach((heading) => {
       const item = document.createElement("div");

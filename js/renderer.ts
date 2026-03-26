@@ -1,9 +1,13 @@
-import mermaid from "mermaid";
 import DOMPurify from "dompurify";
-import { initHighlighter, renderMarkdown, loadLanguageOnDemand } from "./markdown";
+import mermaid from "mermaid";
+import {
+  initHighlighter,
+  loadLanguageOnDemand,
+  renderMarkdown,
+} from "./markdown";
 import { SearchManager } from "./search";
-import { computeZoom, isDrag } from "./zoom";
 import { TocManager } from "./toc";
+import { computeZoom, isDrag } from "./zoom";
 
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
@@ -109,8 +113,7 @@ let translateY = 0;
 let isPanning = false;
 
 function applyTransform() {
-  overlayInner.style.transform =
-    `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  overlayInner.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
 }
 
 function centerOverlayInner() {
@@ -122,7 +125,7 @@ function centerOverlayInner() {
   const innerRect = overlayInner.getBoundingClientRect();
   const fitScale = Math.min(
     contentRect.width / innerRect.width,
-    contentRect.height / innerRect.height
+    contentRect.height / innerRect.height,
   );
   minScale = fitScale;
   maxScale = fitScale * 20;
@@ -153,7 +156,16 @@ overlayContent.addEventListener(
     const delta = e.deltaY > 0 ? -1 : 1;
     const newScale = scale * (1 + delta * 0.1);
 
-    const result = computeZoom(cursorX, cursorY, scale, newScale, translateX, translateY, minScale, maxScale);
+    const result = computeZoom(
+      cursorX,
+      cursorY,
+      scale,
+      newScale,
+      translateX,
+      translateY,
+      minScale,
+      maxScale,
+    );
     if (result.scale === scale) return;
 
     scale = result.scale;
@@ -161,7 +173,7 @@ overlayContent.addEventListener(
     translateY = result.translateY;
     applyTransform();
   },
-  { passive: false }
+  { passive: false },
 );
 
 let panStartX = 0;
@@ -237,7 +249,13 @@ function resolveImagePaths(container: HTMLElement, basePath: string) {
   container.querySelectorAll<HTMLImageElement>("img").forEach((img) => {
     const src = img.getAttribute("src");
     if (!src) return;
-    if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("data:") || src.startsWith("file://")) return;
+    if (
+      src.startsWith("http://") ||
+      src.startsWith("https://") ||
+      src.startsWith("data:") ||
+      src.startsWith("file://")
+    )
+      return;
     img.src = resolveLocalPath(src, basePath);
   });
 }
@@ -246,7 +264,14 @@ function resolveLinkPaths(container: HTMLElement, basePath: string) {
   container.querySelectorAll<HTMLAnchorElement>("a[href]").forEach((a) => {
     const href = a.getAttribute("href");
     if (!href) return;
-    if (href.startsWith("http://") || href.startsWith("https://") || href.startsWith("data:") || href.startsWith("file://") || href.startsWith("#")) return;
+    if (
+      href.startsWith("http://") ||
+      href.startsWith("https://") ||
+      href.startsWith("data:") ||
+      href.startsWith("file://") ||
+      href.startsWith("#")
+    )
+      return;
     a.href = resolveLocalPath(href, basePath);
   });
 }
@@ -289,6 +314,9 @@ let highlighterReady = false;
       renderContent(lastMarkdown, lastBasePath).catch(console.error);
     }
   } catch (e) {
-    console.error("shiki initialization failed, continuing without syntax highlighting:", e);
+    console.error(
+      "shiki initialization failed, continuing without syntax highlighting:",
+      e,
+    );
   }
 })();

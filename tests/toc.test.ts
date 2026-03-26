@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { TocManager } from "../js/toc";
 
 describe("TocManager", () => {
@@ -8,7 +8,8 @@ describe("TocManager", () => {
   let manager: TocManager;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="toc-pane"></div><div id="content"></div>';
+    document.body.innerHTML =
+      '<div id="toc-pane"></div><div id="content"></div>';
     document.body.className = "";
     container = document.getElementById("content")!;
     tocPane = document.getElementById("toc-pane")!;

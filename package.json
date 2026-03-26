@@ -11,9 +11,12 @@
     "test:js": "vitest run",
     "test:swift": "xcodegen generate && xcodebuild -project mdv.xcodeproj -scheme mdvTests -configuration Debug test",
     "test:watch": "vitest",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit && biome check js/ tests/",
+    "format:check": "biome format js/ tests/",
+    "format": "biome format --write js/ tests/"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.9",
     "esbuild": "^0.27.4",
     "jsdom": "^29.0.1",
     "typescript": "^5.7.0",
