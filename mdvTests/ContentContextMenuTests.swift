@@ -21,6 +21,52 @@ final class ContentContextMenuTests: XCTestCase {
         XCTAssertEqual(NSPasteboard.general.string(forType: .string), tmpFile)
     }
 
+    // gitリポジトリ内ファイルのcopyRelativePathが相対パスをコピーする
+    func testCopyRelativePathInGitRepo() {
+        let projectRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path
+        let tmpFile = (projectRoot as NSString).appendingPathComponent("tmp/mdv_ctx_\(UUID().uuidString).md")
+        try? FileManager.default.createDirectory(
+            at: URL(fileURLWithPath: tmpFile).deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpFile) }
+
+        let state = WindowManager.WindowState()
+        let controller = MarkdownWindowController(windowState: state)
+        defer {
+            controller.window?.orderOut(nil)
+            controller.window?.close()
+        }
+        controller.openFile(path: tmpFile)
+
+        controller.copyRelativePath(nil)
+
+        let result = NSPasteboard.general.string(forType: .string) ?? ""
+        XCTAssertFalse(result.hasPrefix("/"), "Should be a relative path, got: \(result)")
+    }
+
+    // gitリポジトリ外ファイルのcopyRelativePathがフルパスにフォールバックする
+    func testCopyRelativePathOutsideGitRepo() {
+        let tmpDir = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_nogit_\(UUID().uuidString)")
+        try? FileManager.default.createDirectory(atPath: tmpDir, withIntermediateDirectories: true)
+        let tmpFile = (tmpDir as NSString).appendingPathComponent("test.md")
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpDir) }
+
+        let state = WindowManager.WindowState()
+        let controller = MarkdownWindowController(windowState: state)
+        defer {
+            controller.window?.orderOut(nil)
+            controller.window?.close()
+        }
+        controller.openFile(path: tmpFile)
+
+        controller.copyRelativePath(nil)
+
+        XCTAssertEqual(NSPasteboard.general.string(forType: .string), tmpFile)
+    }
+
     // copyContentがファイル内容をクリップボードにコピーする
     func testCopyContentAction() {
         let content = "# Hello\n\nWorld"

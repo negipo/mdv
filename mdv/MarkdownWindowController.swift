@@ -41,6 +41,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
     private var webView: NoBeepWebView!
     private var fileWatcher: FileWatcher?
     private var filePath: String?
+    private var gitRoot: String?
     var currentFilePath: String? { filePath }
     private var isReady = false
     private var pendingMarkdown: String?
@@ -98,6 +99,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
     func openFile(path: String) {
         filePath = path
+        gitRoot = resolveGitRoot(for: path)
         window?.representedURL = URL(fileURLWithPath: path)
         window?.title = (path as NSString).lastPathComponent
 
@@ -116,12 +118,48 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         pasteboard.setString(path, forType: .string)
     }
 
+    @objc func copyRelativePath(_ sender: Any?) {
+        guard let path = filePath else { return }
+        let rel = relativePath(for: path)
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(rel, forType: .string)
+    }
+
     @objc func copyContent(_ sender: Any?) {
         guard let path = filePath,
               let content = try? String(contentsOfFile: path, encoding: .utf8) else { return }
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(content, forType: .string)
+    }
+
+    private func resolveGitRoot(for path: String) -> String? {
+        let dir = (path as NSString).deletingLastPathComponent
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["-C", dir, "rev-parse", "--show-toplevel"]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            return nil
+        }
+        guard process.terminationStatus == 0 else { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    func relativePath(for absolutePath: String) -> String {
+        guard let root = gitRoot else { return absolutePath }
+        let rootPrefix = root.hasSuffix("/") ? root : root + "/"
+        if absolutePath.hasPrefix(rootPrefix) {
+            return String(absolutePath.dropFirst(rootPrefix.count))
+        }
+        return absolutePath
     }
 
     func zoomIn() {
