@@ -97,7 +97,12 @@ const marked = new Marked({
     },
     code(token: Tokens.Code) {
       if (token.lang === "mermaid") {
-        return `<pre class="mermaid">${token.text}</pre>`;
+        const sl = (token as Tokens.Code & SourceLineToken).sourceLine;
+        if (sl == null) return `<pre class="mermaid">${token.text}</pre>`;
+        const slEnd = (token as Tokens.Code & SourceLineToken).sourceLineEnd;
+        let attr = `data-source-line="${sl}"`;
+        if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
+        return `<pre class="mermaid" ${attr}>${token.text}</pre>`;
       }
       const sl = (token as Tokens.Code & SourceLineToken).sourceLine;
       const slEnd = (token as Tokens.Code & SourceLineToken).sourceLineEnd;

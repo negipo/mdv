@@ -75,9 +75,9 @@ describe("data-source-line attributes", () => {
     expect(result).toContain('<hr data-source-line="3"');
   });
 
-  it("mermaidブロックにはdata-source-line属性を付与しない", () => {
+  it("mermaidブロックにもdata-source-line属性を付与する", () => {
     const result = renderMarkdown("```mermaid\ngraph TD\n```");
     expect(result).toContain('class="mermaid"');
-    expect(result).not.toMatch(/data-source-line/);
+    expect(result).toMatch(/data-source-line="1"/);
   });
 });
