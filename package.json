@@ -5,7 +5,7 @@
   "scripts": {
     "prebuild": "bash scripts/check-deps.sh",
     "build:js": "node esbuild.config.mjs",
-    "build": "npm run build:js && xcodegen generate && xcodebuild -project mdv.xcodeproj -scheme mdv -configuration Release build",
+    "build": "npm run build:js && CURRENT_PROJECT_VERSION=$(git rev-parse --short HEAD) xcodegen generate && xcodebuild -project mdv.xcodeproj -scheme mdv -configuration Release build",
     "install:local": "npm run build && sudo rm -rf /Applications/mdv.app && sudo cp -R \"$(xcodebuild -project mdv.xcodeproj -scheme mdv -configuration Release -showBuildSettings 2>/dev/null | grep 'BUILT_PRODUCTS_DIR' | head -1 | awk '{print $3}')/mdv.app\" /Applications/ && sudo ln -sf /Applications/mdv.app/Contents/Resources/bin/mdv /usr/local/bin/mdv",
     "test": "vitest run && xcodegen generate && xcodebuild -project mdv.xcodeproj -scheme mdvTests -configuration Debug test 2>&1 | tail -5",
     "test:js": "vitest run",

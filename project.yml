@@ -22,6 +22,7 @@ targets:
         PRODUCT_NAME: mdv
         MACOSX_DEPLOYMENT_TARGET: "14.0"
         SWIFT_VERSION: "5.9"
+        CURRENT_PROJECT_VERSION: ${CURRENT_PROJECT_VERSION}
     preBuildScripts:
       - name: Build JS Bundle
         script: |

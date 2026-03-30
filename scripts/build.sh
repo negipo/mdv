@@ -13,14 +13,11 @@ fi
 
 npm run build:js
 
+export CURRENT_PROJECT_VERSION="$(git rev-parse --short HEAD)"
 xcodegen generate
 
 if [ -n "${VERSION:-}" ]; then
   /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" mdv/Info.plist
-fi
-
-if [ -n "${BUILD_NUMBER:-}" ]; then
-  /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" mdv/Info.plist
 fi
 
 xcodebuild build \
