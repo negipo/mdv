@@ -45,7 +45,6 @@ jobs:
         env:
           CI: 'true'
           VERSION: ${{ steps.calver.outputs.version }}
-          BUILD_NUMBER: ${{ github.run_number }}
 
       - name: Create release
         run: |

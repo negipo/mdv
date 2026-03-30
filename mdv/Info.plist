@@ -9,7 +9,7 @@
     <key>CFBundleIdentifier</key>
     <string>com.negipo.mdv</string>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>$(CURRENT_PROJECT_VERSION)</string>
     <key>CFBundleShortVersionString</key>
     <string>0.2.0</string>
     <key>CFBundlePackageType</key>
