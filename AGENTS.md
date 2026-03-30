@@ -18,10 +18,11 @@ npm run build      # Full build
 
 ## Manual UI Verification
 
-When verifying UI changes, kill the running app, rebuild, and relaunch for the user to check:
+When verifying UI changes, kill the running app, rebuild, and relaunch for the user to check.
+Do NOT use `/Applications/mdv.app` or the `mdv` CLI command — these point to a previously installed version, not the current build. Always launch from DerivedData:
 
 ```bash
 pkill -x mdv 2>/dev/null
 xcodebuild -scheme mdv -configuration Debug build 2>&1 | tail -5
-open ~/Library/Developer/Xcode/DerivedData/mdv-afrghrsxmvulxhcshpjiumlziahy/Build/Products/Debug/mdv.app
+open ~/Library/Developer/Xcode/DerivedData/mdv-afrghrsxmvulxhcshpjiumlziahy/Build/Products/Debug/mdv.app --args /path/to/file.md
 ```
