@@ -14,7 +14,7 @@ rc=0
 
 case "$rel" in
   js/*|tests/*|tsconfig.json|biome.json|package.json|esbuild.config.mjs)
-    lint_out="$(cd "$repo_root" && FILE="$file" npm run --silent lint:file 2>&1 | head -20)" || rc=1
+    lint_out="$(cd "$repo_root" && FILE="$file" npm run --silent lint:js:file 2>&1 | head -20)" || rc=1
     [ -n "$lint_out" ] && diag="$lint_out"
     ;;
   mdv/*|mdvTests/*)
