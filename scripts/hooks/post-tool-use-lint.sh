@@ -7,7 +7,6 @@ file="$(echo "$input" | jq -r '.tool_input.file_path // empty')"
 [ ! -f "$file" ] && exit 0
 
 repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
-export PATH="$repo_root/node_modules/.bin:$PATH"
 rel="${file#"$repo_root"/}"
 
 diag=""
@@ -15,12 +14,8 @@ rc=0
 
 case "$rel" in
   js/*|tests/*|tsconfig.json|biome.json|package.json|esbuild.config.mjs)
-    biome format --write "$file" >/dev/null 2>&1 || true
-    biome_out="$(biome check "$file" 2>&1 | head -20)" || rc=1
-    ox_out="$(oxlint "$file" 2>&1 | head -20)" || rc=1
-    [ -n "$biome_out" ] && diag="$biome_out"
-    [ -n "$ox_out" ] && diag="$diag
-$ox_out"
+    lint_out="$(cd "$repo_root" && FILE="$file" npm run --silent lint:file 2>&1 | head -20)" || rc=1
+    [ -n "$lint_out" ] && diag="$lint_out"
     ;;
   mdv/*|mdvTests/*)
     swift_out="$(swiftlint lint --quiet "$file" 2>&1 | head -20)" || rc=1

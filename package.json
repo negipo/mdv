@@ -12,6 +12,7 @@
     "test:swift": "xcodegen generate && xcodebuild -project mdv.xcodeproj -scheme mdvTests -configuration Debug test",
     "test:watch": "vitest",
     "lint": "tsc --noEmit && biome check js/ tests/ && oxlint js/ tests/",
+    "lint:file": "biome format --write $FILE && biome check $FILE && oxlint $FILE",
     "lint:swift": "swiftlint",
     "format:check": "biome format js/ tests/",
     "format": "biome format --write js/ tests/"
