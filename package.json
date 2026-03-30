@@ -13,7 +13,6 @@
     "test:watch": "vitest",
     "lint": "npm run lint:js && npm run lint:swift",
     "lint:js": "tsc --noEmit && biome check js/ tests/ && oxlint js/ tests/",
-    "lint:js:typecheck": "tsc --noEmit",
     "lint:js:file": "biome format --write $FILE && biome check $FILE && oxlint $FILE",
     "lint:swift": "swiftlint",
     "format:check": "biome format js/ tests/",
