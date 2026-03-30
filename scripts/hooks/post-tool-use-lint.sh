@@ -7,6 +7,7 @@ file="$(echo "$input" | jq -r '.tool_input.file_path // empty')"
 [ ! -f "$file" ] && exit 0
 
 repo_root="$(cd "$(dirname "$0")/../.." && pwd)"
+export PATH="$repo_root/node_modules/.bin:$PATH"
 rel="${file#"$repo_root"/}"
 
 diag=""
