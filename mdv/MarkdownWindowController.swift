@@ -17,34 +17,18 @@ class NoBeepWebView: WKWebView {
         guard let controller = window?.windowController as? MarkdownWindowController,
               controller.currentFilePath != nil else { return }
 
-        menu.addItem(.separator())
-
-        let pathItem = NSMenuItem(
-            title: "Copy File Path",
-            action: #selector(MarkdownWindowController.copyFullPath(_:)),
-            keyEquivalent: ""
-        )
-        pathItem.target = controller
-        menu.addItem(pathItem)
-
-        let contentItem = NSMenuItem(
-            title: "Copy as Markdown",
-            action: #selector(MarkdownWindowController.copyContent(_:)),
-            keyEquivalent: ""
-        )
-        contentItem.target = controller
-        menu.addItem(contentItem)
+        controller.buildContextMenuItems(menu: menu)
     }
 }
 
 class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNavigationDelegate {
-    private var webView: NoBeepWebView!
-    private var fileWatcher: FileWatcher?
     struct LineInfo {
         let startLine: Int
         let endLine: Int
     }
 
+    private var webView: NoBeepWebView!
+    private var fileWatcher: FileWatcher?
     private var filePath: String?
     private var gitRoot: String?
     var cachedLineInfo: LineInfo?
@@ -116,6 +100,44 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
     func reloadFile() {
         loadAndSendMarkdown()
+    }
+
+    func buildContextMenuItems(menu: NSMenu) {
+        menu.addItem(.separator())
+
+        let pathItem = NSMenuItem(
+            title: "Copy Absolute Path",
+            action: #selector(copyFullPath(_:)),
+            keyEquivalent: ""
+        )
+        pathItem.target = self
+        menu.addItem(pathItem)
+
+        let contentItem = NSMenuItem(
+            title: "Copy as Markdown",
+            action: #selector(copyContent(_:)),
+            keyEquivalent: ""
+        )
+        contentItem.target = self
+        menu.addItem(contentItem)
+
+        let relativeItem = NSMenuItem(
+            title: "Copy Relative Path",
+            action: #selector(copyRelativePath(_:)),
+            keyEquivalent: ""
+        )
+        relativeItem.target = self
+        menu.addItem(relativeItem)
+
+        if cachedLineInfo != nil {
+            let linesItem = NSMenuItem(
+                title: "Copy Relative Path with Lines",
+                action: #selector(copyRelativePathWithLines(_:)),
+                keyEquivalent: ""
+            )
+            linesItem.target = self
+            menu.addItem(linesItem)
+        }
     }
 
     @objc func copyFullPath(_ sender: Any?) {

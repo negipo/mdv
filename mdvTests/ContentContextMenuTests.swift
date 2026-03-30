@@ -119,6 +119,73 @@ final class ContentContextMenuTests: XCTestCase {
         XCTAssertTrue(result.hasSuffix(":10-25"), "Expected ':10-25' suffix, got: \(result)")
     }
 
+    // 右クリックメニューにすべてのコピー項目が表示される
+    func testContextMenuContainsAllCopyItems() {
+        let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctx_\(UUID().uuidString).md")
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpFile) }
+
+        let state = WindowManager.WindowState()
+        let controller = MarkdownWindowController(windowState: state)
+        defer {
+            controller.window?.orderOut(nil)
+            controller.window?.close()
+        }
+        controller.openFile(path: tmpFile)
+
+        let menu = NSMenu()
+        controller.buildContextMenuItems(menu: menu)
+
+        let titles = menu.items.map { $0.title }
+        XCTAssertTrue(titles.contains("Copy Absolute Path"))
+        XCTAssertTrue(titles.contains("Copy as Markdown"))
+        XCTAssertTrue(titles.contains("Copy Relative Path"))
+    }
+
+    // cachedLineInfoがある場合、Copy Relative Path with Linesが表示される
+    func testContextMenuShowsRelativePathWithLinesWhenLineInfoAvailable() {
+        let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctx_\(UUID().uuidString).md")
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpFile) }
+
+        let state = WindowManager.WindowState()
+        let controller = MarkdownWindowController(windowState: state)
+        defer {
+            controller.window?.orderOut(nil)
+            controller.window?.close()
+        }
+        controller.openFile(path: tmpFile)
+
+        controller.cachedLineInfo = MarkdownWindowController.LineInfo(startLine: 1, endLine: 1)
+        let menu = NSMenu()
+        controller.buildContextMenuItems(menu: menu)
+
+        let titles = menu.items.map { $0.title }
+        XCTAssertTrue(titles.contains("Copy Relative Path with Lines"))
+    }
+
+    // cachedLineInfoがない場合、Copy Relative Path with Linesが表示されない
+    func testContextMenuHidesRelativePathWithLinesWhenNoLineInfo() {
+        let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctx_\(UUID().uuidString).md")
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpFile) }
+
+        let state = WindowManager.WindowState()
+        let controller = MarkdownWindowController(windowState: state)
+        defer {
+            controller.window?.orderOut(nil)
+            controller.window?.close()
+        }
+        controller.openFile(path: tmpFile)
+
+        controller.cachedLineInfo = nil
+        let menu = NSMenu()
+        controller.buildContextMenuItems(menu: menu)
+
+        let titles = menu.items.map { $0.title }
+        XCTAssertFalse(titles.contains("Copy Relative Path with Lines"))
+    }
+
     // copyContentがファイル内容をクリップボードにコピーする
     func testCopyContentAction() {
         let content = "# Hello\n\nWorld"
