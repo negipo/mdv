@@ -15,7 +15,6 @@ npm run build      # Full build
 
 - Create a PR and merge into main. Avoid pushing directly to main.
 - All user-facing UI text (menu items, labels, alerts, etc.) must be in English.
-- Run `npm ci` to ensure dependencies are installed before running lint or tests. If a command fails with `command not found`, do not ignore it — investigate and resolve the cause.
 
 ## Manual UI Verification
 
