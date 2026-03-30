@@ -40,8 +40,14 @@ class NoBeepWebView: WKWebView {
 class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNavigationDelegate {
     private var webView: NoBeepWebView!
     private var fileWatcher: FileWatcher?
+    struct LineInfo {
+        let startLine: Int
+        let endLine: Int
+    }
+
     private var filePath: String?
     private var gitRoot: String?
+    var cachedLineInfo: LineInfo?
     var currentFilePath: String? { filePath }
     private var isReady = false
     private var pendingMarkdown: String?
@@ -79,6 +85,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         let contentController = WKUserContentController()
         contentController.add(self, name: "ready")
         contentController.add(self, name: "openExternal")
+        contentController.add(self, name: "contextMenu")
         config.userContentController = contentController
 
         webView = NoBeepWebView(frame: .zero, configuration: config)
@@ -124,6 +131,20 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(rel, forType: .string)
+    }
+
+    @objc func copyRelativePathWithLines(_ sender: Any?) {
+        guard let path = filePath, let info = cachedLineInfo else { return }
+        let rel = relativePath(for: path)
+        let result: String
+        if info.startLine == info.endLine {
+            result = "\(rel):\(info.startLine)"
+        } else {
+            result = "\(rel):\(info.startLine)-\(info.endLine)"
+        }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(result, forType: .string)
     }
 
     @objc func copyContent(_ sender: Any?) {
@@ -259,6 +280,18 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         case "openExternal":
             if let urlString = message.body as? String, let url = URL(string: urlString) {
                 NSWorkspace.shared.open(url)
+            }
+        case "contextMenu":
+            if let dict = message.body as? [String: Any] {
+                let startLine = dict["startLine"] as? Int
+                let endLine = dict["endLine"] as? Int
+                if let start = startLine, let end = endLine {
+                    cachedLineInfo = LineInfo(startLine: start, endLine: end)
+                } else {
+                    cachedLineInfo = nil
+                }
+            } else {
+                cachedLineInfo = nil
             }
         default:
             break

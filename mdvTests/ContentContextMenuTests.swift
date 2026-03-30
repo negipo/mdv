@@ -67,6 +67,58 @@ final class ContentContextMenuTests: XCTestCase {
         XCTAssertEqual(NSPasteboard.general.string(forType: .string), tmpFile)
     }
 
+    // copyRelativePathWithLinesが行番号付きパスをコピーする（単一行）
+    func testCopyRelativePathWithLinesSingleLine() {
+        let projectRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path
+        let tmpFile = (projectRoot as NSString).appendingPathComponent("tmp/mdv_ctx_\(UUID().uuidString).md")
+        try? FileManager.default.createDirectory(
+            at: URL(fileURLWithPath: tmpFile).deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpFile) }
+
+        let state = WindowManager.WindowState()
+        let controller = MarkdownWindowController(windowState: state)
+        defer {
+            controller.window?.orderOut(nil)
+            controller.window?.close()
+        }
+        controller.openFile(path: tmpFile)
+
+        controller.cachedLineInfo = MarkdownWindowController.LineInfo(startLine: 5, endLine: 5)
+        controller.copyRelativePathWithLines(nil)
+
+        let result = NSPasteboard.general.string(forType: .string) ?? ""
+        XCTAssertTrue(result.hasSuffix(":5"), "Expected ':5' suffix, got: \(result)")
+    }
+
+    // copyRelativePathWithLinesが行番号付きパスをコピーする（範囲）
+    func testCopyRelativePathWithLinesRange() {
+        let projectRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().path
+        let tmpFile = (projectRoot as NSString).appendingPathComponent("tmp/mdv_ctx_\(UUID().uuidString).md")
+        try? FileManager.default.createDirectory(
+            at: URL(fileURLWithPath: tmpFile).deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpFile) }
+
+        let state = WindowManager.WindowState()
+        let controller = MarkdownWindowController(windowState: state)
+        defer {
+            controller.window?.orderOut(nil)
+            controller.window?.close()
+        }
+        controller.openFile(path: tmpFile)
+
+        controller.cachedLineInfo = MarkdownWindowController.LineInfo(startLine: 10, endLine: 25)
+        controller.copyRelativePathWithLines(nil)
+
+        let result = NSPasteboard.general.string(forType: .string) ?? ""
+        XCTAssertTrue(result.hasSuffix(":10-25"), "Expected ':10-25' suffix, got: \(result)")
+    }
+
     // copyContentがファイル内容をクリップボードにコピーする
     func testCopyContentAction() {
         let content = "# Hello\n\nWorld"
