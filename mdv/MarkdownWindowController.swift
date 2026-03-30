@@ -17,30 +17,21 @@ class NoBeepWebView: WKWebView {
         guard let controller = window?.windowController as? MarkdownWindowController,
               controller.currentFilePath != nil else { return }
 
-        menu.addItem(.separator())
-
-        let pathItem = NSMenuItem(
-            title: "Copy File Path",
-            action: #selector(MarkdownWindowController.copyFullPath(_:)),
-            keyEquivalent: ""
-        )
-        pathItem.target = controller
-        menu.addItem(pathItem)
-
-        let contentItem = NSMenuItem(
-            title: "Copy as Markdown",
-            action: #selector(MarkdownWindowController.copyContent(_:)),
-            keyEquivalent: ""
-        )
-        contentItem.target = controller
-        menu.addItem(contentItem)
+        controller.buildContextMenuItems(menu: menu)
     }
 }
 
 class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNavigationDelegate {
+    struct LineInfo {
+        let startLine: Int
+        let endLine: Int
+    }
+
     private var webView: NoBeepWebView!
     private var fileWatcher: FileWatcher?
     private var filePath: String?
+    private var gitRoot: String?
+    var cachedLineInfo: LineInfo?
     var currentFilePath: String? { filePath }
     private var isReady = false
     private var pendingMarkdown: String?
@@ -78,6 +69,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         let contentController = WKUserContentController()
         contentController.add(self, name: "ready")
         contentController.add(self, name: "openExternal")
+        contentController.add(self, name: "contextMenu")
         config.userContentController = contentController
 
         webView = NoBeepWebView(frame: .zero, configuration: config)
@@ -98,6 +90,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
     func openFile(path: String) {
         filePath = path
+        gitRoot = resolveGitRoot(for: path)
         window?.representedURL = URL(fileURLWithPath: path)
         window?.title = (path as NSString).lastPathComponent
 
@@ -109,11 +102,71 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         loadAndSendMarkdown()
     }
 
+    func buildContextMenuItems(menu: NSMenu) {
+        menu.addItem(.separator())
+
+        let pathItem = NSMenuItem(
+            title: "Copy Absolute Path",
+            action: #selector(copyFullPath(_:)),
+            keyEquivalent: ""
+        )
+        pathItem.target = self
+        menu.addItem(pathItem)
+
+        let contentItem = NSMenuItem(
+            title: "Copy as Markdown",
+            action: #selector(copyContent(_:)),
+            keyEquivalent: ""
+        )
+        contentItem.target = self
+        menu.addItem(contentItem)
+
+        let relativeItem = NSMenuItem(
+            title: "Copy Relative Path",
+            action: #selector(copyRelativePath(_:)),
+            keyEquivalent: ""
+        )
+        relativeItem.target = self
+        menu.addItem(relativeItem)
+
+        if cachedLineInfo != nil {
+            let linesItem = NSMenuItem(
+                title: "Copy Relative Path with Lines",
+                action: #selector(copyRelativePathWithLines(_:)),
+                keyEquivalent: ""
+            )
+            linesItem.target = self
+            menu.addItem(linesItem)
+        }
+    }
+
     @objc func copyFullPath(_ sender: Any?) {
         guard let path = filePath else { return }
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(path, forType: .string)
+    }
+
+    @objc func copyRelativePath(_ sender: Any?) {
+        guard let path = filePath else { return }
+        let rel = relativePath(for: path)
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(rel, forType: .string)
+    }
+
+    @objc func copyRelativePathWithLines(_ sender: Any?) {
+        guard let path = filePath, let info = cachedLineInfo else { return }
+        let rel = relativePath(for: path)
+        let result: String
+        if info.startLine == info.endLine {
+            result = "\(rel):\(info.startLine)"
+        } else {
+            result = "\(rel):\(info.startLine)-\(info.endLine)"
+        }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(result, forType: .string)
     }
 
     @objc func copyContent(_ sender: Any?) {
@@ -122,6 +175,34 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(content, forType: .string)
+    }
+
+    private func resolveGitRoot(for path: String) -> String? {
+        let dir = (path as NSString).deletingLastPathComponent
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
+        process.arguments = ["-C", dir, "rev-parse", "--show-toplevel"]
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            return nil
+        }
+        guard process.terminationStatus == 0 else { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    func relativePath(for absolutePath: String) -> String {
+        guard let root = gitRoot else { return absolutePath }
+        let rootPrefix = root.hasSuffix("/") ? root : root + "/"
+        if absolutePath.hasPrefix(rootPrefix) {
+            return String(absolutePath.dropFirst(rootPrefix.count))
+        }
+        return absolutePath
     }
 
     func zoomIn() {
@@ -221,6 +302,18 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         case "openExternal":
             if let urlString = message.body as? String, let url = URL(string: urlString) {
                 NSWorkspace.shared.open(url)
+            }
+        case "contextMenu":
+            if let dict = message.body as? [String: Any] {
+                let startLine = dict["startLine"] as? Int
+                let endLine = dict["endLine"] as? Int
+                if let start = startLine, let end = endLine {
+                    cachedLineInfo = LineInfo(startLine: start, endLine: end)
+                } else {
+                    cachedLineInfo = nil
+                }
+            } else {
+                cachedLineInfo = nil
             }
         default:
             break
