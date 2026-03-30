@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import mermaid from "mermaid";
+import { setupContextMenu } from "./context-menu";
 import { initHighlighter, renderMarkdown } from "./markdown";
 import { SearchManager } from "./search";
 import { TocManager } from "./toc";
@@ -317,6 +318,7 @@ window.updateMarkdown = (markdown: string, basePath?: string) => {
 };
 
 (async () => {
+  setupContextMenu();
   if (window.webkit?.messageHandlers?.ready) {
     window.webkit.messageHandlers.ready.postMessage("initialized");
   }
