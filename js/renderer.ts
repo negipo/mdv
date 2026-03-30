@@ -17,6 +17,7 @@ declare global {
     webkit?: {
       messageHandlers?: {
         ready?: { postMessage: (message: string) => void };
+        contextMenu?: { postMessage: (message: unknown) => void };
       };
     };
   }
