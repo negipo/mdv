@@ -204,6 +204,7 @@ extension AppDelegate {
         let item = NSMenuItem()
         let menu = NSMenu(title: "Edit")
         menu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        menu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         menu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         menu.addItem(.separator())
         menu.addItem(withTitle: "Find\u{2026}", action: #selector(performFindAction(_:)), keyEquivalent: "f")
