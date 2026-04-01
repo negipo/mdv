@@ -138,7 +138,7 @@ final class ContentContextMenuTests: XCTestCase {
 
         let titles = menu.items.map { $0.title }
         XCTAssertTrue(titles.contains("Copy Absolute Path"))
-        XCTAssertTrue(titles.contains("Copy as Markdown"))
+        XCTAssertTrue(titles.contains("Copy File as Markdown"))
         XCTAssertTrue(titles.contains("Copy Relative Path"))
     }
 

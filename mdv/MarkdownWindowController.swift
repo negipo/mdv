@@ -12,8 +12,40 @@ class NoBeepWebView: WKWebView {
         return super.performKeyEquivalent(with: event)
     }
 
+    private static let removedMenuIdentifiers: Set<String> = [
+        "WKMenuItemIdentifierShareMenu",
+        "WKMenuItemIdentifierShowWritingTools",
+        "WKMenuItemIdentifierSpeechMenu"
+    ]
+
+    private static let removedMenuTitles: Set<String> = [
+        "Summarize",
+        "Services"
+    ]
+
     override func willOpenMenu(_ menu: NSMenu, with event: NSEvent) {
         super.willOpenMenu(menu, with: event)
+
+        let itemsToRemove = menu.items.filter { item in
+            if let id = item.identifier?.rawValue, Self.removedMenuIdentifiers.contains(id) {
+                return true
+            }
+            if Self.removedMenuTitles.contains(item.title) {
+                return true
+            }
+            if item.title == "Services" {
+                return true
+            }
+            return false
+        }
+        for item in itemsToRemove {
+            menu.removeItem(item)
+        }
+
+        while let last = menu.items.last, last.isSeparatorItem {
+            menu.removeItem(last)
+        }
+
         guard let controller = window?.windowController as? MarkdownWindowController,
               controller.currentFilePath != nil else { return }
 
@@ -29,8 +61,8 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
     private var webView: NoBeepWebView!
     private var fileWatcher: FileWatcher?
-    private var filePath: String?
-    private var gitRoot: String?
+    var filePath: String?
+    var gitRoot: String?
     var cachedLineInfo: LineInfo?
     var currentFilePath: String? { filePath }
     private var isReady = false
@@ -100,81 +132,6 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
 
     func reloadFile() {
         loadAndSendMarkdown()
-    }
-
-    func buildContextMenuItems(menu: NSMenu) {
-        menu.addItem(.separator())
-
-        let pathItem = NSMenuItem(
-            title: "Copy Absolute Path",
-            action: #selector(copyFullPath(_:)),
-            keyEquivalent: ""
-        )
-        pathItem.target = self
-        menu.addItem(pathItem)
-
-        let contentItem = NSMenuItem(
-            title: "Copy as Markdown",
-            action: #selector(copyContent(_:)),
-            keyEquivalent: ""
-        )
-        contentItem.target = self
-        menu.addItem(contentItem)
-
-        let relativeItem = NSMenuItem(
-            title: "Copy Relative Path",
-            action: #selector(copyRelativePath(_:)),
-            keyEquivalent: ""
-        )
-        relativeItem.target = self
-        menu.addItem(relativeItem)
-
-        if cachedLineInfo != nil {
-            let linesItem = NSMenuItem(
-                title: "Copy Relative Path with Lines",
-                action: #selector(copyRelativePathWithLines(_:)),
-                keyEquivalent: ""
-            )
-            linesItem.target = self
-            menu.addItem(linesItem)
-        }
-    }
-
-    @objc func copyFullPath(_ sender: Any?) {
-        guard let path = filePath else { return }
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(path, forType: .string)
-    }
-
-    @objc func copyRelativePath(_ sender: Any?) {
-        guard let path = filePath else { return }
-        let rel = relativePath(for: path)
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(rel, forType: .string)
-    }
-
-    @objc func copyRelativePathWithLines(_ sender: Any?) {
-        guard let path = filePath, let info = cachedLineInfo else { return }
-        let rel = relativePath(for: path)
-        let result: String
-        if info.startLine == info.endLine {
-            result = "\(rel):\(info.startLine)"
-        } else {
-            result = "\(rel):\(info.startLine)-\(info.endLine)"
-        }
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(result, forType: .string)
-    }
-
-    @objc func copyContent(_ sender: Any?) {
-        guard let path = filePath,
-              let content = try? String(contentsOfFile: path, encoding: .utf8) else { return }
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.setString(content, forType: .string)
     }
 
     private func resolveGitRoot(for path: String) -> String? {
