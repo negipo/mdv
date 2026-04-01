@@ -23,18 +23,18 @@ gh pr merge --auto --squash
 
 ### 3. Wait for merge
 
-Watch CI checks and wait for the PR to be merged.
+Watch CI checks and wait for the PR to be merged. Automerge handles the merge automatically — do not run `gh pr merge` manually.
 
 ```bash
 gh pr checks --watch --fail-fast
 ```
 
-- Once all checks pass, wait for the merge to complete
+- Once all checks pass, automerge will merge the PR
 - If any check fails, report to the user and abort
 
 ### 4. Run Release workflow
 
-Dispatch the Release workflow on the main branch.
+Dispatch the Release workflow on the main branch. The command outputs the run URL which contains the run ID — use it directly in the next step without querying `gh run list`.
 
 ```bash
 gh workflow run release.yml --ref main
@@ -42,19 +42,15 @@ gh workflow run release.yml --ref main
 
 ### 5. Wait for release
 
-Identify the latest Release workflow run and watch it until completion.
-
-```bash
-gh run list --workflow=release.yml --limit 1 --json databaseId --jq '.[0].databaseId' | \cat
-```
+Watch the workflow run using the run ID from step 4's output.
 
 ```bash
 gh run watch <run-id> --exit-status
 ```
 
 - If the run fails, report to the user
-- On success, show the release URL
+- On success, show the release tag and name
 
 ```bash
-gh release list --limit 1 --json tagName,url --jq '.[0]' | \cat
+gh release list --limit 1 --json tagName,name --jq '.[0]' | \cat
 ```
