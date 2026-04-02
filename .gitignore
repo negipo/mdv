@@ -11,3 +11,5 @@ mdv/Resources/katex.min.css
 mdv.xcodeproj/
 .worktrees/
 mdv-*.zip
+default.profraw
+mdv/Resources/fonts/
