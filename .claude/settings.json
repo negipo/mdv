@@ -15,7 +15,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash scripts/hooks/pre-tool-use-lint-on-commit.sh"
+            "if": "Bash(git commit*)",
+            "command": "npm run lint"
           }
         ]
       }
