@@ -1,3 +1,4 @@
+import yaml from "js-yaml";
 import katex from "katex";
 import { Marked, type Token, type Tokens } from "marked";
 import { bundledLanguages, createHighlighter, type Highlighter } from "shiki";
@@ -65,6 +66,9 @@ function annotateSourceLines(tokens: Token[]): void {
       (token as Token & SourceLineToken).sourceLineEnd = line + rawLines;
     }
     if (token.type === "blockMath") {
+      (token as Token & SourceLineToken).sourceLineEnd = line + rawLines;
+    }
+    if (token.type === "frontmatter") {
       (token as Token & SourceLineToken).sourceLineEnd = line + rawLines;
     }
     line += rawLines;
@@ -144,8 +148,73 @@ const inlineMathExtension = {
   },
 };
 
+const frontmatterExtension = {
+  name: "frontmatter",
+  level: "block" as const,
+  start(src: string) {
+    return src.indexOf("---");
+  },
+  tokenizer(this: { lexer: { tokens: Token[] } }, src: string) {
+    if (this.lexer.tokens.length > 0) return;
+    const match = src.match(/^---\n([\s\S]*?)\n---(?:\n|$)/);
+    if (match) {
+      return {
+        type: "frontmatter",
+        raw: match[0],
+        yaml: match[1],
+      };
+    }
+  },
+  renderer(token: { yaml: string }) {
+    let data: Record<string, unknown>;
+    try {
+      const parsed = yaml.load(token.yaml, { schema: yaml.JSON_SCHEMA });
+      if (typeof parsed !== "object" || parsed === null) {
+        return `<pre><code class="language-yaml">${escapeHtml(token.yaml)}\n</code></pre>\n`;
+      }
+      data = parsed as Record<string, unknown>;
+    } catch {
+      return `<pre><code class="language-yaml">${escapeHtml(token.yaml)}\n</code></pre>\n`;
+    }
+
+    const keys = Object.keys(data);
+    if (keys.length === 0) {
+      return "";
+    }
+
+    const sl = (token as unknown as SourceLineToken).sourceLine;
+    const slEnd = (token as unknown as SourceLineToken).sourceLineEnd;
+    let attr = "";
+    if (sl != null) {
+      attr += ` data-source-line="${sl}"`;
+      if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
+    }
+
+    let html = `<table class="frontmatter"${attr}>\n<thead>\n<tr>\n`;
+    for (const key of keys) {
+      html += `<th>${escapeHtml(key)}</th>\n`;
+    }
+    html += "</tr>\n</thead>\n<tbody>\n<tr>\n";
+    for (const key of keys) {
+      html += `<td>${escapeHtml(formatFrontmatterValue(data[key]))}</td>\n`;
+    }
+    html += "</tr>\n</tbody>\n</table>\n";
+    return html;
+  },
+};
+
+function formatFrontmatterValue(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+  if (typeof value === "object" && value !== null) {
+    return JSON.stringify(value);
+  }
+  return String(value);
+}
+
 const marked = new Marked({
-  extensions: [blockMathExtension, inlineMathExtension],
+  extensions: [frontmatterExtension, blockMathExtension, inlineMathExtension],
   renderer: {
     heading(
       this: { parser: { parseInline: (t: Token[]) => string } },
