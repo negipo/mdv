@@ -161,6 +161,22 @@ const marked = new Marked({
         if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
         return `<pre class="mermaid" ${attr}>${token.text}</pre>`;
       }
+      if (token.lang === "math") {
+        const sl = (token as Tokens.Code & SourceLineToken).sourceLine;
+        const slEnd = (token as Tokens.Code & SourceLineToken).sourceLineEnd;
+        let attr = "";
+        if (sl != null) {
+          attr += ` data-source-line="${sl}"`;
+          if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
+        }
+        return `<div class="katex-block"${attr}>${katex.renderToString(
+          token.text,
+          {
+            throwOnError: false,
+            displayMode: true,
+          },
+        )}</div>\n`;
+      }
       const sl = (token as Tokens.Code & SourceLineToken).sourceLine;
       const slEnd = (token as Tokens.Code & SourceLineToken).sourceLineEnd;
       let html: string;

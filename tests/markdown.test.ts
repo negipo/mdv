@@ -105,4 +105,15 @@ describe("math rendering", () => {
     const result = renderMarkdown("text\n\n$$\nx^2\n$$");
     expect(result).toMatch(/div [^>]*data-source-line="3"/);
   });
+
+  it("mathコードブロックをKaTeXのブロック数式として変換する", () => {
+    const result = renderMarkdown("```math\n\\sum_{i=1}^n i\n```");
+    expect(result).toContain("katex");
+    expect(result).toContain("katex-display");
+  });
+
+  it("mathコードブロックにdata-source-line属性を付与する", () => {
+    const result = renderMarkdown("text\n\n```math\nx^2\n```");
+    expect(result).toMatch(/div [^>]*data-source-line="3"/);
+  });
 });
