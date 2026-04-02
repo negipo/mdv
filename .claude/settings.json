@@ -16,7 +16,7 @@
           {
             "type": "command",
             "if": "Bash(git commit*)",
-            "command": "npm run lint"
+            "command": "npm run lint || exit 2"
           }
         ]
       }
