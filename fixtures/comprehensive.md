@@ -1,3 +1,14 @@
+---
+title: Comprehensive Markdown Test
+date: 2026-04-02
+tags: [markdown, test, mdv]
+author: negipo
+draft: false
+metadata:
+  version: 1.0
+  category: documentation
+---
+
 # Comprehensive Markdown Test
 
 ## Headings

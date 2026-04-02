@@ -118,6 +118,58 @@ describe("math rendering", () => {
   });
 });
 
+describe("frontmatter rendering", () => {
+  it("基本的なfrontmatterを水平テーブルとしてレンダリングする", () => {
+    const result = renderMarkdown(
+      "---\ntitle: Hello\ndate: 2026-01-01\n---\n\n# Content",
+    );
+    expect(result).toContain('<table class="frontmatter"');
+    expect(result).toContain("<th>title</th>");
+    expect(result).toContain("<th>date</th>");
+    expect(result).toContain("<td>Hello</td>");
+    expect(result).toContain("<td>2026-01-01</td>");
+    expect(result).toContain(">Content</h1>");
+  });
+
+  it("配列値をカンマ区切りで表示する", () => {
+    const result = renderMarkdown(
+      "---\ntags:\n  - markdown\n  - mdv\n---\n\ntext",
+    );
+    expect(result).toContain("<td>markdown, mdv</td>");
+  });
+
+  it("ネストされたオブジェクトをJSON文字列で表示する", () => {
+    const result = renderMarkdown("---\nmeta:\n  key: value\n---\n\ntext");
+    expect(result).toContain("<td>{&quot;key&quot;:&quot;value&quot;}</td>");
+  });
+
+  it("不正なYAMLをコードブロックとして表示する", () => {
+    const result = renderMarkdown("---\n: invalid\n  yaml: [\n---\n\ntext");
+    expect(result).toContain("<pre>");
+    expect(result).toContain("language-yaml");
+    expect(result).not.toContain('<table class="frontmatter"');
+  });
+
+  it("frontmatterがないMarkdownは従来通りレンダリングする", () => {
+    const result = renderMarkdown("# Hello\n\nworld");
+    expect(result).not.toContain('<table class="frontmatter"');
+    expect(result).toContain(">Hello</h1>");
+  });
+
+  it("ドキュメント先頭以外の---はfrontmatterとして認識しない", () => {
+    const result = renderMarkdown(
+      "# Title\n\n---\ntitle: Not frontmatter\n---",
+    );
+    expect(result).not.toContain('<table class="frontmatter"');
+  });
+
+  it("frontmatterテーブルにdata-source-lineとdata-source-line-end属性を付与する", () => {
+    const result = renderMarkdown("---\ntitle: Hello\n---\n\n# Content");
+    expect(result).toMatch(/table [^>]*data-source-line="1"/);
+    expect(result).toMatch(/table [^>]*data-source-line-end="5"/);
+  });
+});
+
 describe("dark theme rendering", () => {
   it("setShikiThemeでダークテーマに切り替えるとコードブロックがgithub-dark-defaultでレンダリングされる", async () => {
     setShikiTheme("github-dark-default");

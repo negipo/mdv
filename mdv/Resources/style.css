@@ -181,6 +181,16 @@ th, td {
   padding: 6px 13px;
 }
 
+table.frontmatter {
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+table.frontmatter th {
+  background: var(--code-bg);
+  font-weight: 600;
+}
+
 blockquote {
   border-left: 4px solid var(--table-border);
   margin: 0;
