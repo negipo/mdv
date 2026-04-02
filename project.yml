@@ -13,6 +13,8 @@ targets:
           - Resources
       - path: mdv/Resources
         buildPhase: resources
+        excludes:
+          - "*.woff2"
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.negipo.mdv
@@ -41,6 +43,9 @@ targets:
           mkdir -p "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin"
           cp "${SRCROOT}/resources/bin/mdv" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin/mdv"
           chmod +x "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/bin/mdv"
+      - name: Copy KaTeX fonts
+        script: |
+          cp "${SRCROOT}"/mdv/Resources/KaTeX_*.woff2 "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/"
   mdvTests:
     type: bundle.unit-test
     platform: macOS

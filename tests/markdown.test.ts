@@ -81,3 +81,39 @@ describe("data-source-line attributes", () => {
     expect(result).toMatch(/data-source-line="1"/);
   });
 });
+
+describe("math rendering", () => {
+  it("インライン数式をKaTeXのHTMLに変換する", () => {
+    const result = renderMarkdown("text $E=mc^2$ end");
+    expect(result).toContain("katex");
+    expect(result).not.toContain("$E=mc^2$");
+  });
+
+  it("エスケープされたドル記号は数式として処理しない", () => {
+    const result = renderMarkdown("price is \\$100");
+    expect(result).toContain("$100");
+    expect(result).not.toContain("katex");
+  });
+
+  it("ブロック数式をKaTeXのHTMLに変換する", () => {
+    const result = renderMarkdown("$$\n\\int_0^1 f(x)dx\n$$");
+    expect(result).toContain("katex");
+    expect(result).toContain("katex-display");
+  });
+
+  it("ブロック数式にdata-source-line属性を付与する", () => {
+    const result = renderMarkdown("text\n\n$$\nx^2\n$$");
+    expect(result).toMatch(/div [^>]*data-source-line="3"/);
+  });
+
+  it("mathコードブロックをKaTeXのブロック数式として変換する", () => {
+    const result = renderMarkdown("```math\n\\sum_{i=1}^n i\n```");
+    expect(result).toContain("katex");
+    expect(result).toContain("katex-display");
+  });
+
+  it("mathコードブロックにdata-source-line属性を付与する", () => {
+    const result = renderMarkdown("text\n\n```math\nx^2\n```");
+    expect(result).toMatch(/div [^>]*data-source-line="3"/);
+  });
+});

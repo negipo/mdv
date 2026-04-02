@@ -1,3 +1,4 @@
+import katex from "katex";
 import { Marked, type Token, type Tokens } from "marked";
 import { bundledLanguages, createHighlighter, type Highlighter } from "shiki";
 
@@ -54,6 +55,9 @@ function annotateSourceLines(tokens: Token[]): void {
     if (token.type === "code") {
       (token as Token & SourceLineToken).sourceLineEnd = line + rawLines;
     }
+    if (token.type === "blockMath") {
+      (token as Token & SourceLineToken).sourceLineEnd = line + rawLines;
+    }
     line += rawLines;
   }
 }
@@ -75,7 +79,64 @@ function sourceLineAttr(token: SourceLineToken): string | null {
   return `data-source-line="${sl}"`;
 }
 
+const blockMathExtension = {
+  name: "blockMath",
+  level: "block" as const,
+  start(src: string) {
+    return src.indexOf("$$");
+  },
+  tokenizer(src: string) {
+    const match = src.match(/^\$\$\n?([\s\S]+?)\n?\$\$/);
+    if (match) {
+      return {
+        type: "blockMath",
+        raw: match[0],
+        text: match[1],
+      };
+    }
+  },
+  renderer(token: { text: string }) {
+    const sl = (token as unknown as SourceLineToken).sourceLine;
+    const slEnd = (token as unknown as SourceLineToken).sourceLineEnd;
+    let attr = "";
+    if (sl != null) {
+      attr += ` data-source-line="${sl}"`;
+      if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
+    }
+    return `<div class="katex-block"${attr}>${katex.renderToString(token.text, {
+      throwOnError: false,
+      displayMode: true,
+      output: "html",
+    })}</div>\n`;
+  },
+};
+
+const inlineMathExtension = {
+  name: "inlineMath",
+  level: "inline" as const,
+  start(src: string) {
+    return src.indexOf("$");
+  },
+  tokenizer(src: string) {
+    const match = src.match(/^\$([^$\n]+?)\$/);
+    if (match) {
+      return {
+        type: "inlineMath",
+        raw: match[0],
+        text: match[1],
+      };
+    }
+  },
+  renderer(token: { text: string }) {
+    return katex.renderToString(token.text, {
+      throwOnError: false,
+      output: "html",
+    });
+  },
+};
+
 const marked = new Marked({
+  extensions: [blockMathExtension, inlineMathExtension],
   renderer: {
     heading(
       this: { parser: { parseInline: (t: Token[]) => string } },
@@ -103,6 +164,23 @@ const marked = new Marked({
         let attr = `data-source-line="${sl}"`;
         if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
         return `<pre class="mermaid" ${attr}>${token.text}</pre>`;
+      }
+      if (token.lang === "math") {
+        const sl = (token as Tokens.Code & SourceLineToken).sourceLine;
+        const slEnd = (token as Tokens.Code & SourceLineToken).sourceLineEnd;
+        let attr = "";
+        if (sl != null) {
+          attr += ` data-source-line="${sl}"`;
+          if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
+        }
+        return `<div class="katex-block"${attr}>${katex.renderToString(
+          token.text,
+          {
+            throwOnError: false,
+            displayMode: true,
+            output: "html",
+          },
+        )}</div>\n`;
       }
       const sl = (token as Tokens.Code & SourceLineToken).sourceLine;
       const slEnd = (token as Tokens.Code & SourceLineToken).sourceLineEnd;
@@ -191,21 +269,7 @@ function listitem(
   item: Tokens.ListItem,
   parser: { parse: (t: Token[]) => string },
 ): string {
-  let itemBody = "";
-  if (item.task) {
-    const checkbox = `<input type="checkbox"${item.checked ? " checked" : ""} disabled> `;
-    if (item.tokens && item.tokens[0]?.type === "paragraph") {
-      const first = item.tokens[0] as Tokens.Paragraph;
-      first.text = checkbox + first.text;
-      if (first.tokens && first.tokens[0]?.type === "text") {
-        (first.tokens[0] as Tokens.Text).text =
-          checkbox + (first.tokens[0] as Tokens.Text).text;
-      }
-    } else {
-      itemBody += checkbox;
-    }
-  }
-  itemBody += parser.parse(item.tokens);
+  const itemBody = parser.parse(item.tokens);
   return `<li>${itemBody}</li>\n`;
 }
 

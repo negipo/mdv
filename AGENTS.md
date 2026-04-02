@@ -16,6 +16,10 @@ npm run build      # Full build
 - Create a PR and merge into main. Avoid pushing directly to main.
 - All user-facing UI text (menu items, labels, alerts, etc.) must be in English.
 
+## Adding Resources
+
+When adding new files to `mdv/Resources/`, run `xcodegen generate` before building. Without this, the Xcode project won't include the new files in the app bundle.
+
 ## Manual UI Verification
 
 When verifying UI changes, kill the running app, rebuild, and relaunch for the user to check.

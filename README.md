@@ -7,7 +7,7 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 
 ## Features
 
-- Mermaid diagram rendering
+- Mermaid diagram and math formula rendering
 - Native macOS tab UI
 - Syntax highlighting
 - Live reload on file changes
