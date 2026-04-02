@@ -28,5 +28,5 @@ Do NOT use `/Applications/mdv.app` or the `mdv` CLI command — these point to a
 ```bash
 pkill -x mdv 2>/dev/null
 xcodebuild -scheme mdv -configuration Debug build 2>&1 | tail -5
-open ~/Library/Developer/Xcode/DerivedData/mdv-afrghrsxmvulxhcshpjiumlziahy/Build/Products/Debug/mdv.app --args /path/to/file.md
+open ~/Library/Developer/Xcode/DerivedData/mdv-afrghrsxmvulxhcshpjiumlziahy/Build/Products/Debug/mdv.app --args fixtures/comprehensive.md
 ```
