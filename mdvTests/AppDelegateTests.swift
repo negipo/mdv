@@ -24,8 +24,8 @@ final class AppDelegateTests: XCTestCase {
         XCTAssertNotNil(cliItem, "CLI install menu item should exist in app menu")
     }
 
-    // CLIインストール項目がAbout mdvの直後、セパレータの前に配置されている
-    func testCLIInstallItemIsAfterAboutAndBeforeSeparator() {
+    // CLIインストール項目がAbout mdvの直後に配置されている
+    func testCLIInstallItemIsAfterAbout() {
         let mainMenu = NSApplication.shared.mainMenu
         let appMenu = mainMenu?.item(at: 0)?.submenu
 
@@ -34,7 +34,6 @@ final class AppDelegateTests: XCTestCase {
         XCTAssertNotNil(aboutIndex)
         XCTAssertNotNil(cliIndex)
         XCTAssertEqual(cliIndex, aboutIndex! + 1)
-        XCTAssertTrue(appMenu!.item(at: cliIndex! + 1)!.isSeparatorItem)
     }
 
     // Editメニューに標準的なテキスト編集アイテムが含まれている
@@ -51,6 +50,28 @@ final class AppDelegateTests: XCTestCase {
         XCTAssertTrue(titles.contains("Copy"), "Edit menu should contain Copy")
         XCTAssertTrue(titles.contains("Paste"), "Edit menu should contain Paste")
         XCTAssertTrue(titles.contains("Select All"), "Edit menu should contain Select All")
+    }
+
+    // アプリメニューにSettings項目が含まれている
+    func testAppMenuContainsSettingsItem() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let appMenu = mainMenu?.item(at: 0)?.submenu
+
+        let settingsItem = appMenu?.items.first { $0.title == "Settings\u{2026}" }
+        XCTAssertNotNil(settingsItem, "Settings menu item should exist in app menu")
+        XCTAssertEqual(settingsItem?.keyEquivalent, ",")
+    }
+
+    // Settings項目がInstall CLI項目の直後に配置されている
+    func testSettingsItemIsAfterCLIInstall() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let appMenu = mainMenu?.item(at: 0)?.submenu
+
+        let cliIndex = appMenu?.indexOfItem(withTitle: "Install Command Line Tool\u{2026}")
+        let settingsIndex = appMenu?.indexOfItem(withTitle: "Settings\u{2026}")
+        XCTAssertNotNil(cliIndex)
+        XCTAssertNotNil(settingsIndex)
+        XCTAssertEqual(settingsIndex, cliIndex! + 1)
     }
 
     // Editメニューのアイテムが標準的なmacOSの順序で並んでいる

@@ -14,3 +14,4 @@ mdv/Resources/*.wasm
 mdv/Resources/*.woff2
 mdv/Resources/fonts/
 mdv/Resources/katex.min.css
+.superpowers/

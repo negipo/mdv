@@ -3,10 +3,19 @@ import AppKit
 class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     private var pendingFilePaths: [String] = []
     private var isFinishedLaunching = false
+    private var settingsController: SettingsWindowController?
+    private var appearanceObservation: NSKeyValueObservation?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         isFinishedLaunching = true
         buildMenu()
+        startObservingAppearance()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appearanceSettingChanged),
+            name: SettingsWindowController.appearanceChangedNotification,
+            object: nil
+        )
         promptCLIInstallIfNeeded()
         openInitialFiles()
     }
@@ -77,6 +86,41 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             return WindowManager.shared.canReopenLastClosed
         }
         return true
+    }
+
+    func resolvedTheme() -> String {
+        let pref = UserDefaults.standard.string(forKey: SettingsWindowController.appearanceKey) ?? "system"
+        switch pref {
+        case "light":
+            return "light"
+        case "dark":
+            return "dark"
+        default:
+            let isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            return isDark ? "dark" : "light"
+        }
+    }
+
+    private func startObservingAppearance() {
+        appearanceObservation = NSApp.observe(\.effectiveAppearance) { [weak self] _, _ in
+            guard let self = self else { return }
+            let pref = UserDefaults.standard.string(forKey: SettingsWindowController.appearanceKey) ?? "system"
+            if pref == "system" {
+                WindowManager.shared.applyThemeToAllWindows(theme: self.resolvedTheme())
+            }
+        }
+    }
+
+    @objc private func appearanceSettingChanged() {
+        WindowManager.shared.applyThemeToAllWindows(theme: resolvedTheme())
+    }
+
+    @objc private func openSettings(_ sender: Any?) {
+        if settingsController == nil {
+            settingsController = SettingsWindowController()
+        }
+        settingsController?.showWindow(nil)
+        settingsController?.window?.makeKeyAndOrderFront(nil)
     }
 
     @objc private func openDocument(_ sender: Any?) {
@@ -160,6 +204,11 @@ extension AppDelegate {
             withTitle: "Install Command Line Tool\u{2026}",
             action: #selector(installCLI(_:)),
             keyEquivalent: ""
+        )
+        menu.addItem(
+            withTitle: "Settings\u{2026}",
+            action: #selector(openSettings(_:)),
+            keyEquivalent: ","
         )
         menu.addItem(.separator())
         menu.addItem(withTitle: "Hide mdv", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
@@ -294,113 +343,5 @@ extension AppDelegate {
         )
         item.submenu = menu
         return item
-    }
-}
-
-// MARK: - CLI
-
-extension AppDelegate {
-    private static let cliInstallPath = "/usr/local/bin/mdv"
-    private static let cliSearchPaths = ["/opt/homebrew/bin/mdv", "/usr/local/bin/mdv"]
-    private static let cliPromptShownKey = "CLIInstallPromptShown"
-    private var installedCLIPath: String? {
-        Self.cliSearchPaths.first { path in
-            (try? FileManager.default.attributesOfItem(atPath: path)) != nil
-        }
-    }
-    private var isCLIInstalled: Bool { installedCLIPath != nil }
-
-    func promptCLIInstallIfNeeded() {
-        if isCLIInstalled { return }
-        if UserDefaults.standard.bool(forKey: Self.cliPromptShownKey) { return }
-
-        UserDefaults.standard.set(true, forKey: Self.cliPromptShownKey)
-
-        let alert = NSAlert()
-        alert.messageText = "Install command line tool?"
-        alert.informativeText = "Would you like to use mdv from the terminal? " +
-            "You can also install it later from the mdv menu."
-        alert.addButton(withTitle: "Install")
-        alert.addButton(withTitle: "Not Now")
-
-        if alert.runModal() == .alertFirstButtonReturn {
-            performCLIInstall()
-        }
-    }
-
-    @objc private func installCLI(_ sender: Any?) {
-        if isCLIInstalled {
-            let alert = NSAlert()
-            alert.messageText = "Command line tool is already installed."
-            alert.informativeText = "The mdv command is available at \(installedCLIPath ?? Self.cliInstallPath)."
-            alert.alertStyle = .informational
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
-            return
-        }
-
-        performCLIInstall()
-    }
-
-    private func performCLIInstall() {
-        guard let resourcePath = Bundle.main.resourcePath else {
-            showInstallFailedAlert(message: "Could not locate app bundle resources.")
-            return
-        }
-
-        let bundleCLIPath = resourcePath + "/bin/mdv"
-        let cmd = "mkdir -p /usr/local/bin && ln -sf '\(bundleCLIPath)' '\(Self.cliInstallPath)'"
-        runCLIInstallScript("do shell script \"\(cmd)\" with administrator privileges")
-    }
-
-    private func showInstallFailedAlert(message: String) {
-        let alert = NSAlert()
-        alert.messageText = "Installation failed."
-        alert.informativeText = message
-        alert.alertStyle = .critical
-        alert.addButton(withTitle: "OK")
-        alert.runModal()
-    }
-
-    private func runCLIInstallScript(_ script: String) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-            process.arguments = ["-e", script]
-
-            let pipe = Pipe()
-            process.standardError = pipe
-
-            do {
-                try process.run()
-            } catch {
-                DispatchQueue.main.async {
-                    self.showInstallFailedAlert(message: error.localizedDescription)
-                }
-                return
-            }
-
-            let errorData = pipe.fileHandleForReading.readDataToEndOfFile()
-            process.waitUntilExit()
-
-            DispatchQueue.main.async {
-                self.handleInstallResult(process: process, errorData: errorData)
-            }
-        }
-    }
-
-    private func handleInstallResult(process: Process, errorData: Data) {
-        if process.terminationStatus == 0 {
-            let alert = NSAlert()
-            alert.messageText = "Command line tool installed successfully."
-            alert.informativeText = "You can now use 'mdv' from the terminal."
-            alert.alertStyle = .informational
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
-        } else {
-            let errorMessage = String(data: errorData, encoding: .utf8) ?? "Unknown error"
-            if errorMessage.contains("User canceled") { return }
-            showInstallFailedAlert(message: errorMessage)
-        }
     }
 }

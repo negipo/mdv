@@ -185,6 +185,9 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         }
     }
 
+    func applyTheme(_ theme: String) {
+    }
+
     @objc func toggleToc(_ sender: Any?) {
         webView.evaluateJavaScript("window.toggleToc()") { _, error in
             if let error = error {
