@@ -119,28 +119,33 @@ describe("math rendering", () => {
 });
 
 describe("frontmatter rendering", () => {
-  it("基本的なfrontmatterを水平テーブルとしてレンダリングする", () => {
+  it("基本的なfrontmatterを縦型テーブルとしてレンダリングする", () => {
     const result = renderMarkdown(
       "---\ntitle: Hello\ndate: 2026-01-01\n---\n\n# Content",
     );
     expect(result).toContain('<table class="frontmatter"');
     expect(result).toContain("<th>title</th>");
-    expect(result).toContain("<th>date</th>");
     expect(result).toContain("<td>Hello</td>");
+    expect(result).toContain("<th>date</th>");
     expect(result).toContain("<td>2026-01-01</td>");
+    expect(result).toMatch(/<tr>\n<th>title<\/th>\n<td>Hello<\/td>\n<\/tr>/);
     expect(result).toContain(">Content</h1>");
   });
 
-  it("配列値をカンマ区切りで表示する", () => {
+  it("配列値をバッジとして表示する", () => {
     const result = renderMarkdown(
       "---\ntags:\n  - markdown\n  - mdv\n---\n\ntext",
     );
-    expect(result).toContain("<td>markdown, mdv</td>");
+    expect(result).toContain('class="frontmatter-tag"');
+    expect(result).toContain("markdown</span>");
+    expect(result).toContain("mdv</span>");
   });
 
-  it("ネストされたオブジェクトをJSON文字列で表示する", () => {
+  it("ネストされたオブジェクトを水平ネストテーブルで表示する", () => {
     const result = renderMarkdown("---\nmeta:\n  key: value\n---\n\ntext");
-    expect(result).toContain("<td>{&quot;key&quot;:&quot;value&quot;}</td>");
+    expect(result).toContain('class="frontmatter-nested"');
+    expect(result).toContain("<th>key</th>");
+    expect(result).toContain("<td>value</td>");
   });
 
   it("不正なYAMLをコードブロックとして表示する", () => {

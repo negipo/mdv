@@ -296,6 +296,10 @@ async function renderContent(markdown: string, basePath?: string) {
   const html = renderMarkdown(markdown);
   contentEl.innerHTML = DOMPurify.sanitize(html);
 
+  for (const a of contentEl.querySelectorAll("a:not([href]), a[href='']")) {
+    a.replaceWith(a.textContent ?? "");
+  }
+
   if (basePath) {
     resolveImagePaths(contentEl, basePath);
     resolveLinkPaths(contentEl, basePath);

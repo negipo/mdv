@@ -190,27 +190,38 @@ const frontmatterExtension = {
       if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
     }
 
-    let html = `<table class="frontmatter"${attr}>\n<thead>\n<tr>\n`;
+    let html = `<table class="frontmatter"${attr}>\n<tbody>\n`;
     for (const key of keys) {
-      html += `<th>${escapeHtml(key)}</th>\n`;
+      html += `<tr>\n<th>${escapeHtml(key)}</th>\n<td>${formatFrontmatterValue(data[key])}</td>\n</tr>\n`;
     }
-    html += "</tr>\n</thead>\n<tbody>\n<tr>\n";
-    for (const key of keys) {
-      html += `<td>${escapeHtml(formatFrontmatterValue(data[key]))}</td>\n`;
-    }
-    html += "</tr>\n</tbody>\n</table>\n";
+    html += "</tbody>\n</table>\n";
     return html;
   },
 };
 
 function formatFrontmatterValue(value: unknown): string {
   if (Array.isArray(value)) {
-    return value.join(", ");
+    return value
+      .map(
+        (v) => `<span class="frontmatter-tag">${escapeHtml(String(v))}</span>`,
+      )
+      .join("\n");
   }
   if (typeof value === "object" && value !== null) {
-    return JSON.stringify(value);
+    const obj = value as Record<string, unknown>;
+    const keys = Object.keys(obj);
+    let html = '<table class="frontmatter-nested">\n<thead>\n<tr>\n';
+    for (const key of keys) {
+      html += `<th>${escapeHtml(key)}</th>\n`;
+    }
+    html += "</tr>\n</thead>\n<tbody>\n<tr>\n";
+    for (const key of keys) {
+      html += `<td>${escapeHtml(String(obj[key]))}</td>\n`;
+    }
+    html += "</tr>\n</tbody>\n</table>";
+    return html;
   }
-  return String(value);
+  return escapeHtml(String(value));
 }
 
 const marked = new Marked({
