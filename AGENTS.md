@@ -1,5 +1,7 @@
 # mdv
 
+This project uses AGENTS.md for project rules. Do not create CLAUDE.md. AGENTS.md must be written in English.
+
 A Markdown viewer app for macOS. Built with Swift (AppKit) + TypeScript (marked, mermaid, shiki).
 
 ## Build & Test
@@ -15,6 +17,7 @@ npm run build      # Full build
 
 - Create a PR and merge into main. Avoid pushing directly to main.
 - All user-facing UI text (menu items, labels, alerts, etc.) must be in English.
+- When a PreToolUse hook blocks a tool call, do not attempt workarounds. Report the block to the user and wait for instructions.
 
 ## Adding Resources
 
