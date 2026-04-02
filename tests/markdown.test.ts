@@ -94,4 +94,15 @@ describe("math rendering", () => {
     expect(result).toContain("$100");
     expect(result).not.toContain("katex");
   });
+
+  it("ブロック数式をKaTeXのHTMLに変換する", () => {
+    const result = renderMarkdown("$$\n\\int_0^1 f(x)dx\n$$");
+    expect(result).toContain("katex");
+    expect(result).toContain("katex-display");
+  });
+
+  it("ブロック数式にdata-source-line属性を付与する", () => {
+    const result = renderMarkdown("text\n\n$$\nx^2\n$$");
+    expect(result).toMatch(/div [^>]*data-source-line="3"/);
+  });
 });

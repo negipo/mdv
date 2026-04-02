@@ -55,6 +55,9 @@ function annotateSourceLines(tokens: Token[]): void {
     if (token.type === "code") {
       (token as Token & SourceLineToken).sourceLineEnd = line + rawLines;
     }
+    if (token.type === "blockMath") {
+      (token as Token & SourceLineToken).sourceLineEnd = line + rawLines;
+    }
     line += rawLines;
   }
 }
@@ -75,6 +78,37 @@ function sourceLineAttr(token: SourceLineToken): string | null {
   if (sl == null) return null;
   return `data-source-line="${sl}"`;
 }
+
+const blockMathExtension = {
+  name: "blockMath",
+  level: "block" as const,
+  start(src: string) {
+    return src.indexOf("$$");
+  },
+  tokenizer(src: string) {
+    const match = src.match(/^\$\$\n?([\s\S]+?)\n?\$\$/);
+    if (match) {
+      return {
+        type: "blockMath",
+        raw: match[0],
+        text: match[1],
+      };
+    }
+  },
+  renderer(token: { text: string }) {
+    const sl = (token as unknown as SourceLineToken).sourceLine;
+    const slEnd = (token as unknown as SourceLineToken).sourceLineEnd;
+    let attr = "";
+    if (sl != null) {
+      attr += ` data-source-line="${sl}"`;
+      if (slEnd != null) attr += ` data-source-line-end="${slEnd}"`;
+    }
+    return `<div class="katex-block"${attr}>${katex.renderToString(token.text, {
+      throwOnError: false,
+      displayMode: true,
+    })}</div>\n`;
+  },
+};
 
 const inlineMathExtension = {
   name: "inlineMath",
@@ -98,7 +132,7 @@ const inlineMathExtension = {
 };
 
 const marked = new Marked({
-  extensions: [inlineMathExtension],
+  extensions: [blockMathExtension, inlineMathExtension],
   renderer: {
     heading(
       this: { parser: { parseInline: (t: Token[]) => string } },
