@@ -119,6 +119,11 @@ body.toc-visible #toc-pane {
 .toc-item[data-level="5"] { padding-left: 60px; }
 .toc-item[data-level="6"] { padding-left: 72px; }
 
+h1, h2 {
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border-color);
+}
+
 pre {
   background: var(--code-bg);
   padding: 1rem;
@@ -159,7 +164,7 @@ pre.shiki {
 
 a {
   color: var(--link-color);
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 a:hover {
@@ -173,7 +178,11 @@ img {
 
 table {
   border-collapse: collapse;
-  width: 100%;
+  width: auto;
+}
+
+table tbody tr:nth-child(even) {
+  background: var(--code-bg);
 }
 
 th, td {
@@ -183,12 +192,45 @@ th, td {
 
 table.frontmatter {
   margin-bottom: 16px;
-  font-size: 14px;
+  font-size: 16px;
+  width: auto;
 }
 
 table.frontmatter th {
-  background: var(--code-bg);
+  background: var(--bg-color);
   font-weight: 600;
+  text-align: center;
+  vertical-align: top;
+}
+
+table.frontmatter td {
+  vertical-align: top;
+}
+
+table.frontmatter tr:nth-child(even) th,
+table.frontmatter tr:nth-child(even) td {
+  background: var(--code-bg);
+}
+
+.frontmatter-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px 4px 2px 0;
+  background: var(--code-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+table.frontmatter-nested {
+  width: auto;
+  margin: 0;
+  font-size: inherit;
+}
+
+table.frontmatter-nested td {
+  padding: 4px 8px;
 }
 
 blockquote {
