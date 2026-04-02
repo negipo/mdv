@@ -149,6 +149,12 @@ hr {
   border-radius: 2px;
 }
 
+.katex-block {
+  text-align: center;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
 pre.mermaid {
   background: none;
   text-align: center;
