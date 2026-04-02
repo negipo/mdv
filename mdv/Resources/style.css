@@ -149,6 +149,11 @@ hr {
   border-radius: 2px;
 }
 
+li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -1.5em;
+}
+
 .katex-block {
   text-align: center;
   margin: 1rem 0;

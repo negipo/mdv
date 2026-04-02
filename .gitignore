@@ -6,6 +6,8 @@ tmp/
 mdv/Resources/renderer.js
 mdv/Resources/renderer.js.map
 mdv/Resources/*.wasm
+mdv/Resources/*.woff2
+mdv/Resources/katex.min.css
 mdv.xcodeproj/
 .worktrees/
 mdv-*.zip

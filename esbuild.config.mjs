@@ -17,9 +17,16 @@ for (const wasm of wasmFiles) {
   cpSync(wasm, `mdv/Resources/${filename}`);
 }
 
-cpSync("node_modules/katex/dist/katex.min.css", "mdv/Resources/katex.min.css");
+import { readFileSync, writeFileSync } from "node:fs";
+
+const katexCss = readFileSync(
+  "node_modules/katex/dist/katex.min.css",
+  "utf8",
+).replace(/fonts\//g, "");
+writeFileSync("mdv/Resources/katex.min.css", katexCss);
+
 const katexFonts = globSync("node_modules/katex/dist/fonts/*.woff2");
 for (const font of katexFonts) {
   const filename = font.split("/").pop();
-  cpSync(font, `mdv/Resources/fonts/${filename}`);
+  cpSync(font, `mdv/Resources/${filename}`);
 }

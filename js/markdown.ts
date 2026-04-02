@@ -106,6 +106,7 @@ const blockMathExtension = {
     return `<div class="katex-block"${attr}>${katex.renderToString(token.text, {
       throwOnError: false,
       displayMode: true,
+      output: "html",
     })}</div>\n`;
   },
 };
@@ -127,7 +128,10 @@ const inlineMathExtension = {
     }
   },
   renderer(token: { text: string }) {
-    return katex.renderToString(token.text, { throwOnError: false });
+    return katex.renderToString(token.text, {
+      throwOnError: false,
+      output: "html",
+    });
   },
 };
 
@@ -174,6 +178,7 @@ const marked = new Marked({
           {
             throwOnError: false,
             displayMode: true,
+            output: "html",
           },
         )}</div>\n`;
       }
@@ -264,21 +269,7 @@ function listitem(
   item: Tokens.ListItem,
   parser: { parse: (t: Token[]) => string },
 ): string {
-  let itemBody = "";
-  if (item.task) {
-    const checkbox = `<input type="checkbox"${item.checked ? " checked" : ""} disabled> `;
-    if (item.tokens && item.tokens[0]?.type === "paragraph") {
-      const first = item.tokens[0] as Tokens.Paragraph;
-      first.text = checkbox + first.text;
-      if (first.tokens && first.tokens[0]?.type === "text") {
-        (first.tokens[0] as Tokens.Text).text =
-          checkbox + (first.tokens[0] as Tokens.Text).text;
-      }
-    } else {
-      itemBody += checkbox;
-    }
-  }
-  itemBody += parser.parse(item.tokens);
+  const itemBody = parser.parse(item.tokens);
   return `<li>${itemBody}</li>\n`;
 }
 
