@@ -1,10 +1,58 @@
+:root {
+  --bg-color: #fff;
+  --text-color: #24292e;
+  --code-bg: #f6f8fa;
+  --link-color: #0969da;
+  --border-color: #d0d7de;
+  --table-border: #dfe2e5;
+  --blockquote-color: #6a737d;
+  --hr-color: #d0d7de;
+  --scrollbar-color: rgba(0,0,0,0.15);
+  --search-bg: #f6f8fa;
+  --search-input-bg: #fff;
+  --search-focus-color: #0969da;
+  --search-count-color: #656d76;
+  --search-highlight-bg: #fff8c5;
+  --search-highlight-current-bg: #fd8c73;
+  --toc-text-color: #656d76;
+  --toc-hover-text: #24292e;
+  --toc-hover-bg: #eaeef2;
+  --mermaid-hover-color: #0366d6;
+  --overlay-bg: rgba(0,0,0,0.7);
+  --overlay-content-bg: #fff;
+}
+
+[data-theme="dark"] {
+  --bg-color: #0d1117;
+  --text-color: #e6edf3;
+  --code-bg: #161b22;
+  --link-color: #58a6ff;
+  --border-color: #30363d;
+  --table-border: #30363d;
+  --blockquote-color: #8b949e;
+  --hr-color: #30363d;
+  --scrollbar-color: rgba(255,255,255,0.15);
+  --search-bg: #161b22;
+  --search-input-bg: #0d1117;
+  --search-focus-color: #58a6ff;
+  --search-count-color: #8b949e;
+  --search-highlight-bg: #634b16;
+  --search-highlight-current-bg: #d2553f;
+  --toc-text-color: #8b949e;
+  --toc-hover-text: #e6edf3;
+  --toc-hover-bg: #1c2128;
+  --mermaid-hover-color: #58a6ff;
+  --overlay-bg: rgba(0,0,0,0.8);
+  --overlay-content-bg: #161b22;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.15);
+  background: var(--scrollbar-color);
   border-radius: 3px;
 }
 
@@ -16,8 +64,8 @@ body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   line-height: 1.6;
-  color: #24292e;
-  background: #fff;
+  color: var(--text-color);
+  background: var(--bg-color);
 }
 
 #content {
@@ -37,8 +85,8 @@ body.toc-visible {
   bottom: 0;
   left: 0;
   width: 0;
-  background: #f6f8fa;
-  border-right: 1px solid #d0d7de;
+  background: var(--code-bg);
+  border-right: 1px solid var(--border-color);
 }
 
 body.toc-visible #toc-pane {
@@ -51,7 +99,7 @@ body.toc-visible #toc-pane {
 .toc-item {
   padding: 4px 12px;
   font-size: 13px;
-  color: #656d76;
+  color: var(--toc-text-color);
   cursor: pointer;
   line-height: 1.4;
   white-space: nowrap;
@@ -60,8 +108,8 @@ body.toc-visible #toc-pane {
 }
 
 .toc-item:hover {
-  color: #24292e;
-  background: #eaeef2;
+  color: var(--toc-hover-text);
+  background: var(--toc-hover-bg);
 }
 
 .toc-item[data-level="1"] { padding-left: 12px; }
@@ -72,12 +120,12 @@ body.toc-visible #toc-pane {
 .toc-item[data-level="6"] { padding-left: 72px; }
 
 pre {
-  background: #f6f8fa;
+  background: var(--code-bg);
   padding: 1rem;
   border-radius: 6px;
   overflow-x: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(0,0,0,0.15) transparent;
+  scrollbar-color: var(--scrollbar-color) transparent;
 }
 
 pre::-webkit-scrollbar {
@@ -85,7 +133,7 @@ pre::-webkit-scrollbar {
 }
 
 pre::-webkit-scrollbar-thumb {
-  background: rgba(0,0,0,0.15);
+  background: var(--scrollbar-color);
   border-radius: 3px;
 }
 
@@ -94,7 +142,7 @@ pre::-webkit-scrollbar-track {
 }
 
 code {
-  background: #f6f8fa;
+  background: var(--code-bg);
   padding: 0.2em 0.4em;
   border-radius: 3px;
   font-size: 110%;
@@ -106,11 +154,11 @@ pre code {
 }
 
 pre.shiki {
-  background-color: #f6f8fa !important;
+  background-color: var(--code-bg) !important;
 }
 
 a {
-  color: #0969da;
+  color: var(--link-color);
   text-decoration: none;
 }
 
@@ -129,22 +177,22 @@ table {
 }
 
 th, td {
-  border: 1px solid #dfe2e5;
+  border: 1px solid var(--table-border);
   padding: 6px 13px;
 }
 
 blockquote {
-  border-left: 4px solid #dfe2e5;
+  border-left: 4px solid var(--table-border);
   margin: 0;
   padding: 0 1rem;
-  color: #6a737d;
+  color: var(--blockquote-color);
 }
 
 hr {
   height: 4px;
   padding: 0;
   margin: 24px 0;
-  background-color: #d0d7de;
+  background-color: var(--hr-color);
   border: 0;
   border-radius: 2px;
 }
@@ -167,7 +215,7 @@ pre.mermaid {
 }
 
 pre.mermaid:hover {
-  outline: 2px solid #0366d6;
+  outline: 2px solid var(--mermaid-hover-color);
   outline-offset: 4px;
   border-radius: 4px;
 }
@@ -176,7 +224,7 @@ pre.mermaid:hover {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--overlay-bg);
   z-index: 1000;
   justify-content: center;
   align-items: center;
@@ -188,7 +236,7 @@ pre.mermaid:hover {
 }
 
 #mermaid-overlay-content {
-  background: #fff;
+  background: var(--overlay-content-bg);
   border-radius: 8px;
   padding: 0;
   width: 90vw;
@@ -214,8 +262,8 @@ pre.mermaid:hover {
   top: 0;
   right: 0;
   z-index: 900;
-  background: #f6f8fa;
-  border: 1px solid #d0d7de;
+  background: var(--search-bg);
+  border: 1px solid var(--border-color);
   border-top: none;
   border-radius: 0 0 0 6px;
   padding: 6px 8px;
@@ -229,24 +277,24 @@ pre.mermaid:hover {
 }
 
 #search-input {
-  border: 1px solid #d0d7de;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 3px 8px;
   font-size: 13px;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   outline: none;
   width: 220px;
-  background: #fff;
+  background: var(--search-input-bg);
 }
 
 #search-input:focus {
-  border-color: #0969da;
+  border-color: var(--search-focus-color);
   box-shadow: 0 0 0 2px rgba(9,105,218,0.2);
 }
 
 #search-count {
   font-size: 12px;
-  color: #656d76;
+  color: var(--search-count-color);
   min-width: 60px;
   text-align: center;
   white-space: nowrap;
@@ -254,7 +302,7 @@ pre.mermaid:hover {
 
 .search-nav-btn {
   background: none;
-  border: 1px solid #d0d7de;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   width: 24px;
   height: 24px;
@@ -262,23 +310,27 @@ pre.mermaid:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #656d76;
+  color: var(--search-count-color);
   font-size: 12px;
   padding: 0;
 }
 
 .search-nav-btn:hover {
-  background: #eaeef2;
+  background: var(--toc-hover-bg);
 }
 
 mark.search-highlight {
-  background: #fff8c5;
+  background: var(--search-highlight-bg);
   color: inherit;
   padding: 0;
   border-radius: 2px;
 }
 
 mark.search-highlight.current {
-  background: #fd8c73;
+  background: var(--search-highlight-current-bg);
   color: #fff;
+}
+
+.katex {
+  color: var(--text-color);
 }

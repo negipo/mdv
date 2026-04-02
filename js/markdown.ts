@@ -3,6 +3,7 @@ import { Marked, type Token, type Tokens } from "marked";
 import { bundledLanguages, createHighlighter, type Highlighter } from "shiki";
 
 let highlighter: Highlighter | null = null;
+let currentTheme = "github-light-default";
 
 const initialLangs = [
   "javascript",
@@ -29,9 +30,17 @@ const initialLangs = [
 
 export async function initHighlighter(): Promise<void> {
   highlighter = await createHighlighter({
-    themes: ["github-light-default"],
+    themes: ["github-light-default", "github-dark-default"],
     langs: initialLangs,
   });
+}
+
+export function setShikiTheme(theme: string): void {
+  currentTheme = theme;
+}
+
+export function getCurrentShikiTheme(): string {
+  return currentTheme;
 }
 
 export async function loadLanguageOnDemand(lang: string): Promise<boolean> {
@@ -190,7 +199,7 @@ const marked = new Marked({
         if (loadedLangs.includes(token.lang)) {
           html = highlighter.codeToHtml(token.text, {
             lang: token.lang,
-            theme: "github-light-default",
+            theme: currentTheme,
           });
         } else {
           html = defaultCodeHtml(token);

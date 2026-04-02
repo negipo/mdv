@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 import mermaid from "mermaid";
 import { setupContextMenu } from "./context-menu";
-import { initHighlighter, renderMarkdown } from "./markdown";
+import { initHighlighter, renderMarkdown, setShikiTheme } from "./markdown";
 import { SearchManager } from "./search";
 import { TocManager } from "./toc";
 import { computeZoom, isDrag } from "./zoom";
@@ -14,6 +14,7 @@ declare global {
     showToc: () => void;
     hideToc: () => void;
     handleEscape: () => void;
+    setTheme: (theme: "light" | "dark") => void;
     updateMarkdown: (markdown: string, basePath?: string) => void;
     webkit?: {
       messageHandlers?: {
@@ -316,6 +317,25 @@ window.updateMarkdown = (markdown: string, basePath?: string) => {
   lastBasePath = basePath ?? undefined;
   renderContent(markdown, lastBasePath).catch(console.error);
 };
+
+export function setTheme(theme: "light" | "dark"): void {
+  document.documentElement.dataset.theme = theme;
+
+  const shikiTheme =
+    theme === "dark" ? "github-dark-default" : "github-light-default";
+  setShikiTheme(shikiTheme);
+
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: theme === "dark" ? "dark" : "default",
+  });
+
+  if (lastMarkdown) {
+    renderContent(lastMarkdown, lastBasePath).catch(console.error);
+  }
+}
+
+window.setTheme = setTheme;
 
 (async () => {
   setupContextMenu();

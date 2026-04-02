@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { initHighlighter, renderMarkdown } from "../js/markdown";
+import { initHighlighter, renderMarkdown, setShikiTheme } from "../js/markdown";
 
 beforeAll(async () => {
   await initHighlighter();
@@ -115,5 +115,14 @@ describe("math rendering", () => {
   it("mathコードブロックにdata-source-line属性を付与する", () => {
     const result = renderMarkdown("text\n\n```math\nx^2\n```");
     expect(result).toMatch(/div [^>]*data-source-line="3"/);
+  });
+});
+
+describe("dark theme rendering", () => {
+  it("setShikiThemeでダークテーマに切り替えるとコードブロックがgithub-dark-defaultでレンダリングされる", async () => {
+    setShikiTheme("github-dark-default");
+    const result = renderMarkdown("```js\nconst x = 1;\n```");
+    expect(result).toContain("github-dark-default");
+    setShikiTheme("github-light-default");
   });
 });

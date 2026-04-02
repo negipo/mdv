@@ -185,6 +185,15 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         }
     }
 
+    func applyTheme(_ theme: String) {
+        guard isReady else { return }
+        webView.evaluateJavaScript("window.setTheme('\(theme)')") { _, error in
+            if let error = error {
+                NSLog("setTheme error: \(error)")
+            }
+        }
+    }
+
     @objc func toggleToc(_ sender: Any?) {
         webView.evaluateJavaScript("window.toggleToc()") { _, error in
             if let error = error {
@@ -255,6 +264,9 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
                 pendingMarkdown = nil
                 pendingBasePath = nil
                 sendMarkdown(pending, basePath: basePath)
+            }
+            if let appDelegate = NSApp.delegate as? AppDelegate {
+                applyTheme(appDelegate.resolvedTheme())
             }
         case "openExternal":
             if let urlString = message.body as? String, let url = URL(string: urlString) {

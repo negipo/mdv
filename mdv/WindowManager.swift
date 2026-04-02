@@ -152,6 +152,12 @@ class WindowManager {
         }
     }
 
+    func applyThemeToAllWindows(theme: String) {
+        for controller in controllers.values {
+            controller.applyTheme(theme)
+        }
+    }
+
     func loadSession() -> [String] {
         guard let data = FileManager.default.contents(atPath: sessionPath),
               let paths = try? JSONDecoder().decode([String].self, from: data) else {
