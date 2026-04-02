@@ -81,3 +81,17 @@ describe("data-source-line attributes", () => {
     expect(result).toMatch(/data-source-line="1"/);
   });
 });
+
+describe("math rendering", () => {
+  it("インライン数式をKaTeXのHTMLに変換する", () => {
+    const result = renderMarkdown("text $E=mc^2$ end");
+    expect(result).toContain("katex");
+    expect(result).not.toContain("$E=mc^2$");
+  });
+
+  it("エスケープされたドル記号は数式として処理しない", () => {
+    const result = renderMarkdown("price is \\$100");
+    expect(result).toContain("$100");
+    expect(result).not.toContain("katex");
+  });
+});

@@ -1,3 +1,4 @@
+import katex from "katex";
 import { Marked, type Token, type Tokens } from "marked";
 import { bundledLanguages, createHighlighter, type Highlighter } from "shiki";
 
@@ -75,7 +76,29 @@ function sourceLineAttr(token: SourceLineToken): string | null {
   return `data-source-line="${sl}"`;
 }
 
+const inlineMathExtension = {
+  name: "inlineMath",
+  level: "inline" as const,
+  start(src: string) {
+    return src.indexOf("$");
+  },
+  tokenizer(src: string) {
+    const match = src.match(/^\$([^$\n]+?)\$/);
+    if (match) {
+      return {
+        type: "inlineMath",
+        raw: match[0],
+        text: match[1],
+      };
+    }
+  },
+  renderer(token: { text: string }) {
+    return katex.renderToString(token.text, { throwOnError: false });
+  },
+};
+
 const marked = new Marked({
+  extensions: [inlineMathExtension],
   renderer: {
     heading(
       this: { parser: { parseInline: (t: Token[]) => string } },
