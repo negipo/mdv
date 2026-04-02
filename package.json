@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "dompurify": "^3.3.3",
+    "katex": "^0.16.44",
     "marked": "^17.0.0",
     "mermaid": "^11.0.0",
     "shiki": "^4.0.2"
