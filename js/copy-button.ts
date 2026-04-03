@@ -19,12 +19,17 @@ export function attachCopyButtons(container: HTMLElement): void {
     tooltip.textContent = "Copied!";
 
     const getText = (): string => {
+      let text: string;
       const code = pre.querySelector("code");
-      if (code) return code.textContent ?? "";
-      return Array.from(pre.childNodes)
-        .filter((n) => n !== btn && n !== tooltip)
-        .map((n) => n.textContent ?? "")
-        .join("");
+      if (code) {
+        text = code.textContent ?? "";
+      } else {
+        text = Array.from(pre.childNodes)
+          .filter((n) => n !== btn && n !== tooltip)
+          .map((n) => n.textContent ?? "")
+          .join("");
+      }
+      return text.endsWith("\n") ? text : `${text}\n`;
     };
 
     btn.addEventListener("click", () => {

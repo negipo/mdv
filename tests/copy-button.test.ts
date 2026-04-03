@@ -46,7 +46,7 @@ describe("attachCopyButtons", () => {
     const btn = container.querySelector(".copy-button") as HTMLButtonElement;
     btn.click();
     await vi.waitFor(() => {
-      expect(writeText).toHaveBeenCalledWith("const x = 1;");
+      expect(writeText).toHaveBeenCalledWith("const x = 1;\n");
     });
   });
 
@@ -63,7 +63,7 @@ describe("attachCopyButtons", () => {
     const btn = container.querySelector(".copy-button") as HTMLButtonElement;
     btn.click();
     await vi.waitFor(() => {
-      expect(writeText).toHaveBeenCalledWith("raw text");
+      expect(writeText).toHaveBeenCalledWith("raw text\n");
     });
   });
 

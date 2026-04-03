@@ -426,7 +426,7 @@ mark.search-highlight.current {
 
 .copy-tooltip {
   position: absolute;
-  top: 4px;
+  top: 12px;
   right: 40px;
   background: #1f2328;
   color: #fff;
