@@ -100,6 +100,11 @@ def factorial(n):
     return 1 if n <= 1 else n * factorial(n - 1)
 ```
 
+```
+plain text without language
+key = value
+```
+
 ## Tables
 
 | Feature | Status | Notes |
