@@ -1,6 +1,7 @@
 import DOMPurify from "dompurify";
 import mermaid from "mermaid";
 import { setupContextMenu } from "./context-menu";
+import { attachCopyButtons } from "./copy-button";
 import { initHighlighter, renderMarkdown, setShikiTheme } from "./markdown";
 import { SearchManager } from "./search";
 import { TocManager } from "./toc";
@@ -311,6 +312,7 @@ async function renderContent(markdown: string, basePath?: string) {
   }
   attachMermaidClickHandlers();
   tocManager.update();
+  attachCopyButtons(contentEl);
 }
 
 let lastMarkdown: string | null = null;
