@@ -4,7 +4,8 @@ A Markdown viewer app for macOS. Built with Swift (AppKit) + TypeScript (marked,
 
 ## Project Rules
 
-This project uses AGENTS.md for project rules. Do not create CLAUDE.md. AGENTS.md must be written in English. This rule applies only to AGENTS.md itself; other documents follow the user's language preference.
+- This project uses AGENTS.md for project rules. Do not create CLAUDE.md.
+- AGENTS.md must be written in English. This rule applies only to AGENTS.md itself; other documents follow the user's language preference.
 
 ## Build & Test
 
