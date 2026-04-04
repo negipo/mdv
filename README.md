@@ -7,16 +7,40 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 
 ## Features
 
-- Mermaid diagram and math formula rendering
-- Native macOS tab UI
-- Syntax highlighting
+### Rendering
+- Mermaid diagrams (click to zoom, pan and zoom controls)
+- Math formulas (KaTeX)
+- Syntax highlighting with copy button
+- YAML frontmatter (GitHub-style)
+
+### Navigation
+- Native macOS tab UI with cross-window tab dragging
+- Table of Contents sidebar
+- In-document search (Cmd+F)
+- Context menu (copy file path, relative path with line numbers, copy as Markdown)
+
+### Integration
+- CLI tool (`mdv file.md`)
 - Live reload on file changes
+- Dark mode support
 
 ## Installation and Usage
 
 ```bash
 brew install --cask negipo/tap/mdv
 xattr -dr com.apple.quarantine /Applications/mdv.app
+```
+
+Open a Markdown file from the terminal:
+
+```bash
+mdv README.md
+```
+
+To let coding agents preview Markdown, add the following to your AGENTS.md:
+
+```
+When you write a Markdown file, run `mdv <file>` to preview it.
 ```
 
 ## Development
