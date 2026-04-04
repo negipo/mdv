@@ -7,10 +7,23 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 
 ## Features
 
-- Mermaid diagram and math formula rendering
-- Native macOS tab UI
-- Syntax highlighting
+### Rendering
+- Mermaid diagrams (click to zoom, pan and zoom controls)
+- Math formulas (KaTeX)
+- Syntax highlighting with copy button
+- YAML frontmatter (GitHub-style)
+
+### Navigation
+- Native macOS tab UI with cross-window tab dragging
+- Table of Contents sidebar
+- In-document search (Cmd+F)
+- Context menu (copy file path, relative path with line numbers, copy as Markdown)
+
+### Integration
+- CLI tool (`mdv file.md`)
 - Live reload on file changes
+- Dark mode support
+- Homebrew Cask distribution
 
 ## Installation and Usage
 
