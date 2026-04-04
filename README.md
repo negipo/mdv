@@ -32,6 +32,18 @@ brew install --cask negipo/tap/mdv
 xattr -dr com.apple.quarantine /Applications/mdv.app
 ```
 
+Open a Markdown file from the terminal:
+
+```bash
+mdv README.md
+```
+
+To let coding agents preview Markdown, add the following to your AGENTS.md:
+
+```
+When you write a Markdown file, run `mdv <file>` to preview it.
+```
+
 ## Development
 
 Requires Xcode (including Command Line Tools) and Node.js.
