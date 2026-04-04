@@ -23,7 +23,6 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 - CLI tool (`mdv file.md`)
 - Live reload on file changes
 - Dark mode support
-- Homebrew Cask distribution
 
 ## Installation and Usage
 
