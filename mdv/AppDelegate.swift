@@ -89,28 +89,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         let copyActions: [Selector] = [
             #selector(copyFileAsMarkdownAction(_:)),
             #selector(copyRelativePathAction(_:)),
-            #selector(copyAbsolutePathAction(_:))
-        ]
-        let lineRequiredActions: [Selector] = [
+            #selector(copyAbsolutePathAction(_:)),
             #selector(copyRelativePathWithLinesAction(_:)),
             #selector(copyPathLineContentAction(_:))
         ]
 
-        if let action = menuItem.action {
-            if copyActions.contains(action) {
-                guard let window = NSApplication.shared.keyWindow,
-                      let controller = window.windowController as? MarkdownWindowController else {
-                    return false
-                }
-                return controller.filePath != nil
+        if let action = menuItem.action, copyActions.contains(action) {
+            guard let window = NSApplication.shared.keyWindow,
+                  let controller = window.windowController as? MarkdownWindowController else {
+                return false
             }
-            if lineRequiredActions.contains(action) {
-                guard let window = NSApplication.shared.keyWindow,
-                      let controller = window.windowController as? MarkdownWindowController else {
-                    return false
-                }
-                return controller.filePath != nil && controller.cachedLineInfo != nil
-            }
+            return controller.filePath != nil
         }
 
         return true
@@ -199,7 +188,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
 
     @objc private func copyRelativePathWithLinesAction(_ sender: Any?) {
-        withKeyWindowController { $0.copyRelativePathWithLines(nil) }
+        withKeyWindowController { $0.performCopyRelativePathWithLines(nil) }
     }
 
     @objc private func copyAbsolutePathAction(_ sender: Any?) {

@@ -205,8 +205,8 @@ final class ContentContextMenuTests: XCTestCase {
         }
         controller.openFile(path: tmpFile)
 
-        controller.cachedLineInfo = MarkdownWindowController.LineInfo(startLine: 5, endLine: 5)
-        controller.copyRelativePathWithLinesAndContent(nil, selectedText: "hello world")
+        let lineInfo = MarkdownWindowController.LineInfo(startLine: 5, endLine: 5)
+        controller.copyRelativePathWithLinesAndContent(nil, lineInfo: lineInfo, selectedText: "hello world")
 
         let result = NSPasteboard.general.string(forType: .string) ?? ""
         let rel = controller.relativePath(for: tmpFile)
@@ -232,8 +232,8 @@ final class ContentContextMenuTests: XCTestCase {
         }
         controller.openFile(path: tmpFile)
 
-        controller.cachedLineInfo = MarkdownWindowController.LineInfo(startLine: 10, endLine: 25)
-        controller.copyRelativePathWithLinesAndContent(nil, selectedText: "line1\nline2")
+        let lineInfo = MarkdownWindowController.LineInfo(startLine: 10, endLine: 25)
+        controller.copyRelativePathWithLinesAndContent(nil, lineInfo: lineInfo, selectedText: "line1\nline2")
 
         let result = NSPasteboard.general.string(forType: .string) ?? ""
         let rel = controller.relativePath(for: tmpFile)

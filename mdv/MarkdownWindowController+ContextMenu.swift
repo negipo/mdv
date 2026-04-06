@@ -86,15 +86,30 @@ extension MarkdownWindowController {
         pasteboard.setString(content, forType: .string)
     }
 
-    @objc func performCopyRelativePathWithLinesAndContent(_ sender: Any?) {
-        copyRelativePathWithLinesAndContent(sender)
-    }
-
-    func copyRelativePathWithLinesAndContent(_ sender: Any?, selectedText: String? = nil) {
-        guard let path = filePath, let info = cachedLineInfo else { return }
+    @objc func performCopyRelativePathWithLines(_ sender: Any?) {
+        guard let path = filePath else { return }
         let rel = relativePath(for: path)
 
-        let copyBlock: (String) -> Void = { text in
+        evaluateSelectionInfo { info, _ in
+            guard let info = info else { return }
+            let result: String
+            if info.startLine == info.endLine {
+                result = "\(rel):\(info.startLine)"
+            } else {
+                result = "\(rel):\(info.startLine)-\(info.endLine)"
+            }
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(result, forType: .string)
+        }
+    }
+
+    @objc func performCopyRelativePathWithLinesAndContent(_ sender: Any?) {
+        guard let path = filePath else { return }
+        let rel = relativePath(for: path)
+
+        evaluateSelectionInfo { info, text in
+            guard let info = info else { return }
             let result: String
             if info.startLine == info.endLine {
                 result = "\(rel):\(info.startLine) \(text)"
@@ -105,13 +120,19 @@ extension MarkdownWindowController {
             pasteboard.clearContents()
             pasteboard.setString(result, forType: .string)
         }
+    }
 
-        if let text = selectedText {
-            copyBlock(text)
+    func copyRelativePathWithLinesAndContent(_ sender: Any?, lineInfo: LineInfo, selectedText: String) {
+        guard let path = filePath else { return }
+        let rel = relativePath(for: path)
+        let result: String
+        if lineInfo.startLine == lineInfo.endLine {
+            result = "\(rel):\(lineInfo.startLine) \(selectedText)"
         } else {
-            evaluateSelectedText { text in
-                copyBlock(text)
-            }
+            result = "\(rel):\(lineInfo.startLine)-\(lineInfo.endLine)\n\(selectedText)"
         }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(result, forType: .string)
     }
 }

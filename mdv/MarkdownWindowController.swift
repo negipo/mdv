@@ -200,6 +200,28 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         }
     }
 
+    func evaluateSelectionInfo(completion: @escaping (LineInfo?, String) -> Void) {
+        let script = """
+        (function() {
+            var info = window.getContextMenuInfo();
+            var text = window.getSelection().toString();
+            return { startLine: info.startLine, endLine: info.endLine, text: text };
+        })()
+        """
+        webView.evaluateJavaScript(script) { result, _ in
+            guard let dict = result as? [String: Any] else {
+                completion(nil, "")
+                return
+            }
+            let text = dict["text"] as? String ?? ""
+            if let start = dict["startLine"] as? Int, let end = dict["endLine"] as? Int {
+                completion(LineInfo(startLine: start, endLine: end), text)
+            } else {
+                completion(nil, text)
+            }
+        }
+    }
+
     @objc func toggleToc(_ sender: Any?) {
         webView.evaluateJavaScript("window.toggleToc()") { _, error in
             if let error = error {
