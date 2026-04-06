@@ -5,6 +5,7 @@ class SettingsWindowController: NSWindowController {
     static let appearanceChangedNotification = Notification.Name("AppearanceSettingChanged")
 
     private var optionButtons: [NSButton] = []
+    private var terminalOptionButtons: [NSButton] = []
     private let values = ["system", "light", "dark"]
 
     var selectedAppearance: String {
@@ -20,7 +21,7 @@ class SettingsWindowController: NSWindowController {
 
     init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 320, height: 160),
+            contentRect: NSRect(x: 0, y: 0, width: 320, height: 320),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -33,6 +34,7 @@ class SettingsWindowController: NSWindowController {
 
         setupUI()
         syncSelection()
+        syncTerminalSelection()
     }
 
     required init?(coder: NSCoder) {
@@ -42,6 +44,27 @@ class SettingsWindowController: NSWindowController {
     private func setupUI() {
         guard let contentView = window?.contentView else { return }
 
+        let appearanceSection = makeAppearanceSection()
+        let terminalSection = makeTerminalSection()
+
+        let separator = NSBox()
+        separator.boxType = .separator
+
+        let stackView = NSStackView(views: [appearanceSection, separator, terminalSection])
+        stackView.orientation = .vertical
+        stackView.alignment = .centerX
+        stackView.spacing = 16
+
+        contentView.addSubview(stackView)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            stackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            separator.widthAnchor.constraint(equalTo: contentView.widthAnchor, constant: -40)
+        ])
+    }
+
+    private func makeAppearanceSection() -> NSView {
         let label = NSTextField(labelWithString: "APPEARANCE")
         label.font = .systemFont(ofSize: 11, weight: .medium)
         label.textColor = .secondaryLabelColor
@@ -86,17 +109,30 @@ class SettingsWindowController: NSWindowController {
         optionsStack.spacing = 16
         optionsStack.alignment = .top
 
-        let stackView = NSStackView(views: [label, optionsStack])
-        stackView.orientation = .vertical
-        stackView.alignment = .centerX
-        stackView.spacing = 12
+        let section = NSStackView(views: [label, optionsStack])
+        section.orientation = .vertical
+        section.alignment = .centerX
+        section.spacing = 12
+        return section
+    }
 
-        contentView.addSubview(stackView)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
-        ])
+    private func makeTerminalSection() -> NSView {
+        let terminalLabel = NSTextField(labelWithString: "SEND TO TERMINAL")
+        terminalLabel.font = .systemFont(ofSize: 11, weight: .medium)
+        terminalLabel.textColor = .secondaryLabelColor
+
+        let terminalOptions = NSStackView(
+            views: SendToTerminalAction.allCases.map { makeTerminalOption(action: $0) }
+        )
+        terminalOptions.orientation = .vertical
+        terminalOptions.alignment = .leading
+        terminalOptions.spacing = 4
+
+        let section = NSStackView(views: [terminalLabel, terminalOptions])
+        section.orientation = .vertical
+        section.alignment = .centerX
+        section.spacing = 12
+        return section
     }
 
     private func makeOption(value: String, label: String, drawThumbnail: @escaping (NSRect) -> Void) -> NSView {
@@ -148,6 +184,28 @@ class SettingsWindowController: NSWindowController {
         stack.spacing = 4
 
         return stack
+    }
+
+    private func makeTerminalOption(action: SendToTerminalAction) -> NSView {
+        let button = NSButton(
+            radioButtonWithTitle: action.label, target: self, action: #selector(terminalOptionClicked(_:))
+        )
+        button.tag = SendToTerminalAction.allCases.firstIndex(of: action) ?? 0
+        terminalOptionButtons.append(button)
+        return button
+    }
+
+    @objc private func terminalOptionClicked(_ sender: NSButton) {
+        let action = SendToTerminalAction.allCases[sender.tag]
+        SendToTerminalAction.current = action
+        syncTerminalSelection()
+    }
+
+    private func syncTerminalSelection() {
+        let currentIndex = SendToTerminalAction.allCases.firstIndex(of: SendToTerminalAction.current) ?? 2
+        for (index, button) in terminalOptionButtons.enumerated() {
+            button.state = index == currentIndex ? .on : .off
+        }
     }
 
     private func syncSelection() {
