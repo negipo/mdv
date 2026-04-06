@@ -59,7 +59,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         let endLine: Int
     }
 
-    var webView: NoBeepWebView!
+    private var webView: NoBeepWebView!
     private var fileWatcher: FileWatcher?
     var filePath: String?
     var gitRoot: String?
@@ -191,6 +191,12 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
             if let error = error {
                 NSLog("setTheme error: \(error)")
             }
+        }
+    }
+
+    func evaluateSelectedText(completion: @escaping (String) -> Void) {
+        webView.evaluateJavaScript("window.getSelection().toString()") { result, _ in
+            completion(result as? String ?? "")
         }
     }
 

@@ -109,8 +109,7 @@ extension MarkdownWindowController {
         if let text = selectedText {
             copyBlock(text)
         } else {
-            webView.evaluateJavaScript("window.getSelection().toString()") { result, _ in
-                let text = result as? String ?? ""
+            evaluateSelectedText { text in
                 copyBlock(text)
             }
         }
