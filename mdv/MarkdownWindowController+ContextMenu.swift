@@ -4,16 +4,6 @@ extension MarkdownWindowController {
     func buildContextMenuItems(menu: NSMenu) {
         menu.addItem(.separator())
 
-        let contentItem = NSMenuItem(
-            title: "Copy File as Markdown",
-            action: #selector(copyContent(_:)),
-            keyEquivalent: ""
-        )
-        contentItem.target = self
-        menu.addItem(contentItem)
-
-        menu.addItem(.separator())
-
         let relativeItem = NSMenuItem(
             title: "Copy Relative Path",
             action: #selector(copyRelativePath(_:)),
@@ -47,6 +37,16 @@ extension MarkdownWindowController {
         )
         pathItem.target = self
         menu.addItem(pathItem)
+
+        menu.addItem(.separator())
+
+        let contentItem = NSMenuItem(
+            title: "Copy File as Markdown",
+            action: #selector(copyContent(_:)),
+            keyEquivalent: ""
+        )
+        contentItem.target = self
+        menu.addItem(contentItem)
     }
 
     @objc func copyFullPath(_ sender: Any?) {

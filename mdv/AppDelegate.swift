@@ -299,37 +299,37 @@ extension AppDelegate {
         copySubmenuItem.title = "Copy"
         let copyMenu = NSMenu(title: "Copy")
 
-        let pathLineContentItem = copyMenu.addItem(
-            withTitle: "Copy Path:Line + Content",
-            action: #selector(copyPathLineContentAction(_:)),
-            keyEquivalent: "l"
-        )
-        pathLineContentItem.keyEquivalentModifierMask = [.command]
-        let relLinesItem = copyMenu.addItem(
-            withTitle: "Copy Relative Path with Lines",
-            action: #selector(copyRelativePathWithLinesAction(_:)),
-            keyEquivalent: "l"
-        )
-        relLinesItem.keyEquivalentModifierMask = [.command, .shift]
-        copyMenu.addItem(.separator())
         let relPathItem = copyMenu.addItem(
             withTitle: "Copy Relative Path",
             action: #selector(copyRelativePathAction(_:)),
             keyEquivalent: "c"
         )
         relPathItem.keyEquivalentModifierMask = [.command, .shift]
-        let markdownItem = copyMenu.addItem(
-            withTitle: "Copy File as Markdown",
-            action: #selector(copyFileAsMarkdownAction(_:)),
-            keyEquivalent: "m"
+        let relLinesItem = copyMenu.addItem(
+            withTitle: "Copy Relative Path with Lines",
+            action: #selector(copyRelativePathWithLinesAction(_:)),
+            keyEquivalent: "l"
         )
-        markdownItem.keyEquivalentModifierMask = [.command, .shift]
+        relLinesItem.keyEquivalentModifierMask = [.command, .shift]
+        let pathLineContentItem = copyMenu.addItem(
+            withTitle: "Copy Path:Line + Content",
+            action: #selector(copyPathLineContentAction(_:)),
+            keyEquivalent: "l"
+        )
+        pathLineContentItem.keyEquivalentModifierMask = [.command]
         let absPathItem = copyMenu.addItem(
             withTitle: "Copy Absolute Path",
             action: #selector(copyAbsolutePathAction(_:)),
             keyEquivalent: "c"
         )
         absPathItem.keyEquivalentModifierMask = [.command, .option, .shift]
+        copyMenu.addItem(.separator())
+        let markdownItem = copyMenu.addItem(
+            withTitle: "Copy File as Markdown",
+            action: #selector(copyFileAsMarkdownAction(_:)),
+            keyEquivalent: "m"
+        )
+        markdownItem.keyEquivalentModifierMask = [.command, .shift]
 
         copySubmenuItem.submenu = copyMenu
         return copySubmenuItem
