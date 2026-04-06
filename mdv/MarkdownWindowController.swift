@@ -59,7 +59,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         let endLine: Int
     }
 
-    private var webView: NoBeepWebView!
+    var webView: NoBeepWebView!
     private var fileWatcher: FileWatcher?
     var filePath: String?
     var gitRoot: String?

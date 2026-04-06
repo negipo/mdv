@@ -30,6 +30,14 @@ extension MarkdownWindowController {
             )
             linesItem.target = self
             menu.addItem(linesItem)
+
+            let linesContentItem = NSMenuItem(
+                title: "Copy Path:Line + Content",
+                action: #selector(performCopyRelativePathWithLinesAndContent(_:)),
+                keyEquivalent: ""
+            )
+            linesContentItem.target = self
+            menu.addItem(linesContentItem)
         }
 
         let pathItem = NSMenuItem(
@@ -76,5 +84,35 @@ extension MarkdownWindowController {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(content, forType: .string)
+    }
+
+    @objc func performCopyRelativePathWithLinesAndContent(_ sender: Any?) {
+        copyRelativePathWithLinesAndContent(sender)
+    }
+
+    func copyRelativePathWithLinesAndContent(_ sender: Any?, selectedText: String? = nil) {
+        guard let path = filePath, let info = cachedLineInfo else { return }
+        let rel = relativePath(for: path)
+
+        let copyBlock: (String) -> Void = { text in
+            let result: String
+            if info.startLine == info.endLine {
+                result = "\(rel):\(info.startLine) \(text)"
+            } else {
+                result = "\(rel):\(info.startLine)-\(info.endLine)\n\(text)"
+            }
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(result, forType: .string)
+        }
+
+        if let text = selectedText {
+            copyBlock(text)
+        } else {
+            webView.evaluateJavaScript("window.getSelection().toString()") { result, _ in
+                let text = result as? String ?? ""
+                copyBlock(text)
+            }
+        }
     }
 }
