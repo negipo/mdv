@@ -4,16 +4,6 @@ extension MarkdownWindowController {
     func buildContextMenuItems(menu: NSMenu) {
         menu.addItem(.separator())
 
-        let contentItem = NSMenuItem(
-            title: "Copy File as Markdown",
-            action: #selector(copyContent(_:)),
-            keyEquivalent: ""
-        )
-        contentItem.target = self
-        menu.addItem(contentItem)
-
-        menu.addItem(.separator())
-
         let relativeItem = NSMenuItem(
             title: "Copy Relative Path",
             action: #selector(copyRelativePath(_:)),
@@ -30,6 +20,14 @@ extension MarkdownWindowController {
             )
             linesItem.target = self
             menu.addItem(linesItem)
+
+            let linesContentItem = NSMenuItem(
+                title: "Copy Path:Line + Content",
+                action: #selector(performCopyRelativePathWithLinesAndContent(_:)),
+                keyEquivalent: ""
+            )
+            linesContentItem.target = self
+            menu.addItem(linesContentItem)
         }
 
         let pathItem = NSMenuItem(
@@ -39,6 +37,16 @@ extension MarkdownWindowController {
         )
         pathItem.target = self
         menu.addItem(pathItem)
+
+        menu.addItem(.separator())
+
+        let contentItem = NSMenuItem(
+            title: "Copy File as Markdown",
+            action: #selector(copyContent(_:)),
+            keyEquivalent: ""
+        )
+        contentItem.target = self
+        menu.addItem(contentItem)
     }
 
     @objc func copyFullPath(_ sender: Any?) {
@@ -76,5 +84,55 @@ extension MarkdownWindowController {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(content, forType: .string)
+    }
+
+    @objc func performCopyRelativePathWithLines(_ sender: Any?) {
+        guard let path = filePath else { return }
+        let rel = relativePath(for: path)
+
+        evaluateSelectionInfo { info, _ in
+            guard let info = info else { return }
+            let result: String
+            if info.startLine == info.endLine {
+                result = "\(rel):\(info.startLine)"
+            } else {
+                result = "\(rel):\(info.startLine)-\(info.endLine)"
+            }
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(result, forType: .string)
+        }
+    }
+
+    @objc func performCopyRelativePathWithLinesAndContent(_ sender: Any?) {
+        guard let path = filePath else { return }
+        let rel = relativePath(for: path)
+
+        evaluateSelectionInfo { info, text in
+            guard let info = info else { return }
+            let result: String
+            if info.startLine == info.endLine {
+                result = "\(rel):\(info.startLine) \(text)"
+            } else {
+                result = "\(rel):\(info.startLine)-\(info.endLine)\n\(text)"
+            }
+            let pasteboard = NSPasteboard.general
+            pasteboard.clearContents()
+            pasteboard.setString(result, forType: .string)
+        }
+    }
+
+    func copyRelativePathWithLinesAndContent(_ sender: Any?, lineInfo: LineInfo, selectedText: String) {
+        guard let path = filePath else { return }
+        let rel = relativePath(for: path)
+        let result: String
+        if lineInfo.startLine == lineInfo.endLine {
+            result = "\(rel):\(lineInfo.startLine) \(selectedText)"
+        } else {
+            result = "\(rel):\(lineInfo.startLine)-\(lineInfo.endLine)\n\(selectedText)"
+        }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(result, forType: .string)
     }
 }

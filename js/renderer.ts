@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 import mermaid from "mermaid";
-import { setupContextMenu } from "./context-menu";
+import { getContextMenuInfo, setupContextMenu } from "./context-menu";
 import { attachCopyButtons } from "./copy-button";
 import { initHighlighter, renderMarkdown, setShikiTheme } from "./markdown";
 import { SearchManager } from "./search";
@@ -15,6 +15,10 @@ declare global {
     showToc: () => void;
     hideToc: () => void;
     handleEscape: () => void;
+    getContextMenuInfo: () => {
+      startLine: number | null;
+      endLine: number | null;
+    };
     setTheme: (theme: "light" | "dark") => void;
     updateMarkdown: (markdown: string, basePath?: string) => void;
     webkit?: {
@@ -342,6 +346,7 @@ export function setTheme(theme: "light" | "dark"): void {
 }
 
 window.setTheme = setTheme;
+window.getContextMenuInfo = getContextMenuInfo;
 
 (async () => {
   setupContextMenu();

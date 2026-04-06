@@ -17,7 +17,7 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 - Native macOS tab UI with cross-window tab dragging
 - Table of Contents sidebar
 - In-document search (Cmd+F)
-- Context menu (copy file path, relative path with line numbers, copy as Markdown)
+- Context menu and keyboard shortcuts for copying paths, line references, and file content
 
 ### Integration
 - CLI tool (`mdv file.md`)

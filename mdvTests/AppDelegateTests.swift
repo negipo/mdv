@@ -95,4 +95,58 @@ final class AppDelegateTests: XCTestCase {
         XCTAssertTrue(cutIndex < copyIndex, "Cut should come before Copy")
         XCTAssertTrue(copyIndex < pasteIndex, "Copy should come before Paste")
     }
+
+    // EditメニューにCopyサブメニューが含まれている
+    func testEditMenuContainsCopySubmenu() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let editMenu = mainMenu?.items.first { $0.submenu?.title == "Edit" }?.submenu
+
+        XCTAssertNotNil(editMenu)
+        let copySubmenuItem = editMenu?.items.first { $0.submenu?.title == "Copy" }
+        XCTAssertNotNil(copySubmenuItem, "Edit menu should contain a Copy submenu")
+    }
+
+    // Copyサブメニューに全5項目が含まれている
+    func testCopySubmenuContainsAllItems() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let editMenu = mainMenu?.items.first { $0.submenu?.title == "Edit" }?.submenu
+        let copyMenu = editMenu?.items.first { $0.submenu?.title == "Copy" }?.submenu
+
+        XCTAssertNotNil(copyMenu)
+        let titles = copyMenu!.items.compactMap { $0.isSeparatorItem ? nil : $0.title }
+        XCTAssertTrue(titles.contains("Copy Path:Line + Content"))
+        XCTAssertTrue(titles.contains("Copy Relative Path with Lines"))
+        XCTAssertTrue(titles.contains("Copy Relative Path"))
+        XCTAssertTrue(titles.contains("Copy File as Markdown"))
+        XCTAssertTrue(titles.contains("Copy Absolute Path"))
+    }
+
+    // Copyサブメニューのショートカットが正しく設定されている
+    func testCopySubmenuShortcuts() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let editMenu = mainMenu?.items.first { $0.submenu?.title == "Edit" }?.submenu
+        let copyMenu = editMenu?.items.first { $0.submenu?.title == "Copy" }?.submenu
+
+        XCTAssertNotNil(copyMenu)
+
+        let pathLineContent = copyMenu?.items.first { $0.title == "Copy Path:Line + Content" }
+        XCTAssertEqual(pathLineContent?.keyEquivalent, "l")
+        XCTAssertEqual(pathLineContent?.keyEquivalentModifierMask, [.command])
+
+        let relWithLines = copyMenu?.items.first { $0.title == "Copy Relative Path with Lines" }
+        XCTAssertEqual(relWithLines?.keyEquivalent, "l")
+        XCTAssertEqual(relWithLines?.keyEquivalentModifierMask, [.command, .shift])
+
+        let relPath = copyMenu?.items.first { $0.title == "Copy Relative Path" }
+        XCTAssertEqual(relPath?.keyEquivalent, "c")
+        XCTAssertEqual(relPath?.keyEquivalentModifierMask, [.command, .shift])
+
+        let fileMarkdown = copyMenu?.items.first { $0.title == "Copy File as Markdown" }
+        XCTAssertEqual(fileMarkdown?.keyEquivalent, "m")
+        XCTAssertEqual(fileMarkdown?.keyEquivalentModifierMask, [.command, .shift])
+
+        let absPath = copyMenu?.items.first { $0.title == "Copy Absolute Path" }
+        XCTAssertEqual(absPath?.keyEquivalent, "c")
+        XCTAssertEqual(absPath?.keyEquivalentModifierMask, [.command, .option, .shift])
+    }
 }
