@@ -74,9 +74,11 @@ extension MarkdownWindowController {
             keystroke "v" using command down
         end tell
         """
-        if let appleScript = NSAppleScript(source: script) {
-            var error: NSDictionary?
-            appleScript.executeAndReturnError(&error)
-        }
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = ["-e", script]
+        process.standardOutput = Pipe()
+        process.standardError = Pipe()
+        try? process.run()
     }
 }
