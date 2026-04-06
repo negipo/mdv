@@ -131,46 +131,55 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         WindowManager.shared.reopenLastClosed()
     }
 
-    @objc private func performFindAction(_ sender: Any?) {
+    private func withKeyWindowController(_ body: (MarkdownWindowController) -> Void) {
         if let window = NSApplication.shared.keyWindow,
            let controller = window.windowController as? MarkdownWindowController {
-            controller.performFind()
+            body(controller)
         }
+    }
+
+    @objc private func performFindAction(_ sender: Any?) {
+        withKeyWindowController { $0.performFind() }
     }
 
     @objc private func toggleTableOfContents(_ sender: Any?) {
-        if let window = NSApplication.shared.keyWindow,
-           let controller = window.windowController as? MarkdownWindowController {
-            controller.toggleToc(nil)
-        }
+        withKeyWindowController { $0.toggleToc(nil) }
     }
 
     @objc private func reloadContent(_ sender: Any?) {
-        if let window = NSApplication.shared.keyWindow,
-           let controller = window.windowController as? MarkdownWindowController {
-            controller.reloadFile()
-        }
+        withKeyWindowController { $0.reloadFile() }
     }
 
     @objc private func zoomIn(_ sender: Any?) {
-        if let window = NSApplication.shared.keyWindow,
-           let controller = window.windowController as? MarkdownWindowController {
-            controller.zoomIn()
-        }
+        withKeyWindowController { $0.zoomIn() }
     }
 
     @objc private func zoomOut(_ sender: Any?) {
-        if let window = NSApplication.shared.keyWindow,
-           let controller = window.windowController as? MarkdownWindowController {
-            controller.zoomOut()
-        }
+        withKeyWindowController { $0.zoomOut() }
     }
 
     @objc private func resetZoom(_ sender: Any?) {
-        if let window = NSApplication.shared.keyWindow,
-           let controller = window.windowController as? MarkdownWindowController {
-            controller.resetZoom()
-        }
+        withKeyWindowController { $0.resetZoom() }
+    }
+
+    @objc private func copyFileAsMarkdownAction(_ sender: Any?) {
+        withKeyWindowController { $0.copyContent(nil) }
+    }
+
+    @objc private func copyRelativePathAction(_ sender: Any?) {
+        withKeyWindowController { $0.copyRelativePath(nil) }
+    }
+
+    @objc private func copyRelativePathWithLinesAction(_ sender: Any?) {
+        withKeyWindowController { $0.copyRelativePathWithLines(nil) }
+    }
+
+    @objc private func copyAbsolutePathAction(_ sender: Any?) {
+        withKeyWindowController { $0.copyFullPath(nil) }
+    }
+
+    @objc private func copyPathLineContentAction(_ sender: Any?) {
+        withKeyWindowController { $0.performCopyRelativePathWithLinesAndContent(nil) }
     }
 }
 
@@ -261,9 +270,52 @@ extension AppDelegate {
         menu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
         menu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         menu.addItem(.separator())
+        menu.addItem(buildCopySubmenuItem())
+        menu.addItem(.separator())
         menu.addItem(withTitle: "Find\u{2026}", action: #selector(performFindAction(_:)), keyEquivalent: "f")
         item.submenu = menu
         return item
+    }
+
+    private func buildCopySubmenuItem() -> NSMenuItem {
+        let copySubmenuItem = NSMenuItem()
+        copySubmenuItem.title = "Copy"
+        let copyMenu = NSMenu(title: "Copy")
+
+        let pathLineContentItem = copyMenu.addItem(
+            withTitle: "Copy Path:Line + Content",
+            action: #selector(copyPathLineContentAction(_:)),
+            keyEquivalent: "l"
+        )
+        pathLineContentItem.keyEquivalentModifierMask = [.command]
+        let relLinesItem = copyMenu.addItem(
+            withTitle: "Copy Relative Path with Lines",
+            action: #selector(copyRelativePathWithLinesAction(_:)),
+            keyEquivalent: "l"
+        )
+        relLinesItem.keyEquivalentModifierMask = [.command, .shift]
+        copyMenu.addItem(.separator())
+        let relPathItem = copyMenu.addItem(
+            withTitle: "Copy Relative Path",
+            action: #selector(copyRelativePathAction(_:)),
+            keyEquivalent: "c"
+        )
+        relPathItem.keyEquivalentModifierMask = [.command, .shift]
+        let markdownItem = copyMenu.addItem(
+            withTitle: "Copy File as Markdown",
+            action: #selector(copyFileAsMarkdownAction(_:)),
+            keyEquivalent: "m"
+        )
+        markdownItem.keyEquivalentModifierMask = [.command, .shift]
+        let absPathItem = copyMenu.addItem(
+            withTitle: "Copy Absolute Path",
+            action: #selector(copyAbsolutePathAction(_:)),
+            keyEquivalent: "c"
+        )
+        absPathItem.keyEquivalentModifierMask = [.command, .option, .shift]
+
+        copySubmenuItem.submenu = copyMenu
+        return copySubmenuItem
     }
 
     private func buildViewMenuItem() -> NSMenuItem {
