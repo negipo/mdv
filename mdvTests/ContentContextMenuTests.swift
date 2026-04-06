@@ -284,6 +284,27 @@ final class ContentContextMenuTests: XCTestCase {
         XCTAssertFalse(titles.contains("Copy Path:Line + Content"))
     }
 
+    // コンテキストメニューにSend to Terminalが表示される
+    func testContextMenuContainsSendToTerminal() {
+        let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctx_\(UUID().uuidString).md")
+        FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
+        defer { try? FileManager.default.removeItem(atPath: tmpFile) }
+
+        let state = WindowManager.WindowState()
+        let controller = MarkdownWindowController(windowState: state)
+        defer {
+            controller.window?.orderOut(nil)
+            controller.window?.close()
+        }
+        controller.openFile(path: tmpFile)
+
+        let menu = NSMenu()
+        controller.buildContextMenuItems(menu: menu)
+
+        let titles = menu.items.map { $0.title }
+        XCTAssertTrue(titles.contains("Send to Terminal"))
+    }
+
     // copyContentがファイル内容をクリップボードにコピーする
     func testCopyContentAction() {
         let content = "# Hello\n\nWorld"
