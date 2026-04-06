@@ -91,7 +91,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             #selector(copyRelativePathAction(_:)),
             #selector(copyAbsolutePathAction(_:)),
             #selector(copyRelativePathWithLinesAction(_:)),
-            #selector(copyPathLineContentAction(_:))
+            #selector(copyPathLineContentAction(_:)),
+            #selector(sendToTerminalAction(_:))
         ]
 
         if let action = menuItem.action, copyActions.contains(action) {
@@ -198,6 +199,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     @objc private func copyPathLineContentAction(_ sender: Any?) {
         withKeyWindowController { $0.performCopyRelativePathWithLinesAndContent(nil) }
     }
+
+    @objc private func sendToTerminalAction(_ sender: Any?) {
+        withKeyWindowController { $0.sendToTerminal() }
+    }
 }
 
 // MARK: - Menu
@@ -288,6 +293,12 @@ extension AppDelegate {
         menu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         menu.addItem(.separator())
         menu.addItem(buildCopySubmenuItem())
+        let sendItem = menu.addItem(
+            withTitle: "Send to Terminal",
+            action: #selector(sendToTerminalAction(_:)),
+            keyEquivalent: "g"
+        )
+        sendItem.keyEquivalentModifierMask = [.command]
         menu.addItem(.separator())
         menu.addItem(withTitle: "Find\u{2026}", action: #selector(performFindAction(_:)), keyEquivalent: "f")
         item.submenu = menu
@@ -359,58 +370,4 @@ extension AppDelegate {
         return item
     }
 
-    private func buildWindowMenuItem() -> NSMenuItem {
-        let item = NSMenuItem()
-        let menu = NSMenu(title: "Window")
-        menu.addItem(
-            withTitle: "Minimize",
-            action: #selector(NSWindow.performMiniaturize(_:)),
-            keyEquivalent: "m"
-        )
-        menu.addItem(withTitle: "Zoom", action: #selector(NSWindow.performZoom(_:)), keyEquivalent: "")
-        menu.addItem(.separator())
-
-        let prevTab1 = menu.addItem(
-            withTitle: "Show Previous Tab",
-            action: #selector(NSWindow.selectPreviousTab(_:)),
-            keyEquivalent: "{"
-        )
-        prevTab1.keyEquivalentModifierMask = [.command]
-        let nextTab1 = menu.addItem(
-            withTitle: "Show Next Tab",
-            action: #selector(NSWindow.selectNextTab(_:)),
-            keyEquivalent: "}"
-        )
-        nextTab1.keyEquivalentModifierMask = [.command]
-        let leftArrow = String(Character(UnicodeScalar(NSLeftArrowFunctionKey)!))
-        let rightArrow = String(Character(UnicodeScalar(NSRightArrowFunctionKey)!))
-        let prevTab2 = menu.addItem(
-            withTitle: "Show Previous Tab",
-            action: #selector(NSWindow.selectPreviousTab(_:)),
-            keyEquivalent: leftArrow
-        )
-        prevTab2.keyEquivalentModifierMask = [.command, .option]
-        prevTab2.isAlternate = true
-        let nextTab2 = menu.addItem(
-            withTitle: "Show Next Tab",
-            action: #selector(NSWindow.selectNextTab(_:)),
-            keyEquivalent: rightArrow
-        )
-        nextTab2.keyEquivalentModifierMask = [.command, .option]
-        nextTab2.isAlternate = true
-
-        menu.addItem(.separator())
-        menu.addItem(
-            withTitle: "Move Tab to New Window",
-            action: #selector(NSWindow.moveTabToNewWindow(_:)),
-            keyEquivalent: ""
-        )
-        menu.addItem(
-            withTitle: "Merge All Windows",
-            action: #selector(NSWindow.mergeAllWindows(_:)),
-            keyEquivalent: ""
-        )
-        item.submenu = menu
-        return item
-    }
 }
