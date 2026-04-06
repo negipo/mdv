@@ -51,7 +51,7 @@ extension MarkdownWindowController {
         menu.addItem(.separator())
 
         let sendItem = NSMenuItem(
-            title: "Send to Terminal",
+            title: "Send to Ghostty",
             action: #selector(sendToTerminalFromContextMenu(_:)),
             keyEquivalent: ""
         )

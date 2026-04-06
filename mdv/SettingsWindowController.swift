@@ -117,7 +117,7 @@ class SettingsWindowController: NSWindowController {
     }
 
     private func makeTerminalSection() -> NSView {
-        let terminalLabel = NSTextField(labelWithString: "SEND TO TERMINAL")
+        let terminalLabel = NSTextField(labelWithString: "SEND TO GHOSTTY")
         terminalLabel.font = .systemFont(ofSize: 11, weight: .medium)
         terminalLabel.textColor = .secondaryLabelColor
 

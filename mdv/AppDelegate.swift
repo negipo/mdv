@@ -294,7 +294,7 @@ extension AppDelegate {
         menu.addItem(.separator())
         menu.addItem(buildCopySubmenuItem())
         let sendItem = menu.addItem(
-            withTitle: "Send to Terminal",
+            withTitle: "Send to Ghostty",
             action: #selector(sendToTerminalAction(_:)),
             keyEquivalent: "g"
         )
