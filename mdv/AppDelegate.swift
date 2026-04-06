@@ -85,6 +85,34 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         if menuItem.action == #selector(reopenClosedTab(_:)) {
             return WindowManager.shared.canReopenLastClosed
         }
+
+        let copyActions: [Selector] = [
+            #selector(copyFileAsMarkdownAction(_:)),
+            #selector(copyRelativePathAction(_:)),
+            #selector(copyAbsolutePathAction(_:))
+        ]
+        let lineRequiredActions: [Selector] = [
+            #selector(copyRelativePathWithLinesAction(_:)),
+            #selector(copyPathLineContentAction(_:))
+        ]
+
+        if let action = menuItem.action {
+            if copyActions.contains(action) {
+                guard let window = NSApplication.shared.keyWindow,
+                      let controller = window.windowController as? MarkdownWindowController else {
+                    return false
+                }
+                return controller.filePath != nil
+            }
+            if lineRequiredActions.contains(action) {
+                guard let window = NSApplication.shared.keyWindow,
+                      let controller = window.windowController as? MarkdownWindowController else {
+                    return false
+                }
+                return controller.filePath != nil && controller.cachedLineInfo != nil
+            }
+        }
+
         return true
     }
 
