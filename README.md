@@ -23,6 +23,7 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 - CLI tool (`mdv file.md`)
 - Live reload on file changes
 - Dark mode support
+- Send to Ghostty — directly paste path/content to Ghostty
 
 ## Installation and Usage
 

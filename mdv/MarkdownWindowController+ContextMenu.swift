@@ -47,6 +47,37 @@ extension MarkdownWindowController {
         )
         contentItem.target = self
         menu.addItem(contentItem)
+
+        menu.addItem(.separator())
+
+        let sendItem = NSMenuItem(
+            title: "Send to Ghostty",
+            action: #selector(sendToTerminalFromContextMenu(_:)),
+            keyEquivalent: ""
+        )
+        sendItem.target = self
+        menu.addItem(sendItem)
+    }
+
+    @objc func sendToTerminalFromContextMenu(_ sender: Any?) {
+        let action = SendToTerminalAction.current
+        if action == .pathLineContent, let info = cachedLineInfo {
+            evaluateSelectedText { [weak self] text in
+                guard let self = self, let path = self.filePath else { return }
+                let rel = self.relativePath(for: path)
+                let content: String
+                if info.startLine == info.endLine {
+                    content = "\(rel):\(info.startLine) \(text)"
+                } else {
+                    content = "\(rel):\(info.startLine)-\(info.endLine)\n\(text)"
+                }
+                self.pasteToGhostty(content)
+            }
+            return
+        }
+
+        guard let content = generateSendContent(action: action) else { return }
+        pasteToGhostty(content)
     }
 
     @objc func copyFullPath(_ sender: Any?) {
