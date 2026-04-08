@@ -25,6 +25,7 @@ declare global {
       messageHandlers?: {
         ready?: { postMessage: (message: string) => void };
         contextMenu?: { postMessage: (message: unknown) => void };
+        shortcutKey?: { postMessage: (message: string) => void };
       };
     };
   }

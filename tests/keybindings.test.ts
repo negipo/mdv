@@ -125,4 +125,37 @@ describe("keybindings", () => {
     pressKey("N");
     expect(onSearchPrev).toHaveBeenCalled();
   });
+
+  it("sends r to Swift message handler", async () => {
+    const postMessage = vi.fn();
+    window.webkit = {
+      messageHandlers: { shortcutKey: { postMessage } },
+    };
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    pressKey("r");
+    expect(postMessage).toHaveBeenCalledWith("r");
+  });
+
+  it("sends ? to Swift message handler", async () => {
+    const postMessage = vi.fn();
+    window.webkit = {
+      messageHandlers: { shortcutKey: { postMessage } },
+    };
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    pressKey("?");
+    expect(postMessage).toHaveBeenCalledWith("?");
+  });
+
+  it("sends q to Swift message handler", async () => {
+    const postMessage = vi.fn();
+    window.webkit = {
+      messageHandlers: { shortcutKey: { postMessage } },
+    };
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    pressKey("q");
+    expect(postMessage).toHaveBeenCalledWith("q");
+  });
 });

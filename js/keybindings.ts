@@ -49,6 +49,18 @@ export function setupKeybindings(callbacks?: KeybindingsCallbacks): void {
         callbacks?.onSearchPrev?.();
         e.preventDefault();
         break;
+      case "r":
+      case "c":
+      case "C":
+      case "l":
+      case "y":
+      case "m":
+      case "s":
+      case "q":
+      case "?":
+        window.webkit?.messageHandlers?.shortcutKey?.postMessage(e.key);
+        e.preventDefault();
+        break;
     }
   });
 }
