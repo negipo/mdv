@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import mermaid from "mermaid";
 import { getContextMenuInfo, setupContextMenu } from "./context-menu";
 import { attachCopyButtons } from "./copy-button";
+import { setupKeybindings } from "./keybindings";
 import { initHighlighter, renderMarkdown, setShikiTheme } from "./markdown";
 import { SearchManager } from "./search";
 import { TocManager } from "./toc";
@@ -351,6 +352,16 @@ window.getContextMenuInfo = getContextMenuInfo;
 
 (async () => {
   setupContextMenu();
+  setupKeybindings({
+    onSearchNext: () => {
+      searchManager.next();
+      updateSearchCount();
+    },
+    onSearchPrev: () => {
+      searchManager.prev();
+      updateSearchCount();
+    },
+  });
   if (window.webkit?.messageHandlers?.ready) {
     window.webkit.messageHandlers.ready.postMessage("initialized");
   }
