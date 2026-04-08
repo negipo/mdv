@@ -372,9 +372,6 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         }
     }
 
-    func showShortcutHelp() {
-    }
-
     deinit {
         fileWatcher?.stop()
     }
