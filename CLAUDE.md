@@ -24,10 +24,10 @@ When adding new files to `mdv/Resources/`, run `xcodegen generate` before buildi
 ## Manual UI Verification
 
 When verifying UI changes, kill the running app, rebuild, and relaunch for the user to check.
-Do NOT use `/Applications/mdv.app` or the `mdv` CLI command — these point to a previously installed version, not the current build. Always launch from DerivedData:
+Do NOT use `/Applications/mdv.app` or the `mdv` CLI command — these point to a previously installed version, not the current build. Always launch from DerivedData with absolute paths:
 
 ```bash
 pkill -x mdv 2>/dev/null
 xcodebuild -scheme mdv -configuration Debug build 2>&1 | tail -5
-open ~/Library/Developer/Xcode/DerivedData/mdv-afrghrsxmvulxhcshpjiumlziahy/Build/Products/Debug/mdv.app --args fixtures/comprehensive.md
+open ~/Library/Developer/Xcode/DerivedData/mdv-.../Build/Products/Debug/mdv.app --args "$(pwd)/fixtures/comprehensive.md"
 ```

@@ -102,6 +102,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         contentController.add(self, name: "ready")
         contentController.add(self, name: "openExternal")
         contentController.add(self, name: "contextMenu")
+        contentController.add(self, name: "shortcutKey")
         config.userContentController = contentController
 
         webView = NoBeepWebView(frame: .zero, configuration: config)
@@ -312,6 +313,10 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
             } else {
                 cachedLineInfo = nil
             }
+        case "shortcutKey":
+            if let key = message.body as? String {
+                handleShortcutKey(key)
+            }
         default:
             break
         }
@@ -339,6 +344,31 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
             }
         } else {
             decisionHandler(.allow)
+        }
+    }
+
+    private func handleShortcutKey(_ key: String) {
+        switch key {
+        case "r":
+            reloadFile()
+        case "c":
+            copyRelativePath(nil)
+        case "C":
+            copyFullPath(nil)
+        case "l":
+            performCopyRelativePathWithLines(nil)
+        case "y":
+            performCopyRelativePathWithLinesAndContent(nil)
+        case "m":
+            copyContent(nil)
+        case "s":
+            sendToTerminal()
+        case "q":
+            window?.performClose(nil)
+        case "?":
+            showShortcutHelp()
+        default:
+            break
         }
     }
 

@@ -63,22 +63,29 @@ extension MarkdownWindowController {
     }
 
     func pasteToGhostty(_ content: String) {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        guard AXIsProcessTrustedWithOptions(options) else { return }
+
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(content, forType: .string)
 
-        let script = """
-        tell application "Ghostty" to activate
-        delay 0.1
-        tell application "System Events"
-            keystroke "v" using command down
-        end tell
-        """
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
-        process.arguments = ["-e", script]
-        process.standardOutput = Pipe()
-        process.standardError = Pipe()
-        try? process.run()
+        let bundleID = "com.mitchellh.ghostty"
+        let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+        guard let ghosttyApp = apps.first else {
+            return
+        }
+        ghosttyApp.activate()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            let source = CGEventSource(stateID: .hidSystemState)
+            let vKeyCode: CGKeyCode = 0x09
+            let keyDown = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: true)
+            keyDown?.flags = .maskCommand
+            let keyUp = CGEvent(keyboardEventSource: source, virtualKey: vKeyCode, keyDown: false)
+            keyUp?.flags = .maskCommand
+            keyDown?.post(tap: .cghidEventTap)
+            keyUp?.post(tap: .cghidEventTap)
+        }
     }
 }
