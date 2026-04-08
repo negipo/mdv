@@ -1,4 +1,9 @@
-export function setupKeybindings(): void {
+export interface KeybindingsCallbacks {
+  onSearchNext?: () => void;
+  onSearchPrev?: () => void;
+}
+
+export function setupKeybindings(callbacks?: KeybindingsCallbacks): void {
   document.addEventListener("keydown", (e: KeyboardEvent) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
 
@@ -26,6 +31,22 @@ export function setupKeybindings(): void {
           top: document.body.scrollHeight,
           behavior: "smooth",
         });
+        e.preventDefault();
+        break;
+      case "/":
+        window.showSearchBar();
+        e.preventDefault();
+        break;
+      case "t":
+        window.toggleToc();
+        e.preventDefault();
+        break;
+      case "n":
+        callbacks?.onSearchNext?.();
+        e.preventDefault();
+        break;
+      case "N":
+        callbacks?.onSearchPrev?.();
         e.preventDefault();
         break;
     }

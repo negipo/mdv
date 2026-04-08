@@ -93,4 +93,36 @@ describe("keybindings", () => {
     pressKey("j");
     expect(window.scrollBy).not.toHaveBeenCalled();
   });
+
+  it("/ opens search bar", async () => {
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    pressKey("/");
+    expect(window.showSearchBar).toHaveBeenCalled();
+  });
+
+  it("t toggles table of contents", async () => {
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    pressKey("t");
+    expect(window.toggleToc).toHaveBeenCalled();
+  });
+
+  it("n calls search next callback", async () => {
+    const { setupKeybindings } = await import("../js/keybindings");
+    const onSearchNext = vi.fn();
+    const onSearchPrev = vi.fn();
+    setupKeybindings({ onSearchNext, onSearchPrev });
+    pressKey("n");
+    expect(onSearchNext).toHaveBeenCalled();
+  });
+
+  it("N calls search prev callback", async () => {
+    const { setupKeybindings } = await import("../js/keybindings");
+    const onSearchNext = vi.fn();
+    const onSearchPrev = vi.fn();
+    setupKeybindings({ onSearchNext, onSearchPrev });
+    pressKey("N");
+    expect(onSearchPrev).toHaveBeenCalled();
+  });
 });
