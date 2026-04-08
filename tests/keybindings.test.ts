@@ -94,6 +94,15 @@ describe("keybindings", () => {
     expect(window.scrollBy).not.toHaveBeenCalled();
   });
 
+  it("ignores keys when modifier key is held", async () => {
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "j", metaKey: true, bubbles: true }),
+    );
+    expect(window.scrollBy).not.toHaveBeenCalled();
+  });
+
   it("/ opens search bar", async () => {
     const { setupKeybindings } = await import("../js/keybindings");
     setupKeybindings();
