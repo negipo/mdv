@@ -60,6 +60,7 @@ npm run build:js  # Build JS bundle
 npm test          # Run tests
 npm run lint      # Type check
 npm run build     # JS bundle + Xcode build
+npm run clean     # Remove build artifacts and temporary files
 ```
 
 ## License
