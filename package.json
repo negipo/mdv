@@ -20,7 +20,7 @@
     "clean": "bash scripts/clean.sh"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.10",
+    "@biomejs/biome": "2.4.11",
     "@types/js-yaml": "^4.0.9",
     "esbuild": "^0.28.0",
     "jsdom": "^29.0.1",
