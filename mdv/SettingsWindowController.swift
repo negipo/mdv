@@ -122,7 +122,7 @@ class SettingsWindowController: NSWindowController {
         terminalLabel.textColor = .secondaryLabelColor
 
         let terminalOptions = NSStackView(
-            views: SendToTerminalAction.allCases.map { makeTerminalOption(action: $0) }
+            views: SendToAppAction.allCases.map { makeTerminalOption(action: $0) }
         )
         terminalOptions.orientation = .vertical
         terminalOptions.alignment = .leading
@@ -186,23 +186,23 @@ class SettingsWindowController: NSWindowController {
         return stack
     }
 
-    private func makeTerminalOption(action: SendToTerminalAction) -> NSView {
+    private func makeTerminalOption(action: SendToAppAction) -> NSView {
         let button = NSButton(
             radioButtonWithTitle: action.label, target: self, action: #selector(terminalOptionClicked(_:))
         )
-        button.tag = SendToTerminalAction.allCases.firstIndex(of: action) ?? 0
+        button.tag = SendToAppAction.allCases.firstIndex(of: action) ?? 0
         terminalOptionButtons.append(button)
         return button
     }
 
     @objc private func terminalOptionClicked(_ sender: NSButton) {
-        let action = SendToTerminalAction.allCases[sender.tag]
-        SendToTerminalAction.current = action
+        let action = SendToAppAction.allCases[sender.tag]
+        SendToAppAction.current = action
         syncTerminalSelection()
     }
 
     private func syncTerminalSelection() {
-        let currentIndex = SendToTerminalAction.allCases.firstIndex(of: SendToTerminalAction.current) ?? 2
+        let currentIndex = SendToAppAction.allCases.firstIndex(of: SendToAppAction.current) ?? 2
         for (index, button) in terminalOptionButtons.enumerated() {
             button.state = index == currentIndex ? .on : .off
         }

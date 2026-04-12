@@ -92,7 +92,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             #selector(copyAbsolutePathAction(_:)),
             #selector(copyRelativePathWithLinesAction(_:)),
             #selector(copyPathLineContentAction(_:)),
-            #selector(sendToTerminalAction(_:))
+            #selector(sendToAppAction(_:))
         ]
 
         if let action = menuItem.action, copyActions.contains(action) {
@@ -133,12 +133,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         WindowManager.shared.applyThemeToAllWindows(theme: resolvedTheme())
     }
 
-    @objc private func openSettings(_ sender: Any?) {
+    @objc func openSettingsWindow() {
         if settingsController == nil {
             settingsController = SettingsWindowController()
         }
         settingsController?.showWindow(nil)
         settingsController?.window?.makeKeyAndOrderFront(nil)
+    }
+
+    @objc private func openSettings(_ sender: Any?) {
+        openSettingsWindow()
     }
 
     @objc private func openDocument(_ sender: Any?) {
@@ -200,8 +204,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         withKeyWindowController { $0.performCopyRelativePathWithLinesAndContent(nil) }
     }
 
-    @objc private func sendToTerminalAction(_ sender: Any?) {
-        withKeyWindowController { $0.sendToTerminal() }
+    @objc private func sendToAppAction(_ sender: Any?) {
+        withKeyWindowController { $0.sendToApp() }
     }
 }
 
@@ -294,9 +298,9 @@ extension AppDelegate {
         menu.addItem(.separator())
         menu.addItem(buildCopySubmenuItem())
         let sendItem = menu.addItem(
-            withTitle: "Send to Ghostty",
-            action: #selector(sendToTerminalAction(_:)),
-            keyEquivalent: "g"
+            withTitle: SendTarget.menuTitle,
+            action: #selector(sendToAppAction(_:)),
+            keyEquivalent: "s"
         )
         sendItem.keyEquivalentModifierMask = [.command]
         menu.addItem(.separator())

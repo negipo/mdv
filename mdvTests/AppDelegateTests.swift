@@ -121,26 +121,26 @@ final class AppDelegateTests: XCTestCase {
         XCTAssertTrue(titles.contains("Copy Absolute Path"))
     }
 
-    // EditメニューにSend to Ghostty項目が含まれている
+    // EditメニューにSend to App項目が含まれている
     func testEditMenuContainsSendToTerminal() {
         let mainMenu = NSApplication.shared.mainMenu
         let editMenu = mainMenu?.items.first { $0.submenu?.title == "Edit" }?.submenu
 
         XCTAssertNotNil(editMenu)
-        let sendItem = editMenu?.items.first { $0.title == "Send to Ghostty" }
-        XCTAssertNotNil(sendItem, "Edit menu should contain Send to Ghostty")
-        XCTAssertEqual(sendItem?.keyEquivalent, "g")
+        let sendItem = editMenu?.items.first { $0.title == SendTarget.menuTitle }
+        XCTAssertNotNil(sendItem, "Edit menu should contain Send to App item")
+        XCTAssertEqual(sendItem?.keyEquivalent, "s")
         XCTAssertEqual(sendItem?.keyEquivalentModifierMask, [.command])
     }
 
-    // Send to GhosttyがCopyサブメニューの後にある
+    // Send to AppがCopyサブメニューの後にある
     func testSendToTerminalIsAfterCopySubmenu() {
         let mainMenu = NSApplication.shared.mainMenu
         let editMenu = mainMenu?.items.first { $0.submenu?.title == "Edit" }?.submenu
 
         XCTAssertNotNil(editMenu)
         let copyIndex = editMenu?.items.firstIndex { $0.submenu?.title == "Copy" }
-        let sendIndex = editMenu?.items.firstIndex { $0.title == "Send to Ghostty" }
+        let sendIndex = editMenu?.items.firstIndex { $0.title == SendTarget.menuTitle }
         XCTAssertNotNil(copyIndex)
         XCTAssertNotNil(sendIndex)
         XCTAssertTrue(sendIndex! > copyIndex!)

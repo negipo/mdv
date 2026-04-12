@@ -284,7 +284,7 @@ final class ContentContextMenuTests: XCTestCase {
         XCTAssertFalse(titles.contains("Copy Path:Line + Content"))
     }
 
-    // コンテキストメニューにSend to Ghosttyが表示される
+    // コンテキストメニューにSend to App項目が表示される
     func testContextMenuContainsSendToTerminal() {
         let tmpFile = (NSTemporaryDirectory() as NSString).appendingPathComponent("mdv_ctx_\(UUID().uuidString).md")
         FileManager.default.createFile(atPath: tmpFile, contents: Data("# Test".utf8))
@@ -302,7 +302,7 @@ final class ContentContextMenuTests: XCTestCase {
         controller.buildContextMenuItems(menu: menu)
 
         let titles = menu.items.map { $0.title }
-        XCTAssertTrue(titles.contains("Send to Ghostty"))
+        XCTAssertTrue(titles.contains(SendTarget.menuTitle))
     }
 
     // copyContentがファイル内容をクリップボードにコピーする

@@ -7,14 +7,14 @@ final class SettingsWindowControllerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         UserDefaults.standard.removeObject(forKey: "appearance")
-        UserDefaults.standard.removeObject(forKey: SendToTerminalAction.defaultsKey)
+        UserDefaults.standard.removeObject(forKey: SendToAppAction.defaultsKey)
         controller = SettingsWindowController()
     }
 
     override func tearDown() {
         controller = nil
         UserDefaults.standard.removeObject(forKey: "appearance")
-        UserDefaults.standard.removeObject(forKey: SendToTerminalAction.defaultsKey)
+        UserDefaults.standard.removeObject(forKey: SendToAppAction.defaultsKey)
         super.tearDown()
     }
 
@@ -40,12 +40,12 @@ final class SettingsWindowControllerTests: XCTestCase {
         XCTAssertEqual(UserDefaults.standard.string(forKey: "appearance"), "light")
     }
 
-    func testDefaultSendToTerminalAction() {
-        XCTAssertEqual(SendToTerminalAction.current, .pathLineContent)
+    func testDefaultSendToAppAction() {
+        XCTAssertEqual(SendToAppAction.current, .pathLineContent)
     }
 
-    func testSendToTerminalActionPersistence() {
-        SendToTerminalAction.current = .absolutePath
-        XCTAssertEqual(SendToTerminalAction.current, .absolutePath)
+    func testSendToAppActionPersistence() {
+        SendToAppAction.current = .absolutePath
+        XCTAssertEqual(SendToAppAction.current, .absolutePath)
     }
 }

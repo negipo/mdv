@@ -1,6 +1,6 @@
 import Foundation
 
-enum SendToTerminalAction: String, CaseIterable {
+enum SendToAppAction: String, CaseIterable {
     case relativePath
     case relativePathWithLines
     case pathLineContent
@@ -9,10 +9,10 @@ enum SendToTerminalAction: String, CaseIterable {
 
     static let defaultsKey = "sendToTerminalAction"
 
-    static var current: SendToTerminalAction {
+    static var current: SendToAppAction {
         get {
             guard let raw = UserDefaults.standard.string(forKey: defaultsKey),
-                  let value = SendToTerminalAction(rawValue: raw) else {
+                  let value = SendToAppAction(rawValue: raw) else {
                 return .pathLineContent
             }
             return value

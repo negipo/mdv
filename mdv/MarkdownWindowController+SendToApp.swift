@@ -1,7 +1,7 @@
 import AppKit
 
 extension MarkdownWindowController {
-    func generateSendContent(action: SendToTerminalAction) -> String? {
+    func generateSendContent(action: SendToAppAction) -> String? {
         guard let path = filePath else { return nil }
 
         switch action {
@@ -32,18 +32,23 @@ extension MarkdownWindowController {
         }
     }
 
-    func sendToTerminal() {
-        let action = SendToTerminalAction.current
+    func sendToApp() {
+        guard SendTarget.isConfigured else {
+            openSettingsForSendTarget()
+            return
+        }
+
+        let action = SendToAppAction.current
         if action == .pathLineContent {
-            sendToTerminalWithEvaluation()
+            sendToAppWithEvaluation()
             return
         }
 
         guard let content = generateSendContent(action: action) else { return }
-        pasteToGhostty(content)
+        pasteToApp(content)
     }
 
-    private func sendToTerminalWithEvaluation() {
+    private func sendToAppWithEvaluation() {
         guard let path = filePath else { return }
         let rel = relativePath(for: path)
 
@@ -58,11 +63,13 @@ extension MarkdownWindowController {
             } else {
                 content = rel
             }
-            self?.pasteToGhostty(content)
+            self?.pasteToApp(content)
         }
     }
 
-    func pasteToGhostty(_ content: String) {
+    func pasteToApp(_ content: String) {
+        guard let bundleID = SendTarget.bundleID else { return }
+
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
         guard AXIsProcessTrustedWithOptions(options) else { return }
 
@@ -70,12 +77,11 @@ extension MarkdownWindowController {
         pasteboard.clearContents()
         pasteboard.setString(content, forType: .string)
 
-        let bundleID = "com.mitchellh.ghostty"
         let apps = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
-        guard let ghosttyApp = apps.first else {
+        guard let targetApp = apps.first else {
             return
         }
-        ghosttyApp.activate()
+        targetApp.activate()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             let source = CGEventSource(stateID: .hidSystemState)
@@ -86,6 +92,12 @@ extension MarkdownWindowController {
             keyUp?.flags = .maskCommand
             keyDown?.post(tap: .cghidEventTap)
             keyUp?.post(tap: .cghidEventTap)
+        }
+    }
+
+    func openSettingsForSendTarget() {
+        if let appDelegate = NSApp.delegate as? AppDelegate {
+            appDelegate.openSettingsWindow()
         }
     }
 }
