@@ -1,11 +1,14 @@
 import AppKit
+import UniformTypeIdentifiers
 
 class SettingsWindowController: NSWindowController {
     static let appearanceKey = "appearance"
     static let appearanceChangedNotification = Notification.Name("AppearanceSettingChanged")
 
     private var optionButtons: [NSButton] = []
-    private var terminalOptionButtons: [NSButton] = []
+    private var appNameLabel: NSTextField!
+    private var clearButton: NSButton!
+    private var actionPopUp: NSPopUpButton!
     private let values = ["system", "light", "dark"]
 
     var selectedAppearance: String {
@@ -21,7 +24,7 @@ class SettingsWindowController: NSWindowController {
 
     init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 320, height: 320),
+            contentRect: NSRect(x: 0, y: 0, width: 420, height: 240),
             styleMask: [.titled, .closable],
             backing: .buffered,
             defer: false
@@ -34,7 +37,7 @@ class SettingsWindowController: NSWindowController {
 
         setupUI()
         syncSelection()
-        syncTerminalSelection()
+        syncSendToSection()
     }
 
     required init?(coder: NSCoder) {
@@ -45,12 +48,12 @@ class SettingsWindowController: NSWindowController {
         guard let contentView = window?.contentView else { return }
 
         let appearanceSection = makeAppearanceSection()
-        let terminalSection = makeTerminalSection()
+        let sendToSection = makeSendToSection()
 
         let separator = NSBox()
         separator.boxType = .separator
 
-        let stackView = NSStackView(views: [appearanceSection, separator, terminalSection])
+        let stackView = NSStackView(views: [appearanceSection, separator, sendToSection])
         stackView.orientation = .vertical
         stackView.alignment = .centerX
         stackView.spacing = 16
@@ -116,23 +119,99 @@ class SettingsWindowController: NSWindowController {
         return section
     }
 
-    private func makeTerminalSection() -> NSView {
-        let terminalLabel = NSTextField(labelWithString: "SEND TO GHOSTTY")
-        terminalLabel.font = .systemFont(ofSize: 11, weight: .medium)
-        terminalLabel.textColor = .secondaryLabelColor
+    private func makeSendToSection() -> NSView {
+        let label = NSTextField(labelWithString: "SEND TO")
+        label.font = .systemFont(ofSize: 11, weight: .medium)
+        label.textColor = .secondaryLabelColor
 
-        let terminalOptions = NSStackView(
-            views: SendToTerminalAction.allCases.map { makeTerminalOption(action: $0) }
-        )
-        terminalOptions.orientation = .vertical
-        terminalOptions.alignment = .leading
-        terminalOptions.spacing = 4
+        appNameLabel = NSTextField(labelWithString: "")
+        appNameLabel.font = .systemFont(ofSize: 12, weight: .medium)
+        appNameLabel.lineBreakMode = .byTruncatingTail
+        appNameLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
-        let section = NSStackView(views: [terminalLabel, terminalOptions])
+        let chooseButton = NSButton(title: "Choose\u{2026}", target: self, action: #selector(chooseAppClicked(_:)))
+        chooseButton.bezelStyle = .rounded
+        chooseButton.controlSize = .small
+        chooseButton.font = .systemFont(ofSize: 11)
+
+        clearButton = NSButton(title: "Clear", target: self, action: #selector(clearAppClicked(_:)))
+        clearButton.bezelStyle = .rounded
+        clearButton.controlSize = .small
+        clearButton.font = .systemFont(ofSize: 11)
+
+        actionPopUp = NSPopUpButton(frame: .zero, pullsDown: false)
+        actionPopUp.controlSize = .small
+        actionPopUp.font = .systemFont(ofSize: 11)
+        for action in SendToAppAction.allCases {
+            actionPopUp.addItem(withTitle: action.label)
+        }
+        actionPopUp.target = self
+        actionPopUp.action = #selector(actionOptionChanged(_:))
+
+        let row = NSStackView(views: [appNameLabel, chooseButton, clearButton, actionPopUp])
+        row.orientation = .horizontal
+        row.spacing = 8
+        row.alignment = .centerY
+
+        let section = NSStackView(views: [label, row])
         section.orientation = .vertical
         section.alignment = .centerX
         section.spacing = 12
+
+        row.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            row.widthAnchor.constraint(lessThanOrEqualToConstant: 400)
+        ])
+
         return section
+    }
+
+    @objc private func chooseAppClicked(_ sender: Any?) {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [UTType.application]
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        guard let bundle = Bundle(url: url),
+              let bundleID = bundle.bundleIdentifier else { return }
+
+        let appName = FileManager.default.displayName(atPath: url.path)
+            .replacingOccurrences(of: ".app", with: "")
+
+        SendTarget.bundleID = bundleID
+        SendTarget.appName = appName
+        syncSendToSection()
+    }
+
+    @objc private func clearAppClicked(_ sender: Any?) {
+        SendTarget.clear()
+        syncSendToSection()
+    }
+
+    @objc private func actionOptionChanged(_ sender: NSPopUpButton) {
+        let index = sender.indexOfSelectedItem
+        guard index >= 0, index < SendToAppAction.allCases.count else { return }
+        SendToAppAction.current = SendToAppAction.allCases[index]
+    }
+
+    private func syncSendToSection() {
+        if SendTarget.isConfigured {
+            appNameLabel.stringValue = SendTarget.appName ?? "Unknown"
+            appNameLabel.textColor = .labelColor
+            clearButton.isHidden = false
+            actionPopUp.isEnabled = true
+        } else {
+            appNameLabel.stringValue = "No app selected"
+            appNameLabel.textColor = .secondaryLabelColor
+            clearButton.isHidden = true
+            actionPopUp.isEnabled = false
+        }
+
+        let currentIndex = SendToAppAction.allCases.firstIndex(of: SendToAppAction.current) ?? 2
+        actionPopUp.selectItem(at: currentIndex)
     }
 
     private func makeOption(value: String, label: String, drawThumbnail: @escaping (NSRect) -> Void) -> NSView {
@@ -184,28 +263,6 @@ class SettingsWindowController: NSWindowController {
         stack.spacing = 4
 
         return stack
-    }
-
-    private func makeTerminalOption(action: SendToTerminalAction) -> NSView {
-        let button = NSButton(
-            radioButtonWithTitle: action.label, target: self, action: #selector(terminalOptionClicked(_:))
-        )
-        button.tag = SendToTerminalAction.allCases.firstIndex(of: action) ?? 0
-        terminalOptionButtons.append(button)
-        return button
-    }
-
-    @objc private func terminalOptionClicked(_ sender: NSButton) {
-        let action = SendToTerminalAction.allCases[sender.tag]
-        SendToTerminalAction.current = action
-        syncTerminalSelection()
-    }
-
-    private func syncTerminalSelection() {
-        let currentIndex = SendToTerminalAction.allCases.firstIndex(of: SendToTerminalAction.current) ?? 2
-        for (index, button) in terminalOptionButtons.enumerated() {
-            button.state = index == currentIndex ? .on : .off
-        }
     }
 
     private func syncSelection() {

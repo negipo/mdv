@@ -51,16 +51,21 @@ extension MarkdownWindowController {
         menu.addItem(.separator())
 
         let sendItem = NSMenuItem(
-            title: "Send to Ghostty",
-            action: #selector(sendToTerminalFromContextMenu(_:)),
+            title: SendTarget.menuTitle,
+            action: #selector(sendToAppFromContextMenu(_:)),
             keyEquivalent: ""
         )
         sendItem.target = self
         menu.addItem(sendItem)
     }
 
-    @objc func sendToTerminalFromContextMenu(_ sender: Any?) {
-        let action = SendToTerminalAction.current
+    @objc func sendToAppFromContextMenu(_ sender: Any?) {
+        guard SendTarget.isConfigured else {
+            openSettingsForSendTarget()
+            return
+        }
+
+        let action = SendToAppAction.current
         if action == .pathLineContent, let info = cachedLineInfo {
             evaluateSelectedText { [weak self] text in
                 guard let self = self, let path = self.filePath else { return }
@@ -71,13 +76,13 @@ extension MarkdownWindowController {
                 } else {
                     content = "\(rel):\(info.startLine)-\(info.endLine)\n\(text)"
                 }
-                self.pasteToGhostty(content)
+                self.pasteToApp(content)
             }
             return
         }
 
         guard let content = generateSendContent(action: action) else { return }
-        pasteToGhostty(content)
+        pasteToApp(content)
     }
 
     @objc func copyFullPath(_ sender: Any?) {

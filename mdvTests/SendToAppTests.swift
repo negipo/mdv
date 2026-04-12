@@ -1,9 +1,9 @@
 import XCTest
 @testable import mdv
 
-final class SendToTerminalTests: XCTestCase {
+final class SendToAppTests: XCTestCase {
     override func tearDown() {
-        UserDefaults.standard.removeObject(forKey: SendToTerminalAction.defaultsKey)
+        UserDefaults.standard.removeObject(forKey: SendToAppAction.defaultsKey)
         super.tearDown()
     }
 

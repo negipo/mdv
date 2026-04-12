@@ -362,7 +362,7 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         case "m":
             copyContent(nil)
         case "s":
-            sendToTerminal()
+            sendToApp()
         case "q":
             window?.performClose(nil)
         case "?":
