@@ -7,9 +7,22 @@ extension MarkdownWindowController {
         (NSTemporaryDirectory() as NSString).appendingPathComponent(helpFileName)
     }
 
+    private static var sendKeyLabel: String {
+        SendTarget.isConfigured ? "Send to \(SendTarget.appName ?? "App")" : "Send to App / Open Settings"
+    }
+
+    private static var sendMenuLabel: String {
+        SendTarget.isConfigured ? "Send to \(SendTarget.appName ?? "App")" : "Send to\u{2026}"
+    }
+
     func showShortcutHelp() {
         let path = Self.helpFilePath
-        let content = """
+        try? generateShortcutHelpContent().write(toFile: path, atomically: true, encoding: .utf8)
+        WindowManager.shared.openOrFocus(filePath: path)
+    }
+
+    private func generateShortcutHelpContent() -> String {
+        """
 # Keyboard Shortcuts
 
 ## Single-Key Shortcuts
@@ -31,7 +44,7 @@ extension MarkdownWindowController {
 | `l` | Copy Relative Path with Lines |
 | `y` | Copy Path:Line + Content |
 | `m` | Copy File as Markdown |
-| `s` | Send to Ghostty |
+| `s` | \(Self.sendKeyLabel) |
 | `?` | Show this help |
 
 ## Menu Shortcuts
@@ -42,7 +55,7 @@ extension MarkdownWindowController {
 | `Cmd+W` | Close Tab |
 | `Cmd+Shift+T` | Reopen Closed Tab |
 | `Cmd+F` | Find |
-| `Cmd+G` | Send to Ghostty |
+| `Cmd+S` | \(Self.sendMenuLabel) |
 | `Cmd+R` | Reload |
 | `Cmd+T` | Table of Contents |
 | `Cmd++` | Zoom In |
@@ -55,7 +68,5 @@ extension MarkdownWindowController {
 | `Cmd+Shift+M` | Copy File as Markdown |
 | `Cmd+Ctrl+F` | Toggle Full Screen |
 """
-        try? content.write(toFile: path, atomically: true, encoding: .utf8)
-        WindowManager.shared.openOrFocus(filePath: path)
     }
 }
