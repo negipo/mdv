@@ -16,6 +16,7 @@ npm run build      # Full build
 - Create a PR and merge into main. Avoid pushing directly to main.
 - All user-facing UI text (menu items, labels, alerts, etc.) must be in English.
 - When a PreToolUse hook blocks a tool call, do not attempt workarounds. Report the block to the user and wait for instructions.
+- When changing user-facing features (menus, shortcuts, integrations, etc.), check whether README.md describes those features and update accordingly.
 
 ## Adding Resources
 
