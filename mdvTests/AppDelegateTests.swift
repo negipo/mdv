@@ -174,4 +174,33 @@ final class AppDelegateTests: XCTestCase {
         XCTAssertEqual(absPath?.keyEquivalent, "c")
         XCTAssertEqual(absPath?.keyEquivalentModifierMask, [.command, .option, .shift])
     }
+
+    // Helpメニューが存在する
+    func testHelpMenuExists() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let helpMenu = mainMenu?.items.first { $0.submenu?.title == "Help" }?.submenu
+        XCTAssertNotNil(helpMenu, "Help menu should exist")
+    }
+
+    // Helpメニューが NSApplication.helpMenu として登録されている
+    func testHelpMenuIsRegisteredAsHelpMenu() {
+        XCTAssertNotNil(NSApplication.shared.helpMenu, "helpMenu should be registered")
+        XCTAssertEqual(NSApplication.shared.helpMenu?.title, "Help")
+    }
+
+    // HelpメニューにKeyboard Shortcuts項目が含まれている
+    func testHelpMenuContainsShortcutsItem() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let helpMenu = mainMenu?.items.first { $0.submenu?.title == "Help" }?.submenu
+        let shortcutsItem = helpMenu?.items.first { $0.title == "Keyboard Shortcuts" }
+        XCTAssertNotNil(shortcutsItem, "Keyboard Shortcuts menu item should exist in Help menu")
+    }
+
+    // Helpメニューがメニューバーの最後（Window メニューより後）に配置されている
+    func testHelpMenuIsLast() {
+        let mainMenu = NSApplication.shared.mainMenu
+        XCTAssertNotNil(mainMenu)
+        let lastItem = mainMenu!.items.last
+        XCTAssertEqual(lastItem?.submenu?.title, "Help", "Help menu should be the last top-level menu")
+    }
 }

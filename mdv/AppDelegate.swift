@@ -207,6 +207,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     @objc private func sendToAppAction(_ sender: Any?) {
         withKeyWindowController { $0.sendToApp() }
     }
+
+    @objc private func showKeyboardShortcutsAction(_ sender: Any?) {
+        withKeyWindowController { $0.showShortcutHelp(nil) }
+    }
 }
 
 // MARK: - Menu
@@ -223,8 +227,12 @@ extension AppDelegate {
         let windowMenuItem = buildWindowMenuItem()
         mainMenu.addItem(windowMenuItem)
 
+        let helpMenuItem = buildHelpMenuItem()
+        mainMenu.addItem(helpMenuItem)
+
         NSApplication.shared.mainMenu = mainMenu
         NSApplication.shared.windowsMenu = windowMenuItem.submenu
+        NSApplication.shared.helpMenu = helpMenuItem.submenu
     }
 
     private func buildAppMenuItem() -> NSMenuItem {
@@ -370,6 +378,18 @@ extension AppDelegate {
             keyEquivalent: "f"
         )
         fullScreen.keyEquivalentModifierMask = [.command, .control]
+        item.submenu = menu
+        return item
+    }
+
+    private func buildHelpMenuItem() -> NSMenuItem {
+        let item = NSMenuItem()
+        let menu = NSMenu(title: "Help")
+        menu.addItem(
+            withTitle: "Keyboard Shortcuts",
+            action: #selector(showKeyboardShortcutsAction(_:)),
+            keyEquivalent: ""
+        )
         item.submenu = menu
         return item
     }
