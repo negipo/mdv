@@ -15,16 +15,23 @@ extension MarkdownWindowController {
         SendTarget.isConfigured ? "Send to \(SendTarget.appName ?? "App")" : "Send to\u{2026}"
     }
 
-    func showShortcutHelp() {
+    @objc func showShortcutHelp(_ sender: Any? = nil) {
         let path = Self.helpFilePath
         try? generateShortcutHelpContent().write(toFile: path, atomically: true, encoding: .utf8)
         WindowManager.shared.openOrFocus(filePath: path)
     }
 
-    private func generateShortcutHelpContent() -> String {
-        """
-# Keyboard Shortcuts
+    func generateShortcutHelpContent() -> String {
+        [
+            "# Keyboard Shortcuts & Mouse Manipulations",
+            Self.singleKeyShortcutsSection,
+            Self.menuShortcutsSection,
+            Self.mouseManipulationsSection
+        ].joined(separator: "\n\n") + "\n"
+    }
 
+    private static var singleKeyShortcutsSection: String {
+        """
 ## Single-Key Shortcuts
 
 | Key | Action |
@@ -44,9 +51,13 @@ extension MarkdownWindowController {
 | `l` | Copy Relative Path with Lines |
 | `y` | Copy Path:Line + Content |
 | `m` | Copy File as Markdown |
-| `s` | \(Self.sendKeyLabel) |
+| `s` | \(sendKeyLabel) |
 | `?` | Show this help |
+"""
+    }
 
+    private static var menuShortcutsSection: String {
+        """
 ## Menu Shortcuts
 
 | Shortcut | Action |
@@ -55,7 +66,7 @@ extension MarkdownWindowController {
 | `Cmd+W` | Close Tab |
 | `Cmd+Shift+T` | Reopen Closed Tab |
 | `Cmd+F` | Find |
-| `Cmd+S` | \(Self.sendMenuLabel) |
+| `Cmd+S` | \(sendMenuLabel) |
 | `Cmd+R` | Reload |
 | `Cmd+T` | Table of Contents |
 | `Cmd++` | Zoom In |
@@ -67,6 +78,21 @@ extension MarkdownWindowController {
 | `Cmd+Shift+Option+C` | Copy Absolute Path |
 | `Cmd+Shift+M` | Copy File as Markdown |
 | `Cmd+Ctrl+F` | Toggle Full Screen |
+"""
+    }
+
+    private static var mouseManipulationsSection: String {
+        """
+## Mouse Manipulations
+
+### Mermaid Diagram Overlay
+
+| Action | Behavior |
+|--------|----------|
+| Click | Open overlay |
+| Scroll | Zoom in/out at cursor |
+| Drag | Pan (move) |
+| `Esc` | Close overlay |
 """
     }
 }
