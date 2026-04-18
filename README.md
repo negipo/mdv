@@ -29,7 +29,6 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 
 ```bash
 brew install --cask negipo/tap/mdv
-xattr -dr com.apple.quarantine /Applications/mdv.app
 ```
 
 Open a Markdown file from the terminal:
