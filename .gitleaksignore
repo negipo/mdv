@@ -1,0 +1,7 @@
+# rake gitleaks:install @ 2026-04-22
+# generic-api-key at mdv/Resources/renderer.js:99043
+c449a31f02ae6de6f5ae55ea7eb415d5bd2d7e6a:mdv/Resources/renderer.js:generic-api-key:99043
+# generic-api-key at mdv/Resources/renderer.js:99055
+c449a31f02ae6de6f5ae55ea7eb415d5bd2d7e6a:mdv/Resources/renderer.js:generic-api-key:99055
+# generic-api-key at mdv/Resources/renderer.js:99061
+c449a31f02ae6de6f5ae55ea7eb415d5bd2d7e6a:mdv/Resources/renderer.js:generic-api-key:99061
