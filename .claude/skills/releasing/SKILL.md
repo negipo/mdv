@@ -14,11 +14,11 @@ Create a pull request. Skip this step if one already exists for the current bran
 
 ### 2. Enable automerge
 
-Mark the PR as ready if it is a draft, then enable automerge with squash.
+Mark the PR as ready if it is a draft, then enable automerge with a merge commit.
 
 ```bash
 gh pr ready
-gh pr merge --auto --squash
+gh pr merge --auto --merge
 ```
 
 ### 3. Wait for merge
