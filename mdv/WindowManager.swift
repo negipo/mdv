@@ -89,6 +89,11 @@ class WindowManager {
         panel.allowsMultipleSelection = true
         panel.canChooseDirectories = false
 
+        if let controller = NSApplication.shared.keyWindow?.windowController as? MarkdownWindowController,
+           let path = controller.filePath {
+            panel.directoryURL = URL(fileURLWithPath: (path as NSString).deletingLastPathComponent)
+        }
+
         NSApplication.shared.activate(ignoringOtherApps: true)
         if panel.runModal() == .OK {
             for url in panel.urls {
