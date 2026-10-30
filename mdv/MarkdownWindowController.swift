@@ -231,6 +231,14 @@ class MarkdownWindowController: NSWindowController, WKScriptMessageHandler, WKNa
         }
     }
 
+    @objc func toggleWideContent(_ sender: Any?) {
+        webView.evaluateJavaScript("window.toggleWideContent()") { _, error in
+            if let error = error {
+                NSLog("toggleWideContent error: \(error)")
+            }
+        }
+    }
+
     private func loadAndSendMarkdown() {
         guard let filePath = filePath else { return }
 

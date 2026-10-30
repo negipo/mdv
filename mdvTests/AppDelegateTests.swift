@@ -203,4 +203,26 @@ final class AppDelegateTests: XCTestCase {
         let lastItem = mainMenu!.items.last
         XCTAssertEqual(lastItem?.submenu?.title, "Help", "Help menu should be the last top-level menu")
     }
+
+    // ViewメニューにWide Content項目がTable of Contentsの直後に配置されている
+    func testViewMenuContainsWideContentAfterTableOfContents() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let viewMenu = mainMenu?.items.first { $0.submenu?.title == "View" }?.submenu
+
+        let tocIndex = viewMenu?.indexOfItem(withTitle: "Table of Contents")
+        let wideIndex = viewMenu?.indexOfItem(withTitle: "Wide Content")
+        XCTAssertNotNil(tocIndex)
+        XCTAssertNotNil(wideIndex)
+        XCTAssertEqual(wideIndex, tocIndex! + 1)
+    }
+
+    // Wide ContentのショートカットがCmd+Shift+Wになっている
+    func testWideContentShortcutIsCmdShiftW() {
+        let mainMenu = NSApplication.shared.mainMenu
+        let viewMenu = mainMenu?.items.first { $0.submenu?.title == "View" }?.submenu
+        let item = viewMenu?.items.first { $0.title == "Wide Content" }
+
+        XCTAssertEqual(item?.keyEquivalent, "w")
+        XCTAssertEqual(item?.keyEquivalentModifierMask, [.command, .shift])
+    }
 }
