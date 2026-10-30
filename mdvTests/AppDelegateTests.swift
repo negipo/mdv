@@ -205,15 +205,15 @@ final class AppDelegateTests: XCTestCase {
     }
 
     // ViewメニューにWide Content項目がTable of Contentsの直後に配置されている
-    func testViewMenuContainsWideContentAfterTableOfContents() {
+    func testViewMenuContainsWideContentAfterTableOfContents() throws {
         let mainMenu = NSApplication.shared.mainMenu
-        let viewMenu = mainMenu?.items.first { $0.submenu?.title == "View" }?.submenu
+        let viewMenu = try XCTUnwrap(mainMenu?.items.first { $0.submenu?.title == "View" }?.submenu)
 
-        let tocIndex = viewMenu?.indexOfItem(withTitle: "Table of Contents")
-        let wideIndex = viewMenu?.indexOfItem(withTitle: "Wide Content")
-        XCTAssertNotNil(tocIndex)
-        XCTAssertNotNil(wideIndex)
-        XCTAssertEqual(wideIndex, tocIndex! + 1)
+        let tocIndex = viewMenu.indexOfItem(withTitle: "Table of Contents")
+        let wideIndex = viewMenu.indexOfItem(withTitle: "Wide Content")
+        XCTAssertNotEqual(tocIndex, -1)
+        XCTAssertNotEqual(wideIndex, -1)
+        XCTAssertEqual(wideIndex, tocIndex + 1)
     }
 
     // Wide ContentのショートカットがCmd+Shift+Wになっている
