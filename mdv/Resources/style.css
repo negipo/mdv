@@ -80,6 +80,10 @@ body {
   padding: 2rem;
 }
 
+body.wide-content #content {
+  max-width: none;
+}
+
 body.toc-visible {
   padding-left: 250px;
 }
