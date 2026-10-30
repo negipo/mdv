@@ -6,6 +6,7 @@ class TitlebarTabsWindow: NSWindow {
     private var windowButtonsBackdrop: WindowButtonsBackdropView?
     private var windowDragHandle: WindowDragView?
     private var tocToggleButton: NSButton?
+    private var wideContentToggleButton: NSButton?
     private var helpButton: NSButton?
 
     override init(
@@ -106,12 +107,15 @@ class TitlebarTabsWindow: NSWindow {
             guard let windowButtonsBackdrop = self?.windowButtonsBackdrop else { return }
 
             self?.addTocToggleButton(titlebarView: titlebarView, toolbarView: toolbarView)
+            self?.addWideContentToggleButton(titlebarView: titlebarView, toolbarView: toolbarView)
             self?.addHelpButton(titlebarView: titlebarView, toolbarView: toolbarView)
 
             self?.addWindowDragHandle(titlebarView: titlebarView, toolbarView: toolbarView)
 
             let tabLeftAnchor: NSLayoutXAxisAnchor
-            if let tocButton = self?.tocToggleButton, tocButton.superview == titlebarView {
+            if let wideButton = self?.wideContentToggleButton, wideButton.superview == titlebarView {
+                tabLeftAnchor = wideButton.rightAnchor
+            } else if let tocButton = self?.tocToggleButton, tocButton.superview == titlebarView {
                 tabLeftAnchor = tocButton.rightAnchor
             } else {
                 tabLeftAnchor = windowButtonsBackdrop.rightAnchor
@@ -205,6 +209,43 @@ class TitlebarTabsWindow: NSWindow {
         tocToggleButton = button
     }
 
+    private func addWideContentToggleButton(titlebarView: NSView, toolbarView: NSView) {
+        guard wideContentToggleButton?.superview != titlebarView else { return }
+        wideContentToggleButton?.removeFromSuperview()
+        wideContentToggleButton = nil
+
+        guard let windowButtonsBackdrop else { return }
+
+        let button = NSButton(frame: .zero)
+        let config = NSImage.SymbolConfiguration(pointSize: 14, weight: .medium)
+        let icon = NSImage(
+            systemSymbolName: "arrow.left.and.right",
+            accessibilityDescription: "Wide Content"
+        )?.withSymbolConfiguration(config)
+        button.image = icon
+        button.contentTintColor = .labelColor
+        button.bezelStyle = .toolbar
+        button.setButtonType(.momentaryPushIn)
+        button.isBordered = false
+        button.target = nil
+        button.action = #selector(MarkdownWindowController.toggleWideContent(_:))
+        button.toolTip = "Wide Content"
+        button.identifier = NSUserInterfaceItemIdentifier("_wideContentToggleButton")
+        titlebarView.addSubview(button)
+
+        button.translatesAutoresizingMaskIntoConstraints = false
+        if let tocButton = tocToggleButton, tocButton.superview == titlebarView {
+            button.leftAnchor.constraint(equalTo: tocButton.rightAnchor).isActive = true
+        } else {
+            button.leftAnchor.constraint(equalTo: windowButtonsBackdrop.rightAnchor, constant: 4).isActive = true
+        }
+        button.centerYAnchor.constraint(equalTo: toolbarView.centerYAnchor).isActive = true
+        button.widthAnchor.constraint(equalToConstant: 36).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 28).isActive = true
+
+        wideContentToggleButton = button
+    }
+
     private func addHelpButton(titlebarView: NSView, toolbarView: NSView) {
         guard helpButton?.superview != titlebarView else { return }
         helpButton?.removeFromSuperview()
@@ -286,16 +327,13 @@ private class WindowDragView: NSView {
             return super.hitTest(point)
         }
 
-        if let tocButton = titlebarView.subviews.first(where: { $0.identifier?.rawValue == "_tocToggleButton" }) {
-            let pointInButton = tocButton.convert(point, from: superview)
-            if tocButton.bounds.contains(pointInButton) {
-                return nil
+        let buttonIdentifiers = ["_tocToggleButton", "_wideContentToggleButton", "_helpButton"]
+        for identifier in buttonIdentifiers {
+            guard let button = titlebarView.subviews.first(where: { $0.identifier?.rawValue == identifier }) else {
+                continue
             }
-        }
-
-        if let helpButton = titlebarView.subviews.first(where: { $0.identifier?.rawValue == "_helpButton" }) {
-            let pointInButton = helpButton.convert(point, from: superview)
-            if helpButton.bounds.contains(pointInButton) {
+            let pointInButton = button.convert(point, from: superview)
+            if button.bounds.contains(pointInButton) {
                 return nil
             }
         }
