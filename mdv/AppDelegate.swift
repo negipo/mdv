@@ -168,6 +168,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         withKeyWindowController { $0.toggleToc(nil) }
     }
 
+    @objc private func toggleWideContent(_ sender: Any?) {
+        withKeyWindowController { $0.toggleWideContent(nil) }
+    }
+
     @objc private func reloadContent(_ sender: Any?) {
         withKeyWindowController { $0.reloadFile() }
     }
@@ -367,6 +371,12 @@ extension AppDelegate {
             action: #selector(toggleTableOfContents(_:)),
             keyEquivalent: "t"
         )
+        let wideContent = menu.addItem(
+            withTitle: "Wide Content",
+            action: #selector(toggleWideContent(_:)),
+            keyEquivalent: "w"
+        )
+        wideContent.keyEquivalentModifierMask = [.command, .shift]
         menu.addItem(.separator())
         menu.addItem(withTitle: "Zoom In", action: #selector(zoomIn(_:)), keyEquivalent: "+")
         menu.addItem(withTitle: "Zoom Out", action: #selector(zoomOut(_:)), keyEquivalent: "-")

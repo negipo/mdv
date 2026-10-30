@@ -6,6 +6,7 @@ import { setupKeybindings } from "./keybindings";
 import { initHighlighter, renderMarkdown, setShikiTheme } from "./markdown";
 import { SearchManager } from "./search";
 import { TocManager } from "./toc";
+import { toggleWideContent } from "./wide-content";
 import { computeZoom, isDrag } from "./zoom";
 
 declare global {
@@ -15,6 +16,7 @@ declare global {
     toggleToc: () => void;
     showToc: () => void;
     hideToc: () => void;
+    toggleWideContent: () => void;
     handleEscape: () => void;
     getContextMenuInfo: () => {
       startLine: number | null;
@@ -116,6 +118,10 @@ window.showToc = () => {
 
 window.hideToc = () => {
   tocManager.hide();
+};
+
+window.toggleWideContent = () => {
+  toggleWideContent();
 };
 
 const overlay = document.createElement("div");

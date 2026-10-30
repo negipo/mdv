@@ -41,6 +41,10 @@ export function setupKeybindings(callbacks?: KeybindingsCallbacks): void {
         window.toggleToc();
         e.preventDefault();
         break;
+      case "w":
+        window.toggleWideContent();
+        e.preventDefault();
+        break;
       case "n":
         callbacks?.onSearchNext?.();
         e.preventDefault();

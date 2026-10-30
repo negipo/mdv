@@ -20,6 +20,7 @@ describe("keybindings", () => {
 
     window.showSearchBar = vi.fn();
     window.toggleToc = vi.fn();
+    window.toggleWideContent = vi.fn();
     window.scrollBy = vi.fn();
     window.scrollTo = vi.fn();
     Object.defineProperty(window, "innerHeight", {
@@ -115,6 +116,29 @@ describe("keybindings", () => {
     setupKeybindings();
     pressKey("t");
     expect(window.toggleToc).toHaveBeenCalled();
+  });
+
+  it("w toggles wide content", async () => {
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    pressKey("w");
+    expect(window.toggleWideContent).toHaveBeenCalled();
+  });
+
+  it("w is ignored while search input is focused", async () => {
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    searchInput.focus();
+    pressKey("w");
+    expect(window.toggleWideContent).not.toHaveBeenCalled();
+  });
+
+  it("w is ignored while mermaid overlay is active", async () => {
+    const { setupKeybindings } = await import("../js/keybindings");
+    setupKeybindings();
+    overlay.classList.add("active");
+    pressKey("w");
+    expect(window.toggleWideContent).not.toHaveBeenCalled();
   });
 
   it("n calls search next callback", async () => {
