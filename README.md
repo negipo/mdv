@@ -16,6 +16,7 @@ Useful as a preview tool for coding agents — add `mdv` to your AGENTS.md to le
 ### Navigation
 - Native macOS tab UI with cross-window tab dragging
 - Table of Contents sidebar
+- Wide content mode (titlebar button, `w`, or Cmd+Shift+W)
 - In-document search (Cmd+F)
 - Context menu and keyboard shortcuts for copying paths, line references, and file content
 

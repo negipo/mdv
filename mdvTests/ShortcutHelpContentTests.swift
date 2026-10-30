@@ -74,4 +74,11 @@ final class ShortcutHelpContentTests: XCTestCase {
             "Single-Key Shortcuts section should be preserved"
         )
     }
+
+    // Wide Contentのショートカットが単キーとメニューの両方で記載されている
+    func testWideContentShortcutsDocumented() {
+        let content = controller.generateShortcutHelpContent()
+        XCTAssertTrue(content.contains("| `w` | Toggle Wide Content |"))
+        XCTAssertTrue(content.contains("| `Cmd+Shift+W` | Wide Content |"))
+    }
 }

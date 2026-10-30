@@ -45,6 +45,7 @@ extension MarkdownWindowController {
 | `N` | Previous search result |
 | `q` | Close tab |
 | `t` | Toggle Table of Contents |
+| `w` | Toggle Wide Content |
 | `r` | Reload |
 | `c` | Copy Relative Path |
 | `C` | Copy Absolute Path |
@@ -69,6 +70,7 @@ extension MarkdownWindowController {
 | `Cmd+S` | \(sendMenuLabel) |
 | `Cmd+R` | Reload |
 | `Cmd+T` | Table of Contents |
+| `Cmd+Shift+W` | Wide Content |
 | `Cmd++` | Zoom In |
 | `Cmd+-` | Zoom Out |
 | `Cmd+0` | Actual Size |
